@@ -95,6 +95,16 @@
           }
         });
       }
+
+      // ✅ TEST FIRESTORE WRITE (Manual Check)
+      db.collection("test").add({
+        message: "Test write success",
+        createdAt: new Date()
+      }).then(() => {
+        console.log("✅ Manual test write to Firebase worked!");
+      }).catch((error) => {
+        console.error("❌ Manual test write failed:", error);
+      });
     </script>
   </body>
 </html>
