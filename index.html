@@ -35,6 +35,36 @@
       .btn:hover {
         background-color: #1359c8;
       }
+
+      /* ✅ Modal Styles */
+      #community-modal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #community-modal .modal-content {
+        background: white;
+        color: black;
+        padding: 30px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 400px;
+      }
+
+      #community-modal input,
+      #community-modal textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      }
     </style>
   </head>
   <body>
@@ -52,8 +82,20 @@
     <p>(Coming soon…)</p>
 
     <h2>🌐 Explore Communities</h2>
-    <button class="btn" onclick="alert('Coming soon!')">+ Join or Create</button>
+    <button class="btn" onclick="openCommunityModal()">+ Join or Create</button>
 
+    <!-- ✅ Modal HTML -->
+    <div id="community-modal">
+      <div class="modal-content">
+        <h2>Create a Community</h2>
+        <input id="community-name" type="text" placeholder="Community Name" />
+        <textarea id="community-summary" placeholder="Short Summary (optional)"></textarea>
+        <button class="btn" onclick="submitCommunity()">Create</button>
+        <button class="btn" style="background:#777; margin-left:10px;" onclick="closeCommunityModal()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- ✅ Scripts -->
     <script>
       const tg = window.Telegram.WebApp;
       const userInfo = tg?.initDataUnsafe?.user;
@@ -76,7 +118,6 @@
       // ✅ Save Telegram user to Firestore
       if (userInfo) {
         const userRef = db.collection("users").doc(userInfo.id.toString());
-
         userRef.get().then((doc) => {
           if (!doc.exists) {
             userRef.set({
@@ -96,7 +137,40 @@
         });
       }
 
-      // ✅ TEST FIRESTORE WRITE (Manual Check)
+      // ✅ Modal Control Functions
+      function openCommunityModal() {
+        document.getElementById("community-modal").style.display = "flex";
+      }
+
+      function closeCommunityModal() {
+        document.getElementById("community-modal").style.display = "none";
+      }
+
+      // ✅ Create Community Function
+      function submitCommunity() {
+        const name = document.getElementById("community-name").value.trim();
+        const summary = document.getElementById("community-summary").value.trim();
+
+        if (!name) {
+          alert("Please enter a community name.");
+          return;
+        }
+
+        db.collection("communities").add({
+          name,
+          summary,
+          createdBy: userInfo?.id || "anonymous",
+          createdAt: new Date()
+        }).then(() => {
+          alert("✅ Community created!");
+          closeCommunityModal();
+        }).catch((error) => {
+          alert("❌ Error creating community.");
+          console.error(error);
+        });
+      }
+
+      // 🔧 Manual Firestore test
       db.collection("test").add({
         message: "Test write success",
         createdAt: new Date()
