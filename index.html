@@ -8,7 +8,7 @@
     <!-- Telegram SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
 
@@ -18,6 +18,7 @@
         background-color: #0f0f0f;
         color: white;
         padding: 20px;
+        margin-bottom: 60px; /* Leave space for bottom nav */
       }
 
       .btn {
@@ -36,12 +37,13 @@
         background-color: #1359c8;
       }
 
-      /* ✅ Modal Styles */
       #community-modal {
         display: none;
         position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         background-color: rgba(0, 0, 0, 0.8);
         z-index: 9999;
         justify-content: center;
@@ -65,45 +67,91 @@
         border-radius: 6px;
         border: 1px solid #ccc;
       }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #1a1a1a;
+        display: flex;
+        justify-content: space-around;
+        border-top: 1px solid #333;
+        z-index: 10000;
+      }
+
+      .bottom-nav button {
+        flex: 1;
+        background: none;
+        color: white;
+        padding: 12px 0;
+        font-size: 14px;
+        border: none;
+      }
     </style>
   </head>
 
   <body>
-    <h1>🌊 Welcome to The Ark</h1>
-    <p id="welcome-message">Hello, guest!</p>
+    <div id="home" class="tab-content active">
+      <h1>🌊 Welcome to The Ark</h1>
+      <p id="welcome-message">Hello, guest!</p>
 
-    <h2>📌 Recommended Feed</h2>
-    <ul>
-      <li>🧠 AI in Healthcare</li>
-      <li>🌍 Climate Policy Scenarios</li>
-      <li>🪙 Bitcoin’s Energy Impact</li>
-    </ul>
+      <h2>📌 Recommended Feed</h2>
+      <ul>
+        <li>🧠 AI in Healthcare</li>
+        <li>🌍 Climate Policy Scenarios</li>
+        <li>🪙 Bitcoin’s Energy Impact</li>
+      </ul>
 
-    <h2>👥 Followed Feed</h2>
-    <p>(Coming soon…)</p>
+      <h2>👥 Followed Feed</h2>
+      <p>(Coming soon…)</p>
+    </div>
 
-    <h2>🌐 Explore Communities</h2>
-    <button class="btn" onclick="openCommunityModal()">+ Join or Create</button>
+    <div id="research" class="tab-content">
+      <h2>🔍 Research</h2>
+      <p>Coming soon…</p>
+    </div>
 
-    <!-- ✅ Modal HTML -->
-    <div id="community-modal">
-      <div class="modal-content">
-        <h2>Create a Community</h2>
-        <input id="community-name" type="text" placeholder="Community Name" />
-        <textarea id="community-summary" placeholder="Short Summary (optional)"></textarea>
-        <button class="btn" onclick="submitCommunity()">Create</button>
-        <button class="btn" style="background:#777; margin-left:10px;" onclick="closeCommunityModal()">Cancel</button>
+    <div id="communities" class="tab-content">
+      <h2>🌐 Explore Communities</h2>
+      <button class="btn" onclick="openCommunityModal()">+ Join or Create</button>
+      <div id="community-modal">
+        <div class="modal-content">
+          <h2>Create a Community</h2>
+          <input id="community-name" type="text" placeholder="Community Name" />
+          <textarea id="community-summary" placeholder="Short Summary (optional)"></textarea>
+          <button class="btn" onclick="submitCommunity()">Create</button>
+          <button class="btn" style="background:#777; margin-left:10px;" onclick="closeCommunityModal()">Cancel</button>
+        </div>
       </div>
     </div>
 
-    <!-- ✅ Firebase + App Logic -->
+    <div id="profile" class="tab-content">
+      <h2>👤 Profile</h2>
+      <p>Your info and settings will appear here.</p>
+    </div>
+
+    <div class="bottom-nav">
+      <button onclick="showTab('home')">🏠 Home</button>
+      <button onclick="showTab('research')">🔍 Research</button>
+      <button onclick="showTab('communities')">🌐 Communities</button>
+      <button onclick="showTab('profile')">👤 Profile</button>
+    </div>
+
     <script>
       const tg = window.Telegram.WebApp;
       const userInfo = tg?.initDataUnsafe?.user;
       const user = userInfo?.first_name || "guest";
       document.getElementById("welcome-message").innerText = `Hello, ${user}!`;
 
-      // ✅ Firebase Config
       const firebaseConfig = {
         apiKey: "AIzaSyBCU2YmXwyT1v5kmUp1HRyUqEQ8eY0n73M",
         authDomain: "the-ark-app-7bf83.firebaseapp.com",
@@ -116,7 +164,6 @@
       const app = firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
 
-      // ✅ Save Telegram User to Firestore
       if (userInfo) {
         const userRef = db.collection("users").doc(userInfo.id.toString());
         userRef.get().then((doc) => {
@@ -127,16 +174,11 @@
               username: userInfo.username || "",
               photoUrl: userInfo.photo_url || "",
               createdAt: new Date()
-            }).then(() => {
-              console.log("✅ User saved to Firebase");
-            }).catch((error) => {
-              console.error("❌ Error saving user:", error);
             });
           }
         });
       }
 
-      // ✅ Modal Control
       function openCommunityModal() {
         document.getElementById("community-modal").style.display = "flex";
       }
@@ -145,7 +187,6 @@
         document.getElementById("community-modal").style.display = "none";
       }
 
-      // ✅ Create Community
       function submitCommunity() {
         const name = document.getElementById("community-name").value.trim();
         const summary = document.getElementById("community-summary").value.trim();
@@ -160,19 +201,20 @@
           summary,
           createdBy: userInfo?.id || "anonymous",
           createdAt: new Date()
-        }).then(() => {
+        })
+        .then(() => {
           alert("✅ Community created!");
           closeCommunityModal();
-        }).catch((error) => {
+        })
+        .catch((error) => {
           alert("❌ Error: " + error.message);
           console.error(error);
         });
       }
 
-      // ✅ Real-Time Community Display
       const communityListEl = document.createElement("div");
-      communityListEl.style.marginTop = "40px";
-      document.body.appendChild(communityListEl);
+      communityListEl.style.marginTop = "20px";
+      document.getElementById("communities").appendChild(communityListEl);
 
       function renderCommunityCard(data) {
         const card = document.createElement("div");
@@ -202,6 +244,11 @@
           renderCommunityCard(doc.data());
         });
       });
+
+      function showTab(tabId) {
+        document.querySelectorAll(".tab-content").forEach((el) => el.classList.remove("active"));
+        document.getElementById(tabId).classList.add("active");
+      }
     </script>
   </body>
 </html>
