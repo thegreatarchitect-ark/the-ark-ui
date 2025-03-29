@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>The Ark</title>
+
+    <!-- Telegram SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- React + ReactDOM (CDN) -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+
+    <!-- Firebase SDKs (CDN) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore.js"></script>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- ✅ Initialize Firebase -->
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyBCU2YmXwyT1v5kmUp1HRyUqEQ8eY0n73M",
+        authDomain: "the-ark-app-7bf83.firebaseapp.com",
+        projectId: "the-ark-app-7bf83",
+        storageBucket: "the-ark-app-7bf83.appspot.com",
+        messagingSenderId: "838041964191",
+        appId: "1:838041964191:web:a91e9555e62d81f2ee84aa"
+      };
+
+      // Initialize Firebase
+      const app = firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+    </script>
+
+    <!-- ✅ Your Main App Code with Firebase User Saving -->
+    <script type="text/javascript">
+      const tg = window.Telegram?.WebApp || null;
+      const userInfo = tg?.initDataUnsafe?.user;
+      const user = userInfo?.first_name || "guest";
+
+      // ✅ Auto-save user to Firebase
+      if (userInfo) {
+        const userRef = db.collection("users").doc(userInfo.id.toString());
+
+        userRef.get().then((doc) => {
+          if (!doc.exists) {
+            userRef.set({
+              telegramId: userInfo.id,
+              firstName: userInfo.first_name,
+              username: userInfo.username || "",
+              photoUrl: userInfo.photo_url || "",
+              createdAt: new Date()
+            }).then(() => {
+              console.log("✅ New user saved to Firebase");
+            }).catch((error) => {
+              console.error("❌ Error saving user:", error);
+            });
+          } else {
+            console.log("👤 User already exists in Firebase");
+          }
+        });
+      }
+
+      // ✅ Render App UI
+      const App = () =>
+        React.createElement(
+          "div",
+          null,
+          React.createElement("h1", null, "🌊 Welcome to The Ark"),
+          React.createElement("p", null, `Hello, ${user}!`),
+          React.createElement("h2", null, "📌 Recommended Feed"),
+          React.createElement("ul", null,
+            React.createElement("li", null, "🧠 AI in Healthcare"),
+            React.createElement("li", null, "🌍 Climate Policy Scenarios"),
+            React.createElement("li", null, "🪙 Bitcoin’s Energy Impact")
+          ),
+          React.createElement("h2", null, "👥 Followed Feed"),
+          React.createElement("p", null, "(Coming soon…)"),
+          React.createElement("h2", null, "🌐 Explore Communities"),
+          React.createElement("button", {
+            onclick: () => alert("Coming soon!")
+          }, "+ Join or Create")
+        );
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(React.createElement(App));
+    </script>
+  </body>
+</html>
