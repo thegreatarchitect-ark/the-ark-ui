@@ -67,6 +67,7 @@
       }
     </style>
   </head>
+
   <body>
     <h1>🌊 Welcome to The Ark</h1>
     <p id="welcome-message">Hello, guest!</p>
@@ -95,14 +96,14 @@
       </div>
     </div>
 
-    <!-- ✅ Scripts -->
+    <!-- ✅ Firebase + App Logic -->
     <script>
       const tg = window.Telegram.WebApp;
       const userInfo = tg?.initDataUnsafe?.user;
       const user = userInfo?.first_name || "guest";
       document.getElementById("welcome-message").innerText = `Hello, ${user}!`;
 
-      // ✅ Firebase config
+      // ✅ Firebase Config
       const firebaseConfig = {
         apiKey: "AIzaSyBCU2YmXwyT1v5kmUp1HRyUqEQ8eY0n73M",
         authDomain: "the-ark-app-7bf83.firebaseapp.com",
@@ -115,7 +116,7 @@
       const app = firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
 
-      // ✅ Save Telegram user to Firestore
+      // ✅ Save Telegram User to Firestore
       if (userInfo) {
         const userRef = db.collection("users").doc(userInfo.id.toString());
         userRef.get().then((doc) => {
@@ -127,17 +128,15 @@
               photoUrl: userInfo.photo_url || "",
               createdAt: new Date()
             }).then(() => {
-              console.log("✅ New user saved to Firebase");
+              console.log("✅ User saved to Firebase");
             }).catch((error) => {
               console.error("❌ Error saving user:", error);
             });
-          } else {
-            console.log("👤 User already exists in Firebase");
           }
         });
       }
 
-      // ✅ Modal Control Functions
+      // ✅ Modal Control
       function openCommunityModal() {
         document.getElementById("community-modal").style.display = "flex";
       }
@@ -146,7 +145,7 @@
         document.getElementById("community-modal").style.display = "none";
       }
 
-      // ✅ Create Community Function (updated)
+      // ✅ Create Community
       function submitCommunity() {
         const name = document.getElementById("community-name").value.trim();
         const summary = document.getElementById("community-summary").value.trim();
@@ -165,24 +164,12 @@
           alert("✅ Community created!");
           closeCommunityModal();
         }).catch((error) => {
-          alert("❌ Error: " + error.message); // ✅ Clear error message shown to user
+          alert("❌ Error: " + error.message);
           console.error(error);
         });
       }
 
-      // 🔧 Manual Firestore test
-      db.collection("test").add({
-        message: "Test write success",
-        createdAt: new Date()
-      }).then(() => {
-        console.log("✅ Manual test write to Firebase worked!");
-      }).catch((error) => {
-        console.error("❌ Manual test write failed:", error);
-      });
-    </script>
-
-    <!-- ✅ Real-Time Community Cards Display -->
-    <script>
+      // ✅ Real-Time Community Display
       const communityListEl = document.createElement("div");
       communityListEl.style.marginTop = "40px";
       document.body.appendChild(communityListEl);
@@ -209,9 +196,8 @@
         communityListEl.appendChild(card);
       }
 
-      // 🔁 Real-time Firestore listener for communities
       db.collection("communities").onSnapshot((snapshot) => {
-        communityListEl.innerHTML = ""; // Clear current list
+        communityListEl.innerHTML = "";
         snapshot.forEach((doc) => {
           renderCommunityCard(doc.data());
         });
