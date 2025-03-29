@@ -146,7 +146,7 @@
         document.getElementById("community-modal").style.display = "none";
       }
 
-      // ✅ Create Community Function
+      // ✅ Create Community Function (updated)
       function submitCommunity() {
         const name = document.getElementById("community-name").value.trim();
         const summary = document.getElementById("community-summary").value.trim();
@@ -165,7 +165,7 @@
           alert("✅ Community created!");
           closeCommunityModal();
         }).catch((error) => {
-          alert("❌ Error creating community.");
+          alert("❌ Error: " + error.message); // ✅ Clear error message shown to user
           console.error(error);
         });
       }
@@ -180,7 +180,8 @@
         console.error("❌ Manual test write failed:", error);
       });
     </script>
-     <!-- ✅ Real-Time Community Cards Display -->
+
+    <!-- ✅ Real-Time Community Cards Display -->
     <script>
       const communityListEl = document.createElement("div");
       communityListEl.style.marginTop = "40px";
