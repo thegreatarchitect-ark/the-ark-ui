@@ -180,5 +180,41 @@
         console.error("❌ Manual test write failed:", error);
       });
     </script>
+     <!-- ✅ Real-Time Community Cards Display -->
+    <script>
+      const communityListEl = document.createElement("div");
+      communityListEl.style.marginTop = "40px";
+      document.body.appendChild(communityListEl);
+
+      function renderCommunityCard(data) {
+        const card = document.createElement("div");
+        card.style.background = "#1e1e1e";
+        card.style.borderRadius = "12px";
+        card.style.padding = "16px";
+        card.style.marginTop = "16px";
+        card.style.boxShadow = "0 2px 10px rgba(0,0,0,0.3)";
+
+        const name = document.createElement("h3");
+        name.innerText = `📘 ${data.name}`;
+        name.style.marginBottom = "8px";
+
+        const summary = document.createElement("p");
+        summary.innerText = data.summary || "No summary provided.";
+        summary.style.color = "#cccccc";
+        summary.style.fontSize = "14px";
+
+        card.appendChild(name);
+        card.appendChild(summary);
+        communityListEl.appendChild(card);
+      }
+
+      // 🔁 Real-time Firestore listener for communities
+      db.collection("communities").onSnapshot((snapshot) => {
+        communityListEl.innerHTML = ""; // Clear current list
+        snapshot.forEach((doc) => {
+          renderCommunityCard(doc.data());
+        });
+      });
+    </script>
   </body>
 </html>
