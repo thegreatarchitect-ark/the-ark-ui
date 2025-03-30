@@ -163,6 +163,11 @@
       <div id="community-list" style="margin-top:30px;"></div>
     </div>
 
+    <div id="my-communities" class="tab-content">
+      <h2>📁 My Communities</h2>
+      <div id="my-community-list" style="margin-top: 30px;"></div>
+    </div>
+
     <div id="profile" class="tab-content">
       <h2>👤 Profile</h2>
       <p>Your info and settings will appear here.</p>
@@ -172,6 +177,7 @@
       <button onclick="showTab('home')">🏠 Home</button>
       <button onclick="showTab('research')">🔍 Research</button>
       <button onclick="showTab('communities')">🌐 Communities</button>
+      <button onclick="showTab('my-communities')">📁 My Communities</button>
       <button onclick="showTab('profile')">👤 Profile</button>
     </div>
 
@@ -295,8 +301,36 @@
         });
       }
 
+      function loadMyCommunities() {
+        db.collection("communities")
+          .where("members", "array-contains", userInfo.id)
+          .onSnapshot((snapshot) => {
+            const container = document.getElementById("my-community-list");
+            container.innerHTML = "";
+            snapshot.forEach((doc) => renderMyCommunityCard(doc));
+          });
+      }
+
+      function renderMyCommunityCard(doc) {
+        const data = doc.data();
+
+        const card = document.createElement("div");
+        card.className = "community-card";
+
+        const name = document.createElement("h3");
+        name.innerText = `📘 ${data.name}`;
+
+        const summary = document.createElement("p");
+        summary.innerText = data.summary || "No summary provided.";
+
+        card.appendChild(name);
+        card.appendChild(summary);
+        document.getElementById("my-community-list").appendChild(card);
+      }
+
+      document.querySelector('button[onclick="showTab(\'my-communities\')"]').addEventListener("click", loadMyCommunities);
+
       loadCommunities();
     </script>
   </body>
 </html>
-
