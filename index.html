@@ -38,8 +38,13 @@
         box-shadow: 0 4px 20px rgba(0, 224, 255, 0.4);
       }
 
-      .tab-content { display: none; }
-      .tab-content.active { display: block; }
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
 
       #community-modal {
         display: none;
@@ -108,20 +113,30 @@
         box-shadow: 0 0 15px rgba(0, 224, 255, 0.2);
       }
 
-      .community-card h3 { color: #00e0ff; margin-bottom: 6px; }
-      .community-card p { font-size: 14px; color: #ccc; }
+      .community-card h3 {
+        color: #00e0ff;
+        margin-bottom: 6px;
+      }
+
+      .community-card p {
+        font-size: 14px;
+        color: #ccc;
+      }
     </style>
   </head>
+
   <body>
     <div id="home" class="tab-content active">
       <h1>🌊 Welcome to The Ark</h1>
       <p id="welcome-message">Hello, guest!</p>
+
       <h2>📌 Recommended Feed</h2>
       <ul>
         <li>🧠 AI in Healthcare</li>
         <li>🌍 Climate Policy Scenarios</li>
         <li>🪙 Bitcoin’s Energy Impact</li>
       </ul>
+
       <h2>👥 Followed Feed</h2>
       <p>(Coming soon…)</p>
     </div>
@@ -134,6 +149,8 @@
     <div id="communities" class="tab-content">
       <h2>🌐 Explore Communities</h2>
       <button class="btn" onclick="openCommunityModal()">+ Join or Create</button>
+      <button class="btn" onclick="toggleCommunityView()" id="toggle-view-btn">Show All Communities</button>
+
       <div id="community-modal">
         <div class="modal-content">
           <h2>Create a Community</h2>
@@ -143,6 +160,7 @@
           <button class="btn" style="background:#444; margin-left:10px;" onclick="closeCommunityModal()">Cancel</button>
         </div>
       </div>
+      <div id="community-list" style="margin-top:30px;"></div>
     </div>
 
     <div id="profile" class="tab-content">
@@ -190,6 +208,11 @@
         });
       }
 
+      function showTab(tabId) {
+        document.querySelectorAll(".tab-content").forEach((el) => el.classList.remove("active"));
+        document.getElementById(tabId).classList.add("active");
+      }
+
       function openCommunityModal() {
         document.getElementById("community-modal").style.display = "flex";
       }
@@ -211,24 +234,31 @@
           name,
           summary,
           createdBy: userInfo?.id || "anonymous",
-          members: [],
+          members: [userInfo?.id],
           createdAt: new Date()
-        }).then(() => {
+        })
+        .then(() => {
           alert("✅ Community created!");
           closeCommunityModal();
-        }).catch((error) => {
+        })
+        .catch((error) => {
           alert("❌ Error: " + error.message);
           console.error(error);
         });
       }
 
-      const communityListEl = document.createElement("div");
-      communityListEl.style.marginTop = "30px";
-      document.getElementById("communities").appendChild(communityListEl);
+      let showAll = false;
+
+      function toggleCommunityView() {
+        showAll = !showAll;
+        document.getElementById("toggle-view-btn").innerText = showAll ? "Show My Communities" : "Show All Communities";
+        loadCommunities();
+      }
 
       function renderCommunityCard(doc) {
         const data = doc.data();
-        const communityId = doc.id;
+        const hasJoined = data.members?.includes(userInfo.id);
+        if (!showAll && !hasJoined) return;
 
         const card = document.createElement("div");
         card.className = "community-card";
@@ -241,49 +271,32 @@
 
         const joinBtn = document.createElement("button");
         joinBtn.className = "btn";
-        joinBtn.innerText = "Join";
-        joinBtn.style.marginTop = "10px";
-
-        const userId = userInfo?.id;
-        const members = data.members || [];
-
-        if (members.includes(userId)) {
-          joinBtn.innerText = "Joined";
-          joinBtn.disabled = true;
-          joinBtn.style.background = "#444";
-        }
-
+        joinBtn.innerText = hasJoined ? "✅ Joined (Tap to Leave)" : "+ Join";
         joinBtn.onclick = () => {
-          if (!userId) return alert("User not recognized.");
-
-          db.collection("communities").doc(communityId).update({
-            members: firebase.firestore.FieldValue.arrayUnion(userId)
-          }).then(() => {
-            joinBtn.innerText = "Joined";
-            joinBtn.disabled = true;
-            joinBtn.style.background = "#444";
-          }).catch((err) => {
-            alert("❌ Error joining: " + err.message);
-          });
+          const ref = db.collection("communities").doc(doc.id);
+          if (hasJoined) {
+            ref.update({ members: firebase.firestore.FieldValue.arrayRemove(userInfo.id) });
+          } else {
+            ref.update({ members: firebase.firestore.FieldValue.arrayUnion(userInfo.id) });
+          }
         };
 
         card.appendChild(name);
         card.appendChild(summary);
         card.appendChild(joinBtn);
-        communityListEl.appendChild(card);
+        document.getElementById("community-list").appendChild(card);
       }
 
-      db.collection("communities").onSnapshot((snapshot) => {
-        communityListEl.innerHTML = "";
-        snapshot.forEach((doc) => {
-          renderCommunityCard(doc);
+      function loadCommunities() {
+        db.collection("communities").onSnapshot((snapshot) => {
+          const container = document.getElementById("community-list");
+          container.innerHTML = "";
+          snapshot.forEach((doc) => renderCommunityCard(doc));
         });
-      });
-
-      function showTab(tabId) {
-        document.querySelectorAll(".tab-content").forEach((el) => el.classList.remove("active"));
-        document.getElementById(tabId).classList.add("active");
       }
+
+      loadCommunities();
     </script>
   </body>
 </html>
+
