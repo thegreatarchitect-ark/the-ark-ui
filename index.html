@@ -204,6 +204,7 @@
       <button class="btn" style="background:#444; margin-left:10px;" onclick="closeAddCellModal()">Cancel</button>
     </div>
   </div>
+  
   <!-- Complex Builder Modal (Step-by-Step) -->
 <div id="complex-builder-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center;">
   <div class="modal-content">
@@ -312,6 +313,7 @@
       alert("Please provide a title and be inside a community.");
       return;
     }
+    console.log("Saving complex with cells:", newComplexCells);
     db.collection("complexes").add({
       name,
       summary,
@@ -321,17 +323,19 @@
     }).then(() => {
       alert("✅ Complex created!");
       closeComplexBuilder();
-      openDetailModal({ id: currentCommunityId, name });
+      // Give time for Firestore to sync, then refresh community view
+      setTimeout(() => openDetailModal({ id: currentCommunityId, name }), 800);
     });
   }
 </script>
 
-<!-- Replace openAddComplexModal with new builder -->
+<!-- Replace old complex modal logic -->
 <script>
   function openAddComplexModal() {
     openComplexBuilderModal();
   }
 </script>
+
 
 
   <!-- Continued from Part 1 -->
