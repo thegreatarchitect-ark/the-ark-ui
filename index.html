@@ -218,6 +218,26 @@
     </div>
   </div>
 
+  <!-- Cell Modal and Add Cell Modal for Complex System -->
+  <div id="cell-modal" class="modal-content" style="display:none;">
+    <div class="modal-content">
+      <h2 id="cell-modal-title">Cells in Complex</h2>
+      <div id="cell-list"></div>
+      <button class="btn" onclick="openAddCellModal()">➕ Add Cell</button>
+      <button class="btn" onclick="closeCellModal()">Close</button>
+    </div>
+  </div>
+
+  <div id="add-cell-modal" class="modal-content" style="display:none;">
+    <div class="modal-content">
+      <h2>Add a Cell</h2>
+      <input id="cell-title" type="text" placeholder="Cell Title" />
+      <textarea id="cell-content" placeholder="Content or Summary"></textarea>
+      <button class="btn" onclick="submitCell()">Add</button>
+      <button class="btn" style="background:#444; margin-left:10px;" onclick="closeAddCellModal()">Cancel</button>
+    </div>
+  </div>
+
   <!-- NAVIGATION BAR -->
   <div class="bottom-nav">
     <button onclick="showTab('home')">🏠</button>
@@ -227,7 +247,7 @@
     <button onclick="showTab('profile')">👤</button>
   </div>
 
-  <!-- FIREBASE + LOGIC -->
+    <!-- FIREBASE + LOGIC -->
   <script>
     const tg = window.Telegram.WebApp;
     const userInfo = tg?.initDataUnsafe?.user;
@@ -386,7 +406,60 @@
     }
 
     loadCommunities();
+
+    // ➕ COMPLEX CELL MODAL SCRIPT
+    let currentComplexId = null;
+
+    function openCellModal(complex, complexId) {
+      currentComplexId = complexId;
+      document.getElementById("cell-modal-title").innerText = `🧠 ${complex.name}`;
+      const list = document.getElementById("cell-list");
+      list.innerHTML = "";
+      if (complex.cells && complex.cells.length) {
+        complex.cells.forEach((cell) => {
+          const div = document.createElement("div");
+          div.className = "community-card";
+          div.innerHTML = `<h4>📄 ${cell.title}</h4><p>${cell.content?.slice(0, 100) || "No content"}</p>`;
+          list.appendChild(div);
+        });
+      } else {
+        list.innerHTML = "<p>No cells yet.</p>";
+      }
+      document.getElementById("cell-modal").style.display = "flex";
+    }
+
+    function closeCellModal() {
+      document.getElementById("cell-modal").style.display = "none";
+    }
+
+    function openAddCellModal() {
+      document.getElementById("add-cell-modal").style.display = "flex";
+    }
+
+    function closeAddCellModal() {
+      document.getElementById("add-cell-modal").style.display = "none";
+    }
+
+    function submitCell() {
+      const title = document.getElementById("cell-title").value.trim();
+      const content = document.getElementById("cell-content").value.trim();
+      if (!title || !currentComplexId) {
+        alert("Please provide a title and be inside a complex.");
+        return;
+      }
+      const newCell = { title, content };
+      const ref = db.collection("complexes").doc(currentComplexId);
+      ref.update({
+        cells: firebase.firestore.FieldValue.arrayUnion(newCell)
+      }).then(() => {
+        alert("✅ Cell added!");
+        closeAddCellModal();
+      }).catch((err) => {
+        alert("❌ Error: " + err.message);
+      });
+    }
   </script>
+
 </body>
 </html>
 
