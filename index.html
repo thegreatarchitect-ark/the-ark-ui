@@ -288,32 +288,45 @@
   }
 
   function openDetailModal(data) {
+    const feed = document.getElementById("complex-feed");
+    const detailModal = document.getElementById("detail-modal");
+
     currentCommunityId = data.id;
     document.getElementById("detail-name").innerText = `📘 ${data.name}`;
     document.getElementById("detail-summary").innerText = data.summary || "No summary provided.";
-    document.getElementById("detail-modal").style.display = "flex";
+    detailModal.style.display = "flex";
 
-    const feed = document.getElementById("complex-feed");
+    // Reset the feed container
     feed.innerHTML = "<p>Loading complexes...</p>";
 
+    // Add "Create Complex" button
+    const createBtn = document.createElement("button");
+    createBtn.className = "btn";
+    createBtn.innerText = "➕ Create Complex";
+    createBtn.onclick = openAddComplexModal;
+    feed.before(createBtn); // place above feed
+
+    // Load and show existing complexes
     db.collection("complexes")
       .where("communityId", "==", data.id)
       .get()
-      .then(snapshot => {
-        feed.innerHTML = "";
+      .then((snapshot) => {
         if (snapshot.empty) {
           feed.innerHTML = "<p>No complexes yet.</p>";
+          return;
         }
-        snapshot.forEach(doc => {
+
+        feed.innerHTML = "";
+        snapshot.forEach((doc) => {
           const complex = doc.data();
-          const div = document.createElement("div");
-          div.className = "community-card";
-          div.innerHTML = `
+          const box = document.createElement("div");
+          box.className = "community-card";
+          box.innerHTML = `
             <h3>🧠 ${complex.name}</h3>
-            <p>${complex.summary || "No summary"}</p>
+            <p>${complex.summary || "No summary."}</p>
             <button class="btn" onclick='openCellModal(${JSON.stringify(complex).replace(/"/g, "&quot;")}, "${doc.id}")'>Enter Complex</button>
           `;
-          feed.appendChild(div);
+          feed.appendChild(box);
         });
       });
   }
