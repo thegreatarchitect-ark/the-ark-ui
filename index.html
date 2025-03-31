@@ -21,10 +21,6 @@
       margin-bottom: 70px;
     }
 
-    h2 {
-      margin-top: 30px;
-    }
-
     .btn {
       background: linear-gradient(135deg, #1a73e8, #00e0ff);
       color: white;
@@ -101,8 +97,10 @@
     #detail-modal {
       display: none;
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       background-color: rgba(0, 0, 0, 0.85);
       z-index: 9999;
       justify-content: center;
@@ -129,45 +127,89 @@
       border: 1px solid #333;
     }
 
-    .complex-card {
-      background: #151515;
-      border: 1px solid #444;
-      padding: 14px;
-      border-radius: 10px;
-      margin-top: 10px;
-      font-size: 14px;
-      color: #ccc;
+    #complex-feed {
+      margin-top: 20px;
+      background: #111;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px dashed #333;
+      color: #999;
+      text-align: center;
+    }
+
+    #my-communities h2 {
+      font-size: 24px;
+      background: linear-gradient(to right, #00e0ff, #8a2be2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: pulse 3s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { opacity: 0.8; }
     }
 
     #my-community-list {
-      margin-top: 30px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (min-width: 600px) {
+      #my-community-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    #my-community-list .community-card {
+      border: 1px solid #00e0ff;
+      background: linear-gradient(135deg, #0d0d0d, #141414);
+      box-shadow: 0 0 12px rgba(0, 224, 255, 0.2);
     }
   </style>
 </head>
 
 <body>
 
-  <!-- HOME -->
+  <!-- HOME TAB -->
   <div id="home" class="tab-content active">
     <h1>🌊 Welcome to The Ark</h1>
     <p id="welcome-message">Hello, guest!</p>
+
+    <h2>📌 Recommended Feed</h2>
+    <ul>
+      <li>🧠 AI in Healthcare</li>
+      <li>🌍 Climate Policy Scenarios</li>
+      <li>🪙 Bitcoin’s Energy Impact</li>
+    </ul>
+
+    <h2>👥 Followed Feed</h2>
+    <p>(Coming soon…)</p>
   </div>
 
-  <!-- COMMUNITIES -->
+  <!-- RESEARCH TAB -->
+  <div id="research" class="tab-content">
+    <h2>🔍 Research</h2>
+    <p>Coming soon…</p>
+  </div>
+
+  <!-- COMMUNITIES TAB -->
   <div id="communities" class="tab-content">
     <h2>🌐 Explore Communities</h2>
     <button class="btn" onclick="openCommunityModal()">+ Join or Create</button>
     <button class="btn" onclick="toggleCommunityView()" id="toggle-view-btn">Show All Communities</button>
-    <div id="community-list"></div>
+    <div id="community-list" style="margin-top:30px;"></div>
   </div>
 
-  <!-- MY COMMUNITIES -->
+  <!-- MY COMMUNITIES TAB -->
   <div id="my-communities" class="tab-content">
     <h2>📁 My Communities</h2>
-    <div id="my-community-list"></div>
+    <div id="my-community-list" style="margin-top: 30px;"></div>
   </div>
 
-  <!-- PROFILE -->
+  <!-- PROFILE TAB -->
   <div id="profile" class="tab-content">
     <h2>👤 Profile</h2>
     <p>Your info and settings will appear here.</p>
@@ -184,30 +226,26 @@
     </div>
   </div>
 
-  <!-- DETAIL MODAL -->
+  <!-- COMMUNITY DETAIL MODAL -->
   <div id="detail-modal">
     <div class="modal-content">
-      <h2 id="detail-name">Community</h2>
+      <h2 id="detail-name">Community Name</h2>
       <p id="detail-summary">Summary will appear here.</p>
-      <h3>📦 Complex Feed</h3>
-      <div id="complex-feed">
-        <div class="complex-card">📘 Housing Data (example)</div>
-        <div class="complex-card">📘 Healthcare Trends (example)</div>
-        <div class="complex-card">📘 Education System (example)</div>
-      </div>
+      <div id="complex-feed">📦 Complex feed coming soon...</div>
       <button class="btn" onclick="closeDetailModal()">Close</button>
     </div>
   </div>
 
-  <!-- NAVIGATION -->
+  <!-- NAVIGATION BAR -->
   <div class="bottom-nav">
     <button onclick="showTab('home')">🏠 Home</button>
-    <button onclick="showTab('communities')">🌐 Communities</button>
+    <button onclick="showTab('research')">🔍 Research</button>
+    <button onclick="showTab('communities')">🌐 Explore</button>
     <button onclick="showTab('my-communities'); loadMyCommunities()">📁 My Communities</button>
     <button onclick="showTab('profile')">👤 Profile</button>
   </div>
 
-  <!-- SCRIPT -->
+  <!-- FIREBASE + LOGIC -->
   <script>
     const tg = window.Telegram.WebApp;
     const userInfo = tg?.initDataUnsafe?.user;
@@ -269,7 +307,7 @@
       const summary = document.getElementById("community-summary").value.trim();
 
       if (!name) {
-        alert("Please enter a name.");
+        alert("Please enter a community name.");
         return;
       }
 
@@ -332,7 +370,6 @@
 
     function renderMyCommunityCard(doc) {
       const data = doc.data();
-
       const card = document.createElement("div");
       card.className = "community-card";
       card.onclick = () => openDetailModal(data);
