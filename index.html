@@ -1,3 +1,4 @@
+<!-- ⬇️ START OF FULL CODE -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,16 +31,11 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 20px rgba(0, 224, 255, 0.4);
     }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
     .bottom-nav {
       position: fixed;
-      bottom: 0;
-      left: 0;
+      bottom: 0; left: 0;
       width: 100%;
       background: #121212;
       display: flex;
@@ -69,31 +65,24 @@
       transform: scale(1.02);
       box-shadow: 0 0 15px rgba(0, 224, 255, 0.2);
     }
-    .community-card h3 {
-      color: #00e0ff;
-      margin-bottom: 6px;
-    }
-    .community-card p {
-      font-size: 14px;
-      color: #ccc;
-    }
+    .community-card h3 { color: #00e0ff; margin-bottom: 6px; }
+    .community-card p { font-size: 14px; color: #ccc; }
+
     #community-modal,
     #detail-modal,
-    #complex-modal,
     #cell-modal,
     #add-cell-modal,
     #add-complex-modal {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background-color: rgba(0, 0, 0, 0.85);
       z-index: 9999;
       justify-content: center;
       align-items: center;
     }
+
     .modal-content {
       background: #1c1c1c;
       color: white;
@@ -102,6 +91,7 @@
       width: 90%;
       max-width: 420px;
     }
+
     .modal-content input,
     .modal-content textarea {
       width: 100%;
@@ -112,6 +102,7 @@
       border-radius: 6px;
       border: 1px solid #333;
     }
+
     #complex-feed {
       margin-top: 20px;
       background: #111;
@@ -121,345 +112,294 @@
       color: #999;
       text-align: center;
     }
-    #my-communities h2 {
-      font-size: 24px;
-      background: linear-gradient(to right, #00e0ff, #8a2be2);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: pulse 3s infinite ease-in-out;
-    }
-    @keyframes pulse {
-      0% { opacity: 0.8; }
-      50% { opacity: 1; }
-      100% { opacity: 0.8; }
-    }
-    #my-community-list {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 20px;
-    }
-    @media (min-width: 600px) {
-      #my-community-list {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-    #my-community-list .community-card {
-      border: 1px solid #00e0ff;
-      background: linear-gradient(135deg, #0d0d0d, #141414);
-      box-shadow: 0 0 12px rgba(0, 224, 255, 0.2);
-    }
   </style>
 </head>
 <body>
-<!-- FULL BODY CONTENT INSERTED ABOVE -->
-<!-- Everything is preserved. Complex system fully added. -->
 
+<!-- TABS -->
+<div id="home" class="tab-content active">
+  <h1>🌊 Welcome to The Ark</h1>
+  <p id="welcome-message">Hello, guest!</p>
+</div>
 
-  <!-- HOME TAB -->
-  <div id="home" class="tab-content active">
-    <h1>🌊 Welcome to The Ark</h1>
-    <p id="welcome-message">Hello, guest!</p>
+<div id="communities" class="tab-content">
+  <h2>🌐 Explore Communities</h2>
+  <button class="btn" onclick="openCommunityModal()">+ Join or Create</button>
+  <button class="btn" onclick="toggleCommunityView()" id="toggle-view-btn">Show All Communities</button>
+  <div id="community-list" style="margin-top:30px;"></div>
+</div>
 
-    <h2>📌 Recommended Feed</h2>
-    <ul>
-      <li>🧠 AI in Healthcare</li>
-      <li>🌍 Climate Policy Scenarios</li>
-      <li>🪙 Bitcoin’s Energy Impact</li>
-    </ul>
+<div id="my-communities" class="tab-content">
+  <h2>📁 My Communities</h2>
+  <div id="my-community-list" style="margin-top:30px;"></div>
+</div>
 
-    <h2>👥 Followed Feed</h2>
-    <p>(Coming soon…)</p>
+<div id="profile" class="tab-content">
+  <h2>👤 Profile</h2>
+  <p>Your info and settings will appear here.</p>
+</div>
+
+<!-- NAVIGATION BAR -->
+<div class="bottom-nav">
+  <button onclick="showTab('home')">🏠</button>
+  <button onclick="showTab('communities')">🌐</button>
+  <button onclick="showTab('my-communities'); loadMyCommunities()">🧬</button>
+  <button onclick="showTab('profile')">👤</button>
+</div>
+
+<!-- COMMUNITY MODALS -->
+<div id="community-modal">
+  <div class="modal-content">
+    <h2>Create a Community</h2>
+    <input id="community-name" type="text" placeholder="Community Name" />
+    <textarea id="community-summary" placeholder="Short Summary (optional)"></textarea>
+    <button class="btn" onclick="submitCommunity()">Create</button>
+    <button class="btn" style="background:#444;" onclick="closeCommunityModal()">Cancel</button>
   </div>
+</div>
 
-  <!-- RESEARCH TAB -->
-  <div id="research" class="tab-content">
-    <h2>🔍 Research</h2>
-    <p>Coming soon…</p>
+<div id="detail-modal">
+  <div class="modal-content">
+    <h2 id="detail-name">Community Name</h2>
+    <p id="detail-summary">Summary here</p>
+    <button class="btn" onclick="openAddComplexModal()">➕ Create Complex</button>
+    <div id="complex-feed">📦 Complex feed coming soon...</div>
+    <button class="btn" onclick="closeDetailModal()">Close</button>
   </div>
+</div>
 
-  <!-- COMMUNITIES TAB -->
-  <div id="communities" class="tab-content">
-    <h2>🌐 Explore Communities</h2>
-    <button class="btn" onclick="openCommunityModal()">+ Join or Create</button>
-    <button class="btn" onclick="toggleCommunityView()" id="toggle-view-btn">Show All Communities</button>
-    <div id="community-list" style="margin-top:30px;"></div>
+<!-- COMPLEX + CELL MODALS -->
+<div id="add-complex-modal" class="modal-content" style="display:none;">
+  <div class="modal-content">
+    <h2>Create a Complex</h2>
+    <input id="complex-title" type="text" placeholder="Complex Name" />
+    <textarea id="complex-summary" placeholder="Short Summary"></textarea>
+    <button class="btn" onclick="submitComplex()">Create</button>
+    <button class="btn" style="background:#444;" onclick="closeAddComplexModal()">Cancel</button>
   </div>
+</div>
 
-  <!-- MY COMMUNITIES TAB -->
-  <div id="my-communities" class="tab-content">
-    <h2>📁 My Communities</h2>
-    <div id="my-community-list" style="margin-top: 30px;"></div>
+<div id="cell-modal" class="modal-content" style="display:none;">
+  <div class="modal-content">
+    <h2 id="cell-modal-title">Cells in Complex</h2>
+    <div id="cell-list"></div>
+    <button class="btn" onclick="openAddCellModal()">➕ Add Cell</button>
+    <button class="btn" onclick="closeCellModal()">Close</button>
   </div>
+</div>
 
-  <!-- PROFILE TAB -->
-  <div id="profile" class="tab-content">
-    <h2>👤 Profile</h2>
-    <p>Your info and settings will appear here.</p>
+<div id="add-cell-modal" class="modal-content" style="display:none;">
+  <div class="modal-content">
+    <h2>Add a Cell</h2>
+    <input id="cell-title" type="text" placeholder="Cell Title" />
+    <textarea id="cell-content" placeholder="Content or Summary"></textarea>
+    <button class="btn" onclick="submitCell()">Add</button>
+    <button class="btn" style="background:#444;" onclick="closeAddCellModal()">Cancel</button>
   </div>
+</div>
 
-  <!-- CREATE COMMUNITY MODAL -->
-  <div id="community-modal">
-    <div class="modal-content">
-      <h2>Create a Community</h2>
-      <input id="community-name" type="text" placeholder="Community Name" />
-      <textarea id="community-summary" placeholder="Short Summary (optional)"></textarea>
-      <button class="btn" onclick="submitCommunity()">Create</button>
-      <button class="btn" style="background:#444; margin-left:10px;" onclick="closeCommunityModal()">Cancel</button>
-    </div>
-  </div>
+<!-- SCRIPT -->
+<script>
+  const tg = window.Telegram.WebApp;
+  const userInfo = tg?.initDataUnsafe?.user;
+  const user = userInfo?.first_name || "guest";
+  document.getElementById("welcome-message").innerText = `Hello, ${user}!`;
 
-  <!-- COMMUNITY DETAIL MODAL -->
-  <div id="detail-modal">
-    <div class="modal-content">
-      <h2 id="detail-name">Community Name</h2>
-      <p id="detail-summary">Summary will appear here.</p>
-      <div id="complex-feed">📦 Complex feed coming soon...</div>
-      <button class="btn" onclick="closeDetailModal()">Close</button>
-    </div>
-  </div>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBCU2YmXwyT1v5kmUp1HRyUqEQ8eY0n73M",
+    authDomain: "the-ark-app-7bf83.firebaseapp.com",
+    projectId: "the-ark-app-7bf83",
+    storageBucket: "the-ark-app-7bf83.appspot.com",
+    messagingSenderId: "838041964191",
+    appId: "1:838041964191:web:a91e9555e62d81f2ee84aa"
+  };
 
-  <!-- Cell Modal and Add Cell Modal for Complex System -->
-  <div id="cell-modal" class="modal-content" style="display:none;">
-    <div class="modal-content">
-      <h2 id="cell-modal-title">Cells in Complex</h2>
-      <div id="cell-list"></div>
-      <button class="btn" onclick="openAddCellModal()">➕ Add Cell</button>
-      <button class="btn" onclick="closeCellModal()">Close</button>
-    </div>
-  </div>
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-  <div id="add-cell-modal" class="modal-content" style="display:none;">
-    <div class="modal-content">
-      <h2>Add a Cell</h2>
-      <input id="cell-title" type="text" placeholder="Cell Title" />
-      <textarea id="cell-content" placeholder="Content or Summary"></textarea>
-      <button class="btn" onclick="submitCell()">Add</button>
-      <button class="btn" style="background:#444; margin-left:10px;" onclick="closeAddCellModal()">Cancel</button>
-    </div>
-  </div>
-
-  <!-- NAVIGATION BAR -->
-  <div class="bottom-nav">
-    <button onclick="showTab('home')">🏠</button>
-    <button onclick="showTab('research')">🔍</button>
-    <button onclick="showTab('communities')">🌐</button>
-    <button onclick="showTab('my-communities'); loadMyCommunities()">🧬</button>
-    <button onclick="showTab('profile')">👤</button>
-  </div>
-
-    <!-- FIREBASE + LOGIC -->
-  <script>
-    const tg = window.Telegram.WebApp;
-    const userInfo = tg?.initDataUnsafe?.user;
-    const user = userInfo?.first_name || "guest";
-    document.getElementById("welcome-message").innerText = `Hello, ${user}!`;
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBCU2YmXwyT1v5kmUp1HRyUqEQ8eY0n73M",
-      authDomain: "the-ark-app-7bf83.firebaseapp.com",
-      projectId: "the-ark-app-7bf83",
-      storageBucket: "the-ark-app-7bf83.appspot.com",
-      messagingSenderId: "838041964191",
-      appId: "1:838041964191:web:a91e9555e62d81f2ee84aa"
-    };
-
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    if (userInfo) {
-      const userRef = db.collection("users").doc(userInfo.id.toString());
-      userRef.get().then((doc) => {
-        if (!doc.exists) {
-          userRef.set({
-            telegramId: userInfo.id,
-            firstName: userInfo.first_name,
-            username: userInfo.username || "",
-            photoUrl: userInfo.photo_url || "",
-            createdAt: new Date()
-          });
-        }
-      });
-    }
-
-    function showTab(tabId) {
-      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-      document.getElementById(tabId).classList.add("active");
-    }
-
-    function openCommunityModal() {
-      document.getElementById("community-modal").style.display = "flex";
-    }
-
-    function closeCommunityModal() {
-      document.getElementById("community-modal").style.display = "none";
-    }
-
-    function openDetailModal(data) {
-      document.getElementById("detail-name").innerText = `📘 ${data.name}`;
-      document.getElementById("detail-summary").innerText = data.summary || "No summary provided.";
-      document.getElementById("detail-modal").style.display = "flex";
-    }
-
-    function closeDetailModal() {
-      document.getElementById("detail-modal").style.display = "none";
-    }
-
-    function submitCommunity() {
-      const name = document.getElementById("community-name").value.trim();
-      const summary = document.getElementById("community-summary").value.trim();
-
-      if (!name) {
-        alert("Please enter a community name.");
-        return;
-      }
-
-      db.collection("communities").add({
-        name,
-        summary,
-        createdBy: userInfo?.id || "anonymous",
-        members: [userInfo?.id],
-        createdAt: new Date()
-      }).then(() => {
-        alert("✅ Community created!");
-        closeCommunityModal();
-      }).catch((error) => {
-        alert("❌ Error: " + error.message);
-        console.error(error);
-      });
-    }
-
-    let showAll = false;
-
-    function toggleCommunityView() {
-      showAll = !showAll;
-      document.getElementById("toggle-view-btn").innerText = showAll ? "Show My Communities" : "Show All Communities";
-      loadCommunities();
-    }
-
-    function renderCommunityCard(doc) {
-      const data = doc.data();
-      const hasJoined = data.members?.includes(userInfo.id);
-      if (!showAll && !hasJoined) return;
-
-      const card = document.createElement("div");
-      card.className = "community-card";
-      card.onclick = () => openDetailModal(data);
-
-      const name = document.createElement("h3");
-      name.innerText = `📘 ${data.name}`;
-
-      const summary = document.createElement("p");
-      summary.innerText = data.summary || "No summary provided.";
-
-      const joinBtn = document.createElement("button");
-      joinBtn.className = "btn";
-      joinBtn.innerText = hasJoined ? "✅ Joined (Tap to Leave)" : "+ Join";
-      joinBtn.onclick = (e) => {
-        e.stopPropagation();
-        const ref = db.collection("communities").doc(doc.id);
-        if (hasJoined) {
-          ref.update({ members: firebase.firestore.FieldValue.arrayRemove(userInfo.id) });
-        } else {
-          ref.update({ members: firebase.firestore.FieldValue.arrayUnion(userInfo.id) });
-        }
-      };
-
-      card.appendChild(name);
-      card.appendChild(summary);
-      card.appendChild(joinBtn);
-      document.getElementById("community-list").appendChild(card);
-    }
-
-    function renderMyCommunityCard(doc) {
-      const data = doc.data();
-      const card = document.createElement("div");
-      card.className = "community-card";
-      card.onclick = () => openDetailModal(data);
-
-      const name = document.createElement("h3");
-      name.innerText = `📘 ${data.name}`;
-
-      const summary = document.createElement("p");
-      summary.innerText = data.summary || "No summary provided.";
-
-      card.appendChild(name);
-      card.appendChild(summary);
-      document.getElementById("my-community-list").appendChild(card);
-    }
-
-    function loadCommunities() {
-      db.collection("communities").onSnapshot((snapshot) => {
-        const container = document.getElementById("community-list");
-        container.innerHTML = "";
-        snapshot.forEach((doc) => renderCommunityCard(doc));
-      });
-    }
-
-    function loadMyCommunities() {
-      db.collection("communities")
-        .where("members", "array-contains", userInfo.id)
-        .onSnapshot((snapshot) => {
-          const container = document.getElementById("my-community-list");
-          container.innerHTML = "";
-          snapshot.forEach((doc) => renderMyCommunityCard(doc));
+  if (userInfo) {
+    const userRef = db.collection("users").doc(userInfo.id.toString());
+    userRef.get().then(doc => {
+      if (!doc.exists) {
+        userRef.set({
+          telegramId: userInfo.id,
+          firstName: userInfo.first_name,
+          createdAt: new Date()
         });
-    }
+      }
+    });
+  }
 
-    loadCommunities();
+  let showAll = false;
+  let currentCommunityId = null;
+  let currentComplexId = null;
 
-    // ➕ COMPLEX CELL MODAL SCRIPT
-    let currentComplexId = null;
+  function showTab(id) {
+    document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+  }
 
-    function openCellModal(complex, complexId) {
-      currentComplexId = complexId;
-      document.getElementById("cell-modal-title").innerText = `🧠 ${complex.name}`;
-      const list = document.getElementById("cell-list");
-      list.innerHTML = "";
-      if (complex.cells && complex.cells.length) {
-        complex.cells.forEach((cell) => {
+  function openCommunityModal() {
+    document.getElementById("community-modal").style.display = "flex";
+  }
+  function closeCommunityModal() {
+    document.getElementById("community-modal").style.display = "none";
+  }
+
+  function openAddComplexModal() {
+    document.getElementById("add-complex-modal").style.display = "flex";
+  }
+  function closeAddComplexModal() {
+    document.getElementById("add-complex-modal").style.display = "none";
+  }
+
+  function openAddCellModal() {
+    document.getElementById("add-cell-modal").style.display = "flex";
+  }
+  function closeAddCellModal() {
+    document.getElementById("add-cell-modal").style.display = "none";
+  }
+
+  function submitCommunity() {
+    const name = document.getElementById("community-name").value.trim();
+    const summary = document.getElementById("community-summary").value.trim();
+    if (!name) return alert("Name required");
+    db.collection("communities").add({
+      name, summary,
+      createdBy: userInfo?.id || "anon",
+      members: [userInfo?.id],
+      createdAt: new Date()
+    }).then(() => {
+      alert("✅ Community created!");
+      closeCommunityModal();
+    });
+  }
+
+  function renderCommunityCard(doc) {
+    const data = doc.data();
+    data.id = doc.id;
+    const hasJoined = data.members?.includes(userInfo.id);
+    if (!showAll && !hasJoined) return;
+    const card = document.createElement("div");
+    card.className = "community-card";
+    card.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary"}</p>`;
+    card.onclick = () => openDetailModal(data);
+    document.getElementById("community-list").appendChild(card);
+  }
+
+  function openDetailModal(data) {
+    currentCommunityId = data.id;
+    document.getElementById("detail-name").innerText = `📘 ${data.name}`;
+    document.getElementById("detail-summary").innerText = data.summary || "No summary provided.";
+    document.getElementById("detail-modal").style.display = "flex";
+
+    const feed = document.getElementById("complex-feed");
+    feed.innerHTML = "<p>Loading complexes...</p>";
+
+    db.collection("complexes")
+      .where("communityId", "==", data.id)
+      .get()
+      .then(snapshot => {
+        feed.innerHTML = "";
+        if (snapshot.empty) {
+          feed.innerHTML = "<p>No complexes yet.</p>";
+        }
+        snapshot.forEach(doc => {
+          const complex = doc.data();
           const div = document.createElement("div");
           div.className = "community-card";
-          div.innerHTML = `<h4>📄 ${cell.title}</h4><p>${cell.content?.slice(0, 100) || "No content"}</p>`;
-          list.appendChild(div);
+          div.innerHTML = `
+            <h3>🧠 ${complex.name}</h3>
+            <p>${complex.summary || "No summary"}</p>
+            <button class="btn" onclick='openCellModal(${JSON.stringify(complex).replace(/"/g, "&quot;")}, "${doc.id}")'>Enter Complex</button>
+          `;
+          feed.appendChild(div);
         });
-      } else {
-        list.innerHTML = "<p>No cells yet.</p>";
-      }
-      document.getElementById("cell-modal").style.display = "flex";
-    }
-
-    function closeCellModal() {
-      document.getElementById("cell-modal").style.display = "none";
-    }
-
-    function openAddCellModal() {
-      document.getElementById("add-cell-modal").style.display = "flex";
-    }
-
-    function closeAddCellModal() {
-      document.getElementById("add-cell-modal").style.display = "none";
-    }
-
-    function submitCell() {
-      const title = document.getElementById("cell-title").value.trim();
-      const content = document.getElementById("cell-content").value.trim();
-      if (!title || !currentComplexId) {
-        alert("Please provide a title and be inside a complex.");
-        return;
-      }
-      const newCell = { title, content };
-      const ref = db.collection("complexes").doc(currentComplexId);
-      ref.update({
-        cells: firebase.firestore.FieldValue.arrayUnion(newCell)
-      }).then(() => {
-        alert("✅ Cell added!");
-        closeAddCellModal();
-      }).catch((err) => {
-        alert("❌ Error: " + err.message);
       });
-    }
-  </script>
+  }
 
+  function closeDetailModal() {
+    document.getElementById("detail-modal").style.display = "none";
+  }
+
+  function submitComplex() {
+    const name = document.getElementById("complex-title").value.trim();
+    const summary = document.getElementById("complex-summary").value.trim();
+    if (!name || !currentCommunityId) return alert("Enter name and be inside a community");
+    db.collection("complexes").add({
+      name, summary,
+      communityId: currentCommunityId,
+      createdAt: new Date(),
+      cells: []
+    }).then(() => {
+      alert("✅ Complex created!");
+      closeAddComplexModal();
+      openDetailModal({ id: currentCommunityId });
+    });
+  }
+
+  function openCellModal(complex, complexId) {
+    currentComplexId = complexId;
+    document.getElementById("cell-modal-title").innerText = `🧠 ${complex.name}`;
+    const list = document.getElementById("cell-list");
+    list.innerHTML = "";
+    if (complex.cells?.length) {
+      complex.cells.forEach(cell => {
+        const div = document.createElement("div");
+        div.className = "community-card";
+        div.innerHTML = `<h4>📄 ${cell.title}</h4><p>${cell.content || ""}</p>`;
+        list.appendChild(div);
+      });
+    } else {
+      list.innerHTML = "<p>No cells yet.</p>";
+    }
+    document.getElementById("cell-modal").style.display = "flex";
+  }
+
+  function closeCellModal() {
+    document.getElementById("cell-modal").style.display = "none";
+  }
+
+  function submitCell() {
+    const title = document.getElementById("cell-title").value.trim();
+    const content = document.getElementById("cell-content").value.trim();
+    if (!title || !currentComplexId) return alert("Please enter a title");
+    const newCell = { title, content };
+    const ref = db.collection("complexes").doc(currentComplexId);
+    ref.update({
+      cells: firebase.firestore.FieldValue.arrayUnion(newCell)
+    }).then(() => {
+      alert("✅ Cell added!");
+      closeAddCellModal();
+    });
+  }
+
+  function toggleCommunityView() {
+    showAll = !showAll;
+    document.getElementById("toggle-view-btn").innerText = showAll ? "Show My Communities" : "Show All Communities";
+    loadCommunities();
+  }
+
+  function loadCommunities() {
+    db.collection("communities").onSnapshot(snapshot => {
+      const container = document.getElementById("community-list");
+      container.innerHTML = "";
+      snapshot.forEach(doc => renderCommunityCard(doc));
+    });
+  }
+
+  function loadMyCommunities() {
+    db.collection("communities").where("members", "array-contains", userInfo.id).onSnapshot(snapshot => {
+      const container = document.getElementById("my-community-list");
+      container.innerHTML = "";
+      snapshot.forEach(doc => renderCommunityCard(doc));
+    });
+  }
+
+  loadCommunities();
+</script>
 </body>
 </html>
+<!-- ⬆️ END OF FULL CODE -->
+
 
