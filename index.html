@@ -147,7 +147,12 @@
 
   <div id="my-communities" class="tab-content">
     <h2>📁 My Communities</h2>
-    <div id="my-community-list" style="margin-top:30px;"></div>
+
+    <h3>👑 Communities You Created</h3>
+    <div id="created-community-list" style="margin-bottom: 40px;"></div>
+
+    <h3>🧬 Communities You Joined</h3>
+    <div id="joined-community-list"></div>
   </div>
 
   <div id="profile" class="tab-content">
@@ -654,14 +659,40 @@
     }
 
     function loadMyCommunities() {
+      const createdContainer = document.getElementById("created-community-list");
+      const joinedContainer = document.getElementById("joined-community-list");
+
+      createdContainer.innerHTML = "";
+      joinedContainer.innerHTML = "";
+
       db.collection("communities")
         .where("members", "array-contains", userInfo.id)
         .onSnapshot((snapshot) => {
-          const container = document.getElementById("my-community-list");
-          container.innerHTML = "";
-          snapshot.forEach((doc) => renderMyCommunityCard(doc));
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            const card = document.createElement("div");
+            card.className = "community-card";
+            card.onclick = () => openDetailModal({ ...data, id: doc.id });
+
+          const name = document.createElement("h3");
+          name.innerText = `📘 ${data.name}`;
+
+          const summary = document.createElement("p");
+          summary.innerText = data.summary || "No summary provided.";
+
+          card.appendChild(name);
+          card.appendChild(summary);
+
+          // Split between created and joined
+          if (data.createdBy === userInfo.id) {
+            createdContainer.appendChild(card);
+          } else {
+            joinedContainer.appendChild(card);
+          }
         });
-    }
+      });
+  }
+
 
     loadCommunities();
   </script>
