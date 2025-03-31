@@ -1,336 +1,374 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>The Ark</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Ark</title>
 
-    <!-- Telegram SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Telegram SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <!-- Firebase SDKs (Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
 
-    <style>
-      body {
-        font-family: 'Segoe UI', sans-serif;
-        background-color: #0a0a0a;
-        color: white;
-        padding: 20px;
-        margin-bottom: 70px;
-      }
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0a0a0a;
+      color: white;
+      padding: 20px;
+      margin-bottom: 70px;
+    }
 
-      .btn {
-        background: linear-gradient(135deg, #1a73e8, #00e0ff);
-        color: white;
-        padding: 10px 20px;
-        font-size: 16px;
-        border: none;
-        border-radius: 10px;
-        margin-top: 20px;
-        cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.3s ease;
-      }
+    h2 {
+      margin-top: 30px;
+    }
 
-      .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(0, 224, 255, 0.4);
-      }
+    .btn {
+      background: linear-gradient(135deg, #1a73e8, #00e0ff);
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
 
-      .tab-content {
-        display: none;
-      }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0, 224, 255, 0.4);
+    }
 
-      .tab-content.active {
-        display: block;
-      }
+    .tab-content {
+      display: none;
+    }
 
-      #community-modal {
-        display: none;
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, 0.85);
-        z-index: 9999;
-        justify-content: center;
-        align-items: center;
-      }
+    .tab-content.active {
+      display: block;
+    }
 
-      #community-modal .modal-content {
-        background: #1c1c1c;
-        color: white;
-        padding: 24px;
-        border-radius: 14px;
-        width: 90%;
-        max-width: 420px;
-      }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #121212;
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid #333;
+      z-index: 10000;
+    }
 
-      #community-modal input,
-      #community-modal textarea {
-        width: 100%;
-        padding: 10px;
-        margin-top: 10px;
-        background: #121212;
-        color: white;
-        border-radius: 6px;
-        border: 1px solid #333;
-      }
+    .bottom-nav button {
+      flex: 1;
+      background: none;
+      color: white;
+      padding: 12px 0;
+      font-size: 14px;
+      border: none;
+    }
 
-      .bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background: #121212;
-        display: flex;
-        justify-content: space-around;
-        border-top: 1px solid #333;
-        z-index: 10000;
-      }
+    .community-card {
+      background: linear-gradient(135deg, #1a1a1a, #0e0e0e);
+      border: 1px solid #333;
+      border-radius: 14px;
+      padding: 18px;
+      margin-top: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
 
-      .bottom-nav button {
-        flex: 1;
-        background: none;
-        color: white;
-        padding: 12px 0;
-        font-size: 14px;
-        border: none;
-      }
+    .community-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 15px rgba(0, 224, 255, 0.2);
+    }
 
-      .community-card {
-        background: linear-gradient(135deg, #1a1a1a, #0e0e0e);
-        border: 1px solid #333;
-        border-radius: 14px;
-        padding: 18px;
-        margin-top: 20px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-        transition: transform 0.2s ease, box-shadow 0.3s ease;
-      }
+    .community-card h3 {
+      color: #00e0ff;
+      margin-bottom: 6px;
+    }
 
-      .community-card:hover {
-        transform: scale(1.02);
-        box-shadow: 0 0 15px rgba(0, 224, 255, 0.2);
-      }
+    .community-card p {
+      font-size: 14px;
+      color: #ccc;
+    }
 
-      .community-card h3 {
-        color: #00e0ff;
-        margin-bottom: 6px;
-      }
+    #community-modal,
+    #detail-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
 
-      .community-card p {
-        font-size: 14px;
-        color: #ccc;
-      }
-    </style>
-  </head>
+    .modal-content {
+      background: #1c1c1c;
+      color: white;
+      padding: 24px;
+      border-radius: 14px;
+      width: 90%;
+      max-width: 420px;
+    }
 
-  <body>
-    <div id="home" class="tab-content active">
-      <h1>🌊 Welcome to The Ark</h1>
-      <p id="welcome-message">Hello, guest!</p>
+    .modal-content input,
+    .modal-content textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      background: #121212;
+      color: white;
+      border-radius: 6px;
+      border: 1px solid #333;
+    }
 
-      <h2>📌 Recommended Feed</h2>
-      <ul>
-        <li>🧠 AI in Healthcare</li>
-        <li>🌍 Climate Policy Scenarios</li>
-        <li>🪙 Bitcoin’s Energy Impact</li>
-      </ul>
+    .complex-card {
+      background: #151515;
+      border: 1px solid #444;
+      padding: 14px;
+      border-radius: 10px;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #ccc;
+    }
 
-      <h2>👥 Followed Feed</h2>
-      <p>(Coming soon…)</p>
+    #my-community-list {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HOME -->
+  <div id="home" class="tab-content active">
+    <h1>🌊 Welcome to The Ark</h1>
+    <p id="welcome-message">Hello, guest!</p>
+  </div>
+
+  <!-- COMMUNITIES -->
+  <div id="communities" class="tab-content">
+    <h2>🌐 Explore Communities</h2>
+    <button class="btn" onclick="openCommunityModal()">+ Join or Create</button>
+    <button class="btn" onclick="toggleCommunityView()" id="toggle-view-btn">Show All Communities</button>
+    <div id="community-list"></div>
+  </div>
+
+  <!-- MY COMMUNITIES -->
+  <div id="my-communities" class="tab-content">
+    <h2>📁 My Communities</h2>
+    <div id="my-community-list"></div>
+  </div>
+
+  <!-- PROFILE -->
+  <div id="profile" class="tab-content">
+    <h2>👤 Profile</h2>
+    <p>Your info and settings will appear here.</p>
+  </div>
+
+  <!-- CREATE COMMUNITY MODAL -->
+  <div id="community-modal">
+    <div class="modal-content">
+      <h2>Create a Community</h2>
+      <input id="community-name" type="text" placeholder="Community Name" />
+      <textarea id="community-summary" placeholder="Short Summary (optional)"></textarea>
+      <button class="btn" onclick="submitCommunity()">Create</button>
+      <button class="btn" style="background:#444; margin-left:10px;" onclick="closeCommunityModal()">Cancel</button>
     </div>
+  </div>
 
-    <div id="research" class="tab-content">
-      <h2>🔍 Research</h2>
-      <p>Coming soon…</p>
-    </div>
-
-    <div id="communities" class="tab-content">
-      <h2>🌐 Explore Communities</h2>
-      <button class="btn" onclick="openCommunityModal()">+ Join or Create</button>
-      <button class="btn" onclick="toggleCommunityView()" id="toggle-view-btn">Show All Communities</button>
-
-      <div id="community-modal">
-        <div class="modal-content">
-          <h2>Create a Community</h2>
-          <input id="community-name" type="text" placeholder="Community Name" />
-          <textarea id="community-summary" placeholder="Short Summary (optional)"></textarea>
-          <button class="btn" onclick="submitCommunity()">Create</button>
-          <button class="btn" style="background:#444; margin-left:10px;" onclick="closeCommunityModal()">Cancel</button>
-        </div>
+  <!-- DETAIL MODAL -->
+  <div id="detail-modal">
+    <div class="modal-content">
+      <h2 id="detail-name">Community</h2>
+      <p id="detail-summary">Summary will appear here.</p>
+      <h3>📦 Complex Feed</h3>
+      <div id="complex-feed">
+        <div class="complex-card">📘 Housing Data (example)</div>
+        <div class="complex-card">📘 Healthcare Trends (example)</div>
+        <div class="complex-card">📘 Education System (example)</div>
       </div>
-      <div id="community-list" style="margin-top:30px;"></div>
+      <button class="btn" onclick="closeDetailModal()">Close</button>
     </div>
+  </div>
 
-    <div id="my-communities" class="tab-content">
-      <h2>📁 My Communities</h2>
-      <div id="my-community-list" style="margin-top: 30px;"></div>
-    </div>
+  <!-- NAVIGATION -->
+  <div class="bottom-nav">
+    <button onclick="showTab('home')">🏠 Home</button>
+    <button onclick="showTab('communities')">🌐 Communities</button>
+    <button onclick="showTab('my-communities'); loadMyCommunities()">📁 My Communities</button>
+    <button onclick="showTab('profile')">👤 Profile</button>
+  </div>
 
-    <div id="profile" class="tab-content">
-      <h2>👤 Profile</h2>
-      <p>Your info and settings will appear here.</p>
-    </div>
+  <!-- SCRIPT -->
+  <script>
+    const tg = window.Telegram.WebApp;
+    const userInfo = tg?.initDataUnsafe?.user;
+    const user = userInfo?.first_name || "guest";
+    document.getElementById("welcome-message").innerText = `Hello, ${user}!`;
 
-    <div class="bottom-nav">
-      <button onclick="showTab('home')">🏠 Home</button>
-      <button onclick="showTab('research')">🔍 Research</button>
-      <button onclick="showTab('communities')">🌐 Communities</button>
-      <button onclick="showTab('my-communities')">📁 My Communities</button>
-      <button onclick="showTab('profile')">👤 Profile</button>
-    </div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBCU2YmXwyT1v5kmUp1HRyUqEQ8eY0n73M",
+      authDomain: "the-ark-app-7bf83.firebaseapp.com",
+      projectId: "the-ark-app-7bf83",
+      storageBucket: "the-ark-app-7bf83.appspot.com",
+      messagingSenderId: "838041964191",
+      appId: "1:838041964191:web:a91e9555e62d81f2ee84aa"
+    };
 
-    <script>
-      const tg = window.Telegram.WebApp;
-      const userInfo = tg?.initDataUnsafe?.user;
-      const user = userInfo?.first_name || "guest";
-      document.getElementById("welcome-message").innerText = `Hello, ${user}!`;
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyBCU2YmXwyT1v5kmUp1HRyUqEQ8eY0n73M",
-        authDomain: "the-ark-app-7bf83.firebaseapp.com",
-        projectId: "the-ark-app-7bf83",
-        storageBucket: "the-ark-app-7bf83.appspot.com",
-        messagingSenderId: "838041964191",
-        appId: "1:838041964191:web:a91e9555e62d81f2ee84aa"
+    if (userInfo) {
+      const userRef = db.collection("users").doc(userInfo.id.toString());
+      userRef.get().then((doc) => {
+        if (!doc.exists) {
+          userRef.set({
+            telegramId: userInfo.id,
+            firstName: userInfo.first_name,
+            username: userInfo.username || "",
+            photoUrl: userInfo.photo_url || "",
+            createdAt: new Date()
+          });
+        }
+      });
+    }
+
+    function showTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+    }
+
+    function openCommunityModal() {
+      document.getElementById("community-modal").style.display = "flex";
+    }
+
+    function closeCommunityModal() {
+      document.getElementById("community-modal").style.display = "none";
+    }
+
+    function openDetailModal(data) {
+      document.getElementById("detail-name").innerText = `📘 ${data.name}`;
+      document.getElementById("detail-summary").innerText = data.summary || "No summary provided.";
+      document.getElementById("detail-modal").style.display = "flex";
+    }
+
+    function closeDetailModal() {
+      document.getElementById("detail-modal").style.display = "none";
+    }
+
+    function submitCommunity() {
+      const name = document.getElementById("community-name").value.trim();
+      const summary = document.getElementById("community-summary").value.trim();
+
+      if (!name) {
+        alert("Please enter a name.");
+        return;
+      }
+
+      db.collection("communities").add({
+        name,
+        summary,
+        createdBy: userInfo?.id || "anonymous",
+        members: [userInfo?.id],
+        createdAt: new Date()
+      }).then(() => {
+        alert("✅ Community created!");
+        closeCommunityModal();
+      }).catch((error) => {
+        alert("❌ Error: " + error.message);
+        console.error(error);
+      });
+    }
+
+    let showAll = false;
+
+    function toggleCommunityView() {
+      showAll = !showAll;
+      document.getElementById("toggle-view-btn").innerText = showAll ? "Show My Communities" : "Show All Communities";
+      loadCommunities();
+    }
+
+    function renderCommunityCard(doc) {
+      const data = doc.data();
+      const hasJoined = data.members?.includes(userInfo.id);
+      if (!showAll && !hasJoined) return;
+
+      const card = document.createElement("div");
+      card.className = "community-card";
+      card.onclick = () => openDetailModal(data);
+
+      const name = document.createElement("h3");
+      name.innerText = `📘 ${data.name}`;
+
+      const summary = document.createElement("p");
+      summary.innerText = data.summary || "No summary provided.";
+
+      const joinBtn = document.createElement("button");
+      joinBtn.className = "btn";
+      joinBtn.innerText = hasJoined ? "✅ Joined (Tap to Leave)" : "+ Join";
+      joinBtn.onclick = (e) => {
+        e.stopPropagation();
+        const ref = db.collection("communities").doc(doc.id);
+        if (hasJoined) {
+          ref.update({ members: firebase.firestore.FieldValue.arrayRemove(userInfo.id) });
+        } else {
+          ref.update({ members: firebase.firestore.FieldValue.arrayUnion(userInfo.id) });
+        }
       };
 
-      const app = firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
+      card.appendChild(name);
+      card.appendChild(summary);
+      card.appendChild(joinBtn);
+      document.getElementById("community-list").appendChild(card);
+    }
 
-      if (userInfo) {
-        const userRef = db.collection("users").doc(userInfo.id.toString());
-        userRef.get().then((doc) => {
-          if (!doc.exists) {
-            userRef.set({
-              telegramId: userInfo.id,
-              firstName: userInfo.first_name,
-              username: userInfo.username || "",
-              photoUrl: userInfo.photo_url || "",
-              createdAt: new Date()
-            });
-          }
-        });
-      }
+    function renderMyCommunityCard(doc) {
+      const data = doc.data();
 
-      function showTab(tabId) {
-        document.querySelectorAll(".tab-content").forEach((el) => el.classList.remove("active"));
-        document.getElementById(tabId).classList.add("active");
-      }
+      const card = document.createElement("div");
+      card.className = "community-card";
+      card.onclick = () => openDetailModal(data);
 
-      function openCommunityModal() {
-        document.getElementById("community-modal").style.display = "flex";
-      }
+      const name = document.createElement("h3");
+      name.innerText = `📘 ${data.name}`;
 
-      function closeCommunityModal() {
-        document.getElementById("community-modal").style.display = "none";
-      }
+      const summary = document.createElement("p");
+      summary.innerText = data.summary || "No summary provided.";
 
-      function submitCommunity() {
-        const name = document.getElementById("community-name").value.trim();
-        const summary = document.getElementById("community-summary").value.trim();
+      card.appendChild(name);
+      card.appendChild(summary);
+      document.getElementById("my-community-list").appendChild(card);
+    }
 
-        if (!name) {
-          alert("Please enter a community name.");
-          return;
-        }
+    function loadCommunities() {
+      db.collection("communities").onSnapshot((snapshot) => {
+        const container = document.getElementById("community-list");
+        container.innerHTML = "";
+        snapshot.forEach((doc) => renderCommunityCard(doc));
+      });
+    }
 
-        db.collection("communities").add({
-          name,
-          summary,
-          createdBy: userInfo?.id || "anonymous",
-          members: [userInfo?.id],
-          createdAt: new Date()
-        })
-        .then(() => {
-          alert("✅ Community created!");
-          closeCommunityModal();
-        })
-        .catch((error) => {
-          alert("❌ Error: " + error.message);
-          console.error(error);
-        });
-      }
-
-      let showAll = false;
-
-      function toggleCommunityView() {
-        showAll = !showAll;
-        document.getElementById("toggle-view-btn").innerText = showAll ? "Show My Communities" : "Show All Communities";
-        loadCommunities();
-      }
-
-      function renderCommunityCard(doc) {
-        const data = doc.data();
-        const hasJoined = data.members?.includes(userInfo.id);
-        if (!showAll && !hasJoined) return;
-
-        const card = document.createElement("div");
-        card.className = "community-card";
-
-        const name = document.createElement("h3");
-        name.innerText = `📘 ${data.name}`;
-
-        const summary = document.createElement("p");
-        summary.innerText = data.summary || "No summary provided.";
-
-        const joinBtn = document.createElement("button");
-        joinBtn.className = "btn";
-        joinBtn.innerText = hasJoined ? "✅ Joined (Tap to Leave)" : "+ Join";
-        joinBtn.onclick = () => {
-          const ref = db.collection("communities").doc(doc.id);
-          if (hasJoined) {
-            ref.update({ members: firebase.firestore.FieldValue.arrayRemove(userInfo.id) });
-          } else {
-            ref.update({ members: firebase.firestore.FieldValue.arrayUnion(userInfo.id) });
-          }
-        };
-
-        card.appendChild(name);
-        card.appendChild(summary);
-        card.appendChild(joinBtn);
-        document.getElementById("community-list").appendChild(card);
-      }
-
-      function loadCommunities() {
-        db.collection("communities").onSnapshot((snapshot) => {
-          const container = document.getElementById("community-list");
+    function loadMyCommunities() {
+      db.collection("communities")
+        .where("members", "array-contains", userInfo.id)
+        .onSnapshot((snapshot) => {
+          const container = document.getElementById("my-community-list");
           container.innerHTML = "";
-          snapshot.forEach((doc) => renderCommunityCard(doc));
+          snapshot.forEach((doc) => renderMyCommunityCard(doc));
         });
-      }
+    }
 
-      function loadMyCommunities() {
-        db.collection("communities")
-          .where("members", "array-contains", userInfo.id)
-          .onSnapshot((snapshot) => {
-            const container = document.getElementById("my-community-list");
-            container.innerHTML = "";
-            snapshot.forEach((doc) => renderMyCommunityCard(doc));
-          });
-      }
-
-      function renderMyCommunityCard(doc) {
-        const data = doc.data();
-
-        const card = document.createElement("div");
-        card.className = "community-card";
-
-        const name = document.createElement("h3");
-        name.innerText = `📘 ${data.name}`;
-
-        const summary = document.createElement("p");
-        summary.innerText = data.summary || "No summary provided.";
-
-        card.appendChild(name);
-        card.appendChild(summary);
-        document.getElementById("my-community-list").appendChild(card);
-      }
-
-      document.querySelector('button[onclick="showTab(\'my-communities\')"]').addEventListener("click", loadMyCommunities);
-
-      loadCommunities();
-    </script>
-  </body>
+    loadCommunities();
+  </script>
+</body>
 </html>
+
+
