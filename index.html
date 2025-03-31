@@ -205,6 +205,9 @@
     </div>
   </div>
 
+  <!-- Continued from Part 1 -->
+  <!-- Modals and Main Content were loaded above -->
+
   <!-- Bottom Navigation -->
   <div class="bottom-nav">
     <button onclick="showTab('home')">🏠</button>
@@ -250,6 +253,7 @@
 
     let currentCommunityId = null;
     let currentComplexId = null;
+    let currentComplexName = "";
     let showAll = false;
 
     function showTab(tabId) {
@@ -296,8 +300,7 @@
 
       db.collection("complexes")
         .where("communityId", "==", currentCommunityId)
-        .get()
-        .then((snapshot) => {
+        .onSnapshot((snapshot) => {
           if (snapshot.empty) {
             feed.innerHTML = "<p>No complexes yet.</p>";
             return;
@@ -311,6 +314,7 @@
             box.innerHTML = `
               <h3>🧠 ${complex.name}</h3>
               <p>${complex.summary || "No summary."}</p>
+              <div class="cell-count">${complex.cells?.length || 0} cells</div>
               <button class="btn" onclick='openCellModal(${JSON.stringify(complex).replace(/"/g, "&quot;")}, "${doc.id}")'>Enter Complex</button>
             `;
             feed.appendChild(box);
@@ -353,15 +357,16 @@
       }).then(() => {
         alert("✅ Complex created!");
         closeAddComplexModal();
-        openDetailModal({ id: currentCommunityId, name: currentCommunityId });
       });
     }
 
     function openCellModal(complex, complexId) {
       currentComplexId = complexId;
+      currentComplexName = complex.name;
       document.getElementById("cell-modal-title").innerText = `🧠 ${complex.name}`;
       const list = document.getElementById("cell-list");
       list.innerHTML = "";
+
       if (complex.cells && complex.cells.length) {
         complex.cells.forEach((cell) => {
           const div = document.createElement("div");
@@ -372,7 +377,30 @@
       } else {
         list.innerHTML = "<p>No cells yet.</p>";
       }
+
+      const backBtn = document.createElement("button");
+      backBtn.className = "btn";
+      backBtn.innerText = "🔙 Back to Community";
+      backBtn.onclick = () => {
+        closeCellModal();
+        openDetailModal({ id: currentCommunityId, name: currentComplexName });
+      };
+      list.appendChild(backBtn);
+
       document.getElementById("cell-modal").style.display = "flex";
+
+      db.collection("complexes").doc(currentComplexId).onSnapshot((doc) => {
+        const data = doc.data();
+        if (!data || !data.cells) return;
+        list.innerHTML = "";
+        data.cells.forEach((cell) => {
+          const div = document.createElement("div");
+          div.className = "community-card";
+          div.innerHTML = `<h4>📄 ${cell.title}</h4><p>${cell.content?.slice(0, 100) || "No content"}</p>`;
+          list.appendChild(div);
+        });
+        list.appendChild(backBtn);
+      });
     }
 
     function closeCellModal() {
@@ -390,7 +418,8 @@
       ref.update({
         cells: firebase.firestore.FieldValue.arrayUnion({ title, content })
       }).then(() => {
-        alert("✅ Cell added!");
+        document.getElementById("cell-title").value = "";
+        document.getElementById("cell-content").value = "";
         closeAddCellModal();
       });
     }
@@ -474,5 +503,4 @@
   </script>
 </body>
 </html>
-
 
