@@ -140,10 +140,21 @@
 
   <div id="communities" class="tab-content">
     <h2>🌐 Explore Communities</h2>
-    <button class="btn" onclick="openCommunityModal()">+ Join or Create</button>
-    <button class="btn" onclick="toggleCommunityView()" id="toggle-view-btn">Show All Communities</button>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+      <button class="btn" onclick="openCommunityModal()">+ Join or Create</button>
+    
+      <select id="community-sort" class="btn" style="background:#222; border:1px solid #333;" onchange="loadCommunities()">
+        <option value="newest">🆕 Newest</option>
+        <option value="members">👥 Most Members</option>
+      </select>
+
+      <button class="btn" onclick="toggleCommunityView()" id="toggle-view-btn">Show All Communities</button>
+    </div>
+
     <div id="community-list" style="margin-top:30px;"></div>
   </div>
+
 
   <div id="my-communities" class="tab-content">
     <h2>📁 My Communities</h2>
@@ -503,6 +514,7 @@
         summary,
         createdBy: userInfo?.id || "anonymous",
         members: [userInfo?.id],
+        memberCount: 1,
         createdAt: new Date()
       }).then(() => {
         alert("✅ Community created!");
@@ -651,12 +663,67 @@
     }
 
     function loadCommunities() {
-      db.collection("communities").onSnapshot((snapshot) => {
-        const container = document.getElementById("community-list");
-        container.innerHTML = "";
-        snapshot.forEach((doc) => renderCommunityCard(doc));
+      const container = document.getElementById("community-list");
+      container.innerHTML = "";
+
+      const sortBy = document.getElementById("community-sort")?.value || "newest";
+      let query = db.collection("communities");
+
+      if (sortBy === "newest") {
+        query = query.orderBy("createdAt", "desc");
+      } else if (sortBy === "members") {
+        query = query.orderBy("memberCount", "desc");
+      }
+
+      query.onSnapshot((snapshot) => {
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const hasJoined = data.members?.includes(userInfo.id);
+          if (!showAll && !hasJoined) return;
+
+          const card = document.createElement("div");
+          card.className = "community-card";
+          card.onclick = () => openDetailModal({ ...data, id: doc.id });
+
+          const name = document.createElement("h3");
+          name.innerText = `📘 ${data.name}`;
+
+          const summary = document.createElement("p");
+          summary.innerText = data.summary || "No summary provided.";
+
+          const count = document.createElement("p");
+          count.innerText = `👥 ${data.members?.length || 0} members`;
+          count.style.fontSize = "12px";
+          count.style.color = "#888";
+
+          const joinBtn = document.createElement("button");
+          joinBtn.className = "btn";
+          joinBtn.innerText = hasJoined ? "✅ Joined (Tap to Leave)" : "+ Join";
+          joinBtn.onclick = (e) => {
+            e.stopPropagation();
+            const ref = db.collection("communities").doc(doc.id);
+            if (hasJoined) {
+              ref.update({ 
+                members: firebase.firestore.FieldValue.arrayRemove(userInfo.id),
+                memberCount: firebase.firestore.FieldValue.increment(-1)
+              });
+            } else {
+              ref.update({ 
+                members: firebase.firestore.FieldValue.arrayUnion(userInfo.id),
+                memberCount: firebase.firestore.FieldValue.increment(1)
+              });
+            }
+          };
+
+          card.appendChild(name);
+          card.appendChild(summary);
+          card.appendChild(count);
+          card.appendChild(joinBtn);
+          container.appendChild(card);
+        });
       });
     }
+
 
     function loadMyCommunities() {
       const createdContainer = document.getElementById("created-community-list");
