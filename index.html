@@ -651,14 +651,9 @@
       if (Array.isArray(data.tags)) {
         data.tags.forEach(tag => {
           const tagEl = document.createElement("span");
+          tagEl.className = "tag-badge";
           tagEl.innerText = `#${tag}`;
-          tagEl.style.background = "#222";
-          tagEl.style.color = "#00e0ff";
-          tagEl.style.padding = "4px 8px";
-          tagEl.style.marginRight = "5px";
-          tagEl.style.borderRadius = "12px";
-          tagEl.style.fontSize = "12px";
-          tagEl.style.display = "inline-block";
+
           tagsContainer.appendChild(tagEl);
         });
       }
@@ -698,27 +693,21 @@
       const summary = document.createElement("p");
       summary.innerText = data.summary || "No summary provided.";
 
-      // ✅ Tags display
+      // ✅ Tags display with proper bubble styling
       const tagsContainer = document.createElement("div");
       tagsContainer.style.marginTop = "8px";
       if (Array.isArray(data.tags)) {
         data.tags.forEach(tag => {
           const tagEl = document.createElement("span");
+          tagEl.className = "tag-badge";
           tagEl.innerText = `#${tag}`;
-          tagEl.style.background = "#222";
-          tagEl.style.color = "#00e0ff";
-          tagEl.style.padding = "4px 8px";
-          tagEl.style.marginRight = "5px";
-          tagEl.style.borderRadius = "12px";
-          tagEl.style.fontSize = "12px";
-          tagEl.style.display = "inline-block";
           tagsContainer.appendChild(tagEl);
         });
       }
 
       card.appendChild(name);
+      card.appendChild(tagsContainer); // ✅ Show tags under the name
       card.appendChild(summary);
-      card.appendChild(tagsContainer); // ✅ Show tags under summary
 
       document.getElementById("my-community-list").appendChild(card);
     }
