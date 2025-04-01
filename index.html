@@ -120,6 +120,18 @@
       color: #999;
       text-align: center;
     }
+    .tag-badge {
+    display: inline-block;
+    background: #1a1a1a;
+    border: 1px solid #00e0ff;
+    color: #00e0ff;
+    padding: 4px 10px;
+    margin: 4px 4px 0 0;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
   </style>
 </head>
 <body>
@@ -177,6 +189,7 @@
       <h2>Create a Community</h2>
       <input id="community-name" type="text" placeholder="Community Name" />
       <textarea id="community-summary" placeholder="Short Summary (optional)"></textarea>
+      <input id="community-tags" type="text" placeholder="Tags (comma separated, e.g. ai,health,data)" />
       <button class="btn" onclick="submitCommunity()">Create</button>
       <button class="btn" style="background:#444; margin-left:10px;" onclick="closeCommunityModal()">Cancel</button>
     </div>
@@ -505,6 +518,9 @@
     function submitCommunity() {
       const name = document.getElementById("community-name").value.trim();
       const summary = document.getElementById("community-summary").value.trim();
+      const tagsInput = document.getElementById("community-tags").value.trim();
+      const tags = tagsInput ? tagsInput.split(",").map(t => t.trim()).filter(Boolean) : [];
+
       if (!name) {
         alert("Please enter a community name.");
         return;
@@ -515,6 +531,7 @@
         createdBy: userInfo?.id || "anonymous",
         members: [userInfo?.id],
         memberCount: 1,
+        tags,
         createdAt: new Date()
       }).then(() => {
         alert("✅ Community created!");
@@ -626,6 +643,24 @@
       const summary = document.createElement("p");
       summary.innerText = data.summary || "No summary provided.";
 
+  // ✅ Tags display
+      const tagsContainer = document.createElement("div");
+      tagsContainer.style.marginTop = "8px";
+      if (Array.isArray(data.tags)) {
+        data.tags.forEach(tag => {
+          const tagEl = document.createElement("span");
+          tagEl.innerText = `#${tag}`;
+          tagEl.style.background = "#222";
+          tagEl.style.color = "#00e0ff";
+          tagEl.style.padding = "4px 8px";
+          tagEl.style.marginRight = "5px";
+          tagEl.style.borderRadius = "12px";
+          tagEl.style.fontSize = "12px";
+          tagEl.style.display = "inline-block";
+          tagsContainer.appendChild(tagEl);
+        });
+      }
+
       const joinBtn = document.createElement("button");
       joinBtn.className = "btn";
       joinBtn.innerText = hasJoined ? "✅ Joined (Tap to Leave)" : "+ Join";
@@ -641,12 +676,16 @@
 
       card.appendChild(name);
       card.appendChild(summary);
+      card.appendChild(tagsContainer);
       card.appendChild(joinBtn);
+
       document.getElementById("community-list").appendChild(card);
     }
 
+
     function renderMyCommunityCard(doc) {
       const data = doc.data();
+
       const card = document.createElement("div");
       card.className = "community-card";
       card.onclick = () => openDetailModal({ ...data, id: doc.id });
@@ -657,10 +696,31 @@
       const summary = document.createElement("p");
       summary.innerText = data.summary || "No summary provided.";
 
+      // ✅ Tags display
+      const tagsContainer = document.createElement("div");
+      tagsContainer.style.marginTop = "8px";
+      if (Array.isArray(data.tags)) {
+        data.tags.forEach(tag => {
+          const tagEl = document.createElement("span");
+          tagEl.innerText = `#${tag}`;
+          tagEl.style.background = "#222";
+          tagEl.style.color = "#00e0ff";
+          tagEl.style.padding = "4px 8px";
+          tagEl.style.marginRight = "5px";
+          tagEl.style.borderRadius = "12px";
+          tagEl.style.fontSize = "12px";
+          tagEl.style.display = "inline-block";
+          tagsContainer.appendChild(tagEl);
+        });
+      }
+
       card.appendChild(name);
       card.appendChild(summary);
+      card.appendChild(tagsContainer); // ✅ Show tags under summary
+
       document.getElementById("my-community-list").appendChild(card);
     }
+
 
     function loadCommunities() {
       const container = document.getElementById("community-list");
