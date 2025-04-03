@@ -484,12 +484,35 @@
       document.getElementById("detail-modal").style.display = "none";
     }
 
+    
     function openDetailModal(data) {
       currentCommunityId = data.id || data.name;
       document.getElementById("detail-name").innerText = `📘 ${data.name}`;
       document.getElementById("detail-summary").innerText = data.summary || "No summary provided.";
       document.getElementById("detail-modal").style.display = "flex";
 
+      // Remove previous tags if present
+      const existingTags = document.getElementById("detail-tags");
+      if (existingTags) existingTags.remove();
+
+      // ✅ Display Tags
+      const tagsContainer = document.createElement("div");
+      tagsContainer.id = "detail-tags";
+      tagsContainer.style.margin = "10px 0";
+
+      if (Array.isArray(data.tags)) {
+        data.tags.forEach(tag => {
+          const tagEl = document.createElement("span");
+          tagEl.className = "tag-badge";
+          tagEl.innerText = `#${tag}`;
+          tagsContainer.appendChild(tagEl);
+        });
+      }
+
+      // Insert right under the summary
+      document.getElementById("detail-summary").insertAdjacentElement("afterend", tagsContainer);
+
+      // Load Complexes
       const feed = document.getElementById("complex-feed");
       feed.innerHTML = "<p>Loading complexes...</p>";
 
@@ -516,6 +539,7 @@
           });
         });
     }
+
 
     function submitCommunity() {
       const name = document.getElementById("community-name").value.trim();
