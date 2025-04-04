@@ -133,6 +133,14 @@
       font-weight: 500;
     }
 
+    .profile-section {
+      margin-top: 30px;
+      background: #111;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid #333;
+    }
+
   </style>
 </head>
 <body>
@@ -180,10 +188,37 @@
   </div>
 
   <div id="profile" class="tab-content">
-    <h2>👤 Profile</h2>
-    <p>Your settings will appear here.</p>
+    <div style="text-align: center; margin-bottom: 20px;">
+      <img id="profile-photo" src="" alt="Profile Photo" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #00e0ff;" />
+      <h2 id="profile-name">👤 Username</h2>
+      <p id="profile-bio" style="color: #aaa;">Member of The Ark</p>
+    </div>
+
+    <div class="profile-section">
+      <h3>📦 Complexes You Created</h3>
+      <div id="user-complexes"></div>
+    </div>
+
+    <div class="profile-section">
+      <h3>👑 Communities You Created</h3>
+      <div id="user-created-communities"></div>
+    </div>
+
+    <div class="profile-section">
+      <h3>🧬 Communities You Joined</h3>
+      <div id="user-joined-communities"></div>
+    </div>
+
+    <div class="profile-section" style="margin-top: 40px;">
+      <h3>📊 Your Stats</h3>
+      <p id="user-stats" style="color: #ccc;">Loading...</p>
+    </div>
   </div>
 
+
+
+
+  
   <!-- Modals -->
   <div id="community-modal">
     <div class="modal-content">
@@ -798,6 +833,81 @@
         });
       });
     }
+
+    function loadUserProfile() {
+      // Show basic Telegram info
+      document.getElementById("profile-name").innerText = userInfo.first_name || "User";
+      if (userInfo.photo_url) {
+        document.getElementById("profile-photo").src = userInfo.photo_url;
+      }
+
+      const complexContainer = document.getElementById("user-complexes");
+      const createdCommContainer = document.getElementById("user-created-communities");
+      const joinedCommContainer = document.getElementById("user-joined-communities");
+      const statsEl = document.getElementById("user-stats");
+
+      complexContainer.innerHTML = "";
+      createdCommContainer.innerHTML = "";
+      joinedCommContainer.innerHTML = "";
+      statsEl.innerHTML = "Loading...";
+
+      let complexCount = 0;
+      let createdCommCount = 0;
+      let joinedCommCount = 0;
+
+      // 🧠 Complexes Created
+      db.collection("complexes").where("createdBy", "==", userInfo.id).onSnapshot(snapshot => {
+        complexContainer.innerHTML = "";
+        complexCount = snapshot.size;
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const box = document.createElement("div");
+          box.className = "community-card";
+          box.innerHTML = `<h3>🧠 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
+          complexContainer.appendChild(box);
+        });
+        updateStats();
+      });
+
+      // 👑 Communities Created
+      db.collection("communities").where("createdBy", "==", userInfo.id).onSnapshot(snapshot => {
+        createdCommContainer.innerHTML = "";
+        createdCommCount = snapshot.size;
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const box = document.createElement("div");
+          box.className = "community-card";
+          box.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
+          createdCommContainer.appendChild(box);
+        });
+        updateStats();
+      });
+
+      // 🧬 Communities Joined
+      db.collection("communities").where("members", "array-contains", userInfo.id).onSnapshot(snapshot => {
+        joinedCommContainer.innerHTML = "";
+        joinedCommCount = snapshot.size;
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          // Skip if already counted as creator
+          if (data.createdBy === userInfo.id) return;
+          const box = document.createElement("div");
+          box.className = "community-card";
+          box.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
+          joinedCommContainer.appendChild(box);
+        });
+        updateStats();
+      });
+
+  function updateStats() {
+    statsEl.innerHTML = `
+      📦 ${complexCount} complexes<br>
+      👑 ${createdCommCount} communities created<br>
+      🧬 ${joinedCommCount} communities joined
+    `;
+  }
+}
+
 
 
     function loadMyCommunities() {
