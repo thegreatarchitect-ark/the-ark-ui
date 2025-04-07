@@ -219,6 +219,16 @@
   <div id="home" class="tab-content active">
     <h1>🌊 Welcome to The Ark</h1>
     <p id="welcome-message">Hello, guest!</p>
+    <!-- 🌟 Hero Banner -->
+    <div style="text-align: center; margin-top: 20px; margin-bottom: 30px;">
+      <h1 style="font-size: 32px; background: linear-gradient(135deg, #00e0ff, #1a73e8); -webkit-background-clip: text; color: transparent;">
+        🌊 The Ark: Rise Above the Flood
+      </h1>
+      <p style="color: #ccc; font-size: 14px; margin-top: 10px; font-style: italic;">
+        Building a world of knowledge, one cell at a time.
+      </p>
+    </div>
+
     <h2>📌 Recommended Feed</h2>
     <h2>📦 Featured Complexes</h2>
     <div id="home-complex-list"></div>
@@ -761,10 +771,41 @@
 
       if (complex.cells && complex.cells.length) {
         complex.cells.forEach((cell) => {
-          const div = document.createElement("div");
-          div.className = "community-card";
-          div.innerHTML = `<h4>📄 ${cell.title}</h4><p>${cell.content?.slice(0, 100) || "No content"}</p>`;
-          list.appendChild(div);
+          const grid = document.createElement("div");
+          grid.style.display = "grid";
+          grid.style.gridTemplateColumns = "1fr 1fr";
+          grid.style.gap = "10px";
+          grid.style.marginTop = "10px";
+
+          complex.cells.forEach((cell) => {
+            const card = document.createElement("div");
+            card.style.background = "#111";
+            card.style.border = "1px solid #333";
+            card.style.borderRadius = "12px";
+            card.style.padding = "12px";
+            card.style.height = "150px";
+            card.style.overflow = "hidden";
+
+            const title = document.createElement("h4");
+            title.innerText = `📄 ${cell.title}`;
+            title.style.color = "#00e0ff";
+            title.style.fontSize = "14px";
+            title.style.marginBottom = "6px";
+
+            const content = document.createElement("p");
+            content.innerText = cell.content?.slice(0, 100) || "No content";
+            content.style.fontSize = "12px";
+            content.style.color = "#ccc";
+
+            card.appendChild(title);
+            card.appendChild(content);
+            grid.appendChild(card);
+          });
+
+          list.innerHTML = "";
+          list.appendChild(grid);
+          list.appendChild(backBtn);
+
         });
       } else {
         list.innerHTML = "<p>No cells yet.</p>";
