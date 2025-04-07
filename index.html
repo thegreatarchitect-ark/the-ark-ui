@@ -220,6 +220,9 @@
     <h1>🌊 Welcome to The Ark</h1>
     <p id="welcome-message">Hello, guest!</p>
     <h2>📌 Recommended Feed</h2>
+    <h2>📦 Featured Complexes</h2>
+    <div id="home-complex-list"></div>
+
     <ul>
       <li>🧠 AI in Healthcare</li>
       <li>🌍 Climate Policy Scenarios</li>
@@ -582,6 +585,10 @@
     function showTab(tabId) {
       document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
       document.getElementById(tabId).classList.add("active");
+
+      if (tabId === "home") {
+        loadHomeComplexes();
+      }
     }
 
     function openCommunityModal() {
@@ -672,6 +679,35 @@
         });
     }
 
+    function loadHomeComplexes() {
+      const container = document.getElementById("home-complex-list");
+      container.innerHTML = "<p>Loading featured complexes...</p>";
+
+      db.collection("complexes")
+        .orderBy("createdAt", "desc")
+        .limit(3)
+        .onSnapshot(snapshot => {
+          container.innerHTML = "";
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const card = document.createElement("div");
+            card.className = "complex-card";
+            card.innerHTML = `
+              <h2>🧠 ${data.name}</h2>
+              <p class="complex-summary">${data.summary || "No summary."}</p>
+              <div class="complex-buttons">
+                <button class="btn-complex" onclick='openCellModal(${JSON.stringify(data).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
+                <button class="btn-outline">🔗 Share</button>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+
+          if (container.innerHTML === "") {
+            container.innerHTML = "<p>No featured complexes yet.</p>";
+          }
+        });
+    }
 
     function submitCommunity() {
       const name = document.getElementById("community-name").value.trim();
