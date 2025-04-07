@@ -140,128 +140,75 @@
       padding: 16px;
       border: 1px solid #333;
     }
-
-    /* Vertical Complex Card */
-    .complex-card {
-      width: 100%;
-      max-width: 380px;
-      margin: 0 auto;
-      height: 480px;
-      background: linear-gradient(180deg, #101010, #0a0a0a);
-      border: 2px solid #00e0ff;
-      border-radius: 20px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 0 25px rgba(0, 224, 255, 0.2);
-      transition: transform 0.2s ease, box-shadow 0.3s ease;
-    }
-    .complex-card:hover {
-      transform: scale(1.01);
-      box-shadow: 0 0 35px rgba(0, 224, 255, 0.4);
-    }
-    .complex-card h2 {
-      font-size: 22px;
-      color: #00e0ff;
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    .complex-summary {
-      color: #ccc;
-      font-size: 14px;
-      text-align: center;
-      margin: 0 auto;
-      max-height: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .complex-buttons {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 20px;
-    }
-    .btn-complex {
-      background: #00e0ff;
-      color: black;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 12px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .btn-outline {
-      background: none;
-      border: 1px solid #00e0ff;
-      color: #00e0ff;
-      padding: 10px 18px;
-      border-radius: 12px;
-      cursor: pointer;
-    }
-    .btn-complex:hover,
-    .btn-outline:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 12px rgba(0, 224, 255, 0.4);
-    }
     
   </style>
   <style>
     .complex-card {
-      background: linear-gradient(135deg, #111, #1a1a1a);
+      background: linear-gradient(180deg, #101010, #0a0a0a);
       border: 2px solid #00e0ff;
       border-radius: 20px;
-      padding: 20px;
+      padding: 24px;
       margin: 20px auto;
-      max-width: 420px;
-      box-shadow: 0 6px 20px rgba(0, 224, 255, 0.2);
+      max-width: 380px;
+      height: 460px;
+      box-shadow: 0 0 25px rgba(0, 224, 255, 0.2);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      height: 320px;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
     }
 
     .complex-card h2 {
       color: #00e0ff;
       font-size: 20px;
-      margin-bottom: 10px;
+      text-align: center;
+      margin-bottom: 12px;
     }
 
     .complex-summary {
       color: #ccc;
       font-size: 14px;
+      text-align: center;
       flex-grow: 1;
-      padding: 10px 0;
+      overflow-y: auto;
+      padding: 0 10px;
+      max-height: 200px;
     }
 
     .complex-buttons {
       display: flex;
-      justify-content: space-between;
+      justify-content: space-around;
       margin-top: 20px;
+    }
+
+    .btn-complex,
+    .btn-outline {
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      white-space: nowrap;
+      max-width: 48%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .btn-complex {
       background-color: #00e0ff;
       color: #000;
       border: none;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
     }
 
     .btn-outline {
-      background-color: transparent;
+      background: none;
       border: 1px solid #00e0ff;
       color: #00e0ff;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
     }
 
     .btn-complex:hover,
     .btn-outline:hover {
-      opacity: 0.85;
+      transform: translateY(-2px);
+      box-shadow: 0 0 12px rgba(0, 224, 255, 0.4);
     }
   </style>
 
@@ -280,19 +227,7 @@
     </ul>
   </div>
 
-  <!-- Test Preview Container -->
-  <div id="complex-preview-container" style="margin-top: 40px;">
-    <div class="complex-card">
-      <h2>🚀 Future of Space</h2>
-      <p class="complex-summary">
-        Explore how private companies, governments, and new technologies are reshaping space colonization, satellite ecosystems, and AI navigation.
-      </p>
-      <div class="complex-buttons">
-        <button class="btn-complex">🚪 Enter Complex</button>
-        <button class="btn-outline">🔗 Shareable Cards</button>
-      </div>
-    </div>
-  </div>
+ 
 
 
   <div id="research" class="tab-content"><h2>🔍 Research</h2><p>Coming soon…</p></div>
@@ -726,10 +661,11 @@
               <h2>🧠 ${complex.name}</h2>
               <p class="complex-summary">${complex.summary || "No summary."}</p>
               <div class="complex-buttons">
-                <button class="btn-complex" onclick='openCellModal(${JSON.stringify(complex).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
+                <button class="btn-complex" onclick='openCellModal(...)'>🚪 Enter Complex</button>
                 <button class="btn-outline">🔗 Share</button>
               </div>
             `;
+
             feed.appendChild(card);
 
           });
@@ -1023,8 +959,15 @@
         snapshot.forEach(doc => {
           const data = doc.data();
           const box = document.createElement("div");
-          box.className = "community-card";
-          box.innerHTML = `<h3>🧠 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
+          box.className = "complex-card";
+          box.innerHTML = `
+            <h2>🧠 ${data.name}</h2>
+            <p class="complex-summary">${data.summary || "No summary."}</p>
+            <div class="complex-buttons">
+              <button class="btn-complex" onclick='openCellModal(${JSON.stringify(data).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
+              <button class="btn-outline">🔗 Share</button>
+            </div>
+          `;
           complexContainer.appendChild(box);
         });
         updateStats();
