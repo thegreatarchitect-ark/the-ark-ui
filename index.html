@@ -674,14 +674,21 @@
             const complex = doc.data();
             const card = document.createElement("div");
             card.className = "complex-card";
-            card.innerHTML = `
-              <h2>🧠 ${complex.name}</h2>
-              <p class="complex-summary">${complex.summary || "No summary."}</p>
-              <div class="complex-buttons">
-                <button class="btn-complex" onclick='openCellModal(...)'>🚪 Enter Complex</button>
-                <button class="btn-outline">🔗 Share</button>
-              </div>
-            `;
+            const enterBtn = document.createElement("button");
+            enterBtn.className = "btn-complex";
+            enterBtn.innerText = "🚪 Enter Complex";
+            enterBtn.onclick = () => openCellModal(complex, doc.id);
+
+            const shareBtn = document.createElement("button");
+            shareBtn.className = "btn-outline";
+            shareBtn.innerText = "🔗 Share";
+
+            const buttonRow = document.createElement("div");
+            buttonRow.className = "complex-buttons";
+            buttonRow.appendChild(enterBtn);
+            buttonRow.appendChild(shareBtn);
+
+            card.appendChild(buttonRow);
 
             feed.appendChild(card);
 
