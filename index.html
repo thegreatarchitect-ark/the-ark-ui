@@ -765,52 +765,51 @@
     function openCellModal(complex, complexId) {
       currentComplexId = complexId;
       currentComplexName = complex.name;
+
       document.getElementById("cell-modal-title").innerText = `🧠 ${complex.name}`;
       const list = document.getElementById("cell-list");
       list.innerHTML = "";
 
+      // Create grid layout for cells
+      const grid = document.createElement("div");
+      grid.style.display = "grid";
+      grid.style.gridTemplateColumns = "1fr 1fr";
+      grid.style.gap = "10px";
+      grid.style.marginTop = "10px";
+
       if (complex.cells && complex.cells.length) {
         complex.cells.forEach((cell) => {
-          const grid = document.createElement("div");
-          grid.style.display = "grid";
-          grid.style.gridTemplateColumns = "1fr 1fr";
-          grid.style.gap = "10px";
-          grid.style.marginTop = "10px";
+          const card = document.createElement("div");
+          card.style.background = "#111";
+          card.style.border = "1px solid #333";
+          card.style.borderRadius = "12px";
+          card.style.padding = "12px";
+          card.style.height = "150px";
+          card.style.overflow = "hidden";
 
-          complex.cells.forEach((cell) => {
-            const card = document.createElement("div");
-            card.style.background = "#111";
-            card.style.border = "1px solid #333";
-            card.style.borderRadius = "12px";
-            card.style.padding = "12px";
-            card.style.height = "150px";
-            card.style.overflow = "hidden";
+          const title = document.createElement("h4");
+          title.innerText = `📄 ${cell.title}`;
+          title.style.color = "#00e0ff";
+          title.style.fontSize = "14px";
+          title.style.marginBottom = "6px";
 
-            const title = document.createElement("h4");
-            title.innerText = `📄 ${cell.title}`;
-            title.style.color = "#00e0ff";
-            title.style.fontSize = "14px";
-            title.style.marginBottom = "6px";
+          const content = document.createElement("p");
+          content.innerText = cell.content?.slice(0, 100) || "No content";
+          content.style.fontSize = "12px";
+          content.style.color = "#ccc";
 
-            const content = document.createElement("p");
-            content.innerText = cell.content?.slice(0, 100) || "No content";
-            content.style.fontSize = "12px";
-            content.style.color = "#ccc";
-
-            card.appendChild(title);
-            card.appendChild(content);
-            grid.appendChild(card);
-          });
-
-          list.innerHTML = "";
-          list.appendChild(grid);
-          list.appendChild(backBtn);
-
+          card.appendChild(title);
+          card.appendChild(content);
+          grid.appendChild(card);
         });
       } else {
-        list.innerHTML = "<p>No cells yet.</p>";
+        const empty = document.createElement("p");
+        empty.innerText = "No cells yet.";
+        empty.style.color = "#888";
+        grid.appendChild(empty);
       }
 
+      // Back button
       const backBtn = document.createElement("button");
       backBtn.className = "btn";
       backBtn.innerText = "🔙 Back to Community";
@@ -818,23 +817,53 @@
         closeCellModal();
         openDetailModal({ id: currentCommunityId, name: currentComplexName });
       };
+
+      list.appendChild(grid);
       list.appendChild(backBtn);
 
+      // Add Cell Button
+      const addCellBtn = document.createElement("button");
+      addCellBtn.className = "btn";
+      addCellBtn.innerText = "➕ Add Cell";
+      addCellBtn.onclick = openAddCellModal;
+      list.appendChild(addCellBtn);
+
+      // Show modal
       document.getElementById("cell-modal").style.display = "flex";
 
+      // Realtime listener for cells
       db.collection("complexes").doc(currentComplexId).onSnapshot((doc) => {
         const data = doc.data();
         if (!data || !data.cells) return;
-        list.innerHTML = "";
+
+        grid.innerHTML = "";
         data.cells.forEach((cell) => {
-          const div = document.createElement("div");
-          div.className = "community-card";
-          div.innerHTML = `<h4>📄 ${cell.title}</h4><p>${cell.content?.slice(0, 100) || "No content"}</p>`;
-          list.appendChild(div);
+          const card = document.createElement("div");
+          card.style.background = "#111";
+          card.style.border = "1px solid #333";
+          card.style.borderRadius = "12px";
+          card.style.padding = "12px";
+          card.style.height = "150px";
+          card.style.overflow = "hidden";
+
+          const title = document.createElement("h4");
+          title.innerText = `📄 ${cell.title}`;
+          title.style.color = "#00e0ff";
+          title.style.fontSize = "14px";
+          title.style.marginBottom = "6px";
+
+          const content = document.createElement("p");
+          content.innerText = cell.content?.slice(0, 100) || "No content";
+          content.style.fontSize = "12px";
+          content.style.color = "#ccc";
+
+          card.appendChild(title);
+          card.appendChild(content);
+          grid.appendChild(card);
         });
-        list.appendChild(backBtn);
       });
     }
+
 
     function closeCellModal() {
       document.getElementById("cell-modal").style.display = "none";
