@@ -141,7 +141,130 @@
       border: 1px solid #333;
     }
 
+    /* Vertical Complex Card */
+    .complex-card {
+      width: 100%;
+      max-width: 380px;
+      margin: 0 auto;
+      height: 480px;
+      background: linear-gradient(180deg, #101010, #0a0a0a);
+      border: 2px solid #00e0ff;
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 0 25px rgba(0, 224, 255, 0.2);
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    .complex-card:hover {
+      transform: scale(1.01);
+      box-shadow: 0 0 35px rgba(0, 224, 255, 0.4);
+    }
+    .complex-card h2 {
+      font-size: 22px;
+      color: #00e0ff;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .complex-summary {
+      color: #ccc;
+      font-size: 14px;
+      text-align: center;
+      margin: 0 auto;
+      max-height: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .complex-buttons {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+    .btn-complex {
+      background: #00e0ff;
+      color: black;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-outline {
+      background: none;
+      border: 1px solid #00e0ff;
+      color: #00e0ff;
+      padding: 10px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .btn-complex:hover,
+    .btn-outline:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 12px rgba(0, 224, 255, 0.4);
+    }
+    
   </style>
+  <style>
+    .complex-card {
+      background: linear-gradient(135deg, #111, #1a1a1a);
+      border: 2px solid #00e0ff;
+      border-radius: 20px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 420px;
+      box-shadow: 0 6px 20px rgba(0, 224, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 320px;
+    }
+
+    .complex-card h2 {
+      color: #00e0ff;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .complex-summary {
+      color: #ccc;
+      font-size: 14px;
+      flex-grow: 1;
+      padding: 10px 0;
+    }
+
+    .complex-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .btn-complex {
+      background-color: #00e0ff;
+      color: #000;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid #00e0ff;
+      color: #00e0ff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-complex:hover,
+    .btn-outline:hover {
+      opacity: 0.85;
+    }
+  </style>
+
 </head>
 <body>
 
@@ -156,6 +279,21 @@
       <li>🪙 Bitcoin’s Energy Impact</li>
     </ul>
   </div>
+
+  <!-- Test Preview Container -->
+  <div id="complex-preview-container" style="margin-top: 40px;">
+    <div class="complex-card">
+      <h2>🚀 Future of Space</h2>
+      <p class="complex-summary">
+        Explore how private companies, governments, and new technologies are reshaping space colonization, satellite ecosystems, and AI navigation.
+      </p>
+      <div class="complex-buttons">
+        <button class="btn-complex">🚪 Enter Complex</button>
+        <button class="btn-outline">🔗 Shareable Cards</button>
+      </div>
+    </div>
+  </div>
+
 
   <div id="research" class="tab-content"><h2>🔍 Research</h2><p>Coming soon…</p></div>
 
@@ -582,15 +720,18 @@
           feed.innerHTML = "";
           snapshot.forEach((doc) => {
             const complex = doc.data();
-            const box = document.createElement("div");
-            box.className = "community-card";
-            box.innerHTML = `
-              <h3>🧠 ${complex.name}</h3>
-              <p>${complex.summary || "No summary."}</p>
-              <div class="cell-count">${complex.cells?.length || 0} cells</div>
-              <button class="btn" onclick='openCellModal(${JSON.stringify(complex).replace(/"/g, "&quot;")}, "${doc.id}")'>Enter Complex</button>
+            const card = document.createElement("div");
+            card.className = "complex-card";
+            card.innerHTML = `
+              <h2>🧠 ${complex.name}</h2>
+              <p class="complex-summary">${complex.summary || "No summary."}</p>
+              <div class="complex-buttons">
+                <button class="btn-complex" onclick='openCellModal(${JSON.stringify(complex).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
+                <button class="btn-outline">🔗 Share</button>
+              </div>
             `;
-            feed.appendChild(box);
+            feed.appendChild(card);
+
           });
         });
     }
@@ -889,16 +1030,22 @@
         updateStats();
       });
 
+      // Track rendered community IDs to avoid duplicates
+      const renderedCommunityIds = new Set();
+
       // 👑 Communities Created
       db.collection("communities").where("createdBy", "==", userInfo.id).onSnapshot(snapshot => {
         createdCommContainer.innerHTML = "";
-        createdCommCount = snapshot.size;
+        createdCommCount = 0;
         snapshot.forEach(doc => {
           const data = doc.data();
           const box = document.createElement("div");
           box.className = "community-card";
           box.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
+          box.onclick = () => openDetailModal({ ...data, id: doc.id });
           createdCommContainer.appendChild(box);
+          renderedCommunityIds.add(doc.id); // Mark as rendered
+          createdCommCount++;
         });
         updateStats();
       });
@@ -906,18 +1053,20 @@
       // 🧬 Communities Joined
       db.collection("communities").where("members", "array-contains", userInfo.id).onSnapshot(snapshot => {
         joinedCommContainer.innerHTML = "";
-        joinedCommCount = snapshot.size;
+        joinedCommCount = 0;
         snapshot.forEach(doc => {
+          if (renderedCommunityIds.has(doc.id)) return; // Avoid duplicates
           const data = doc.data();
-          // Skip if already counted as creator
-          if (data.createdBy === userInfo.id) return;
           const box = document.createElement("div");
           box.className = "community-card";
           box.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
+          box.onclick = () => openDetailModal({ ...data, id: doc.id });
           joinedCommContainer.appendChild(box);
+          joinedCommCount++;
         });
         updateStats();
       });
+
     function showProfileTab(tab) {
       document.getElementById("profile-communities").style.display = tab === "communities" ? "block" : "none";
       document.getElementById("profile-complexes").style.display = tab === "complexes" ? "block" : "none";
