@@ -215,14 +215,7 @@
 </head>
 <body>
 
-<script>
-function showTab(tabId) {
-  closeAllModals();
-  document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-  document.getElementById(tabId).classList.add("active");
-  if (tabId === "home") loadHomeComplexes();
-}
-</script>
+
   <!-- TABS -->
   
   <div id="home" class="tab-content active" style="position: relative;">
@@ -566,6 +559,14 @@ function showTab(tabId) {
 </script>
 
 
+<script>
+function showTab(tabId) {
+  closeAllModals();
+  document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+  document.getElementById(tabId).classList.add("active");
+  if (tabId === "home") loadHomeComplexes();
+}
+</script>
 
 
   <!-- Continued from Part 1 -->
