@@ -216,29 +216,35 @@
 <body>
 
   <!-- TABS -->
-  <div id="home" class="tab-content active">
-    <h1>🌊 Welcome to The Ark</h1>
-    <p id="welcome-message">Hello, guest!</p>
-    <!-- 🌟 Hero Banner -->
-    <div style="text-align: center; margin-top: 20px; margin-bottom: 30px;">
-      <h1 style="font-size: 32px; background: linear-gradient(135deg, #00e0ff, #1a73e8); -webkit-background-clip: text; color: transparent;">
-        🌊 The Ark: Rise Above the Flood
-      </h1>
-      <p style="color: #ccc; font-size: 14px; margin-top: 10px; font-style: italic;">
-        Building a world of knowledge, one cell at a time.
-      </p>
+  <div id="home" class="tab-content active" style="position: relative;">
+    <!-- Standalone Complex Button -->
+    <button class="btn" style="
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 13px;
+      padding: 8px 16px;
+      z-index: 10;
+      background: linear-gradient(135deg, #00e0ff, #1a73e8);
+      border-radius: 12px;
+    " onclick="openStandaloneComplexModal()">➕ Create Standalone Complex</button>
+
+    <!-- Featured Complexes -->
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+      <button class="btn" onclick="openStandaloneComplexModal()">➕ Create Standalone Complex</button>
     </div>
+    <h2 style="margin-top: 60px;">📦 Featured Complexes</h2>
+    <div id="home-complex-list" style="margin-top: 20px;"></div>
 
-    <h2>📌 Recommended Feed</h2>
-    <h2>📦 Featured Complexes</h2>
-    <div id="home-complex-list"></div>
-
-    <ul>
+    <!-- Recommended Feed -->
+    <h2 style="margin-top: 40px;">🔍 Recommended for You</h2>
+    <ul style="padding-left: 20px; color: #ccc; font-size: 14px;">
       <li>🧠 AI in Healthcare</li>
       <li>🌍 Climate Policy Scenarios</li>
       <li>🪙 Bitcoin’s Energy Impact</li>
     </ul>
   </div>
+
 
  
 
@@ -388,7 +394,22 @@
       <button class="btn" style="background:#444; margin-left:10px;" onclick="closeAddCellModal()">Cancel</button>
     </div>
   </div>
-  
+
+  <div id="standalone-complex-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center;">
+    <div class="modal-content">
+      <h2>Create Standalone Complex</h2>
+      <input id="standalone-title" type="text" placeholder="Complex Title" />
+      <textarea id="standalone-summary" placeholder="Short Summary"></textarea>
+    
+      <h3>➕ Add a Cell</h3>
+      <input id="standalone-cell-title" type="text" placeholder="Cell Title" />
+      <textarea id="standalone-cell-content" placeholder="Cell Content"></textarea>
+
+      <button class="btn" onclick="submitStandaloneComplex()">✅ Save Complex</button>
+      <button class="btn" style="background:#444; margin-left:10px;" onclick="closeStandaloneComplexModal()">Cancel</button>
+    </div>
+  </div>
+
   <!-- Complex Builder Modal (Step-by-Step) -->
 <div id="complex-builder-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center;">
   <div class="modal-content">
@@ -717,9 +738,12 @@
       container.innerHTML = "<p>Loading featured complexes...</p>";
 
       db.collection("complexes")
+        .where("communityId", "==", null) // Only standalone
         .orderBy("createdAt", "desc")
         .limit(3)
         .onSnapshot(snapshot => {
+          // existing rendering code
+
           container.innerHTML = "";
           snapshot.forEach(doc => {
             const data = doc.data();
@@ -907,6 +931,13 @@
       });
     }
 
+    function openStandaloneComplexModal() {
+      document.getElementById("standalone-complex-modal").style.display = "flex";
+    }
+
+    function closeStandaloneComplexModal() {
+      document.getElementById("standalone-complex-modal").style.display = "none";
+    }
 
 
     function closeCellModal() {
@@ -1180,6 +1211,32 @@
     }
   }
 
+    function submitStandaloneComplex() {
+      const name = document.getElementById("standalone-title").value.trim();
+      const summary = document.getElementById("standalone-summary").value.trim();
+      const cellTitle = document.getElementById("standalone-cell-title").value.trim();
+      const cellContent = document.getElementById("standalone-cell-content").value.trim();
+
+      if (!name || !cellTitle || !cellContent) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      const newComplex = {
+        name,
+        summary,
+        createdAt: new Date(),
+        createdBy: userInfo.id,
+        cells: [{ title: cellTitle, content: cellContent }],
+        communityId: null // Marked as standalone
+      };
+
+      db.collection("complexes").add(newComplex).then(() => {
+        alert("✅ Standalone Complex created!");
+        closeStandaloneComplexModal();
+        loadHomeComplexes(); // Refresh view
+      });
+    }
 
 
     function loadMyCommunities() {
