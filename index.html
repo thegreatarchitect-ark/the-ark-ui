@@ -776,6 +776,9 @@
         alert("Please enter a community name.");
         return;
       }
+
+      console.log("Creating community as:", userInfo?.id);
+
       db.collection("communities").add({
         name,
         summary,
