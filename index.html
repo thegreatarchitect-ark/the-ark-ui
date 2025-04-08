@@ -597,10 +597,43 @@
 
   </div>
 
+<script>
+function closeAllModals() {
+  document.querySelectorAll('[id$="-modal"]').forEach(el => {
+    el.style.display = 'none';
+  });
+}
+
+function showProfileTab(tab) {
+  document.getElementById("profile-communities").style.display = tab === "communities" ? "block" : "none";
+  document.getElementById("profile-complexes").style.display = tab === "complexes" ? "block" : "none";
+  document.getElementById("profile-featured").style.display = tab === "featured" ? "block" : "none";
+
+  document.getElementById("tab-communities").style.opacity = tab === "communities" ? "1" : "0.5";
+  document.getElementById("tab-complexes").style.opacity = tab === "complexes" ? "1" : "0.5";
+  document.getElementById("tab-featured").style.opacity = tab === "featured" ? "1" : "0.5";
+}
+
+function showTab(tabId) {
+  closeAllModals();
+  document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+  const tab = document.getElementById(tabId);
+  if (tab) tab.classList.add("active");
+
+  if (tabId === "home") loadHomeComplexes();
+  if (tabId === "communities") loadCommunities();
+  if (tabId === "my-communities") loadMyCommunities();
+  if (tabId === "profile") loadUserProfile();
+}
+</script>
 
 
   <!-- 🔁 FULL LOGIC SCRIPT START AND FIREBASE -->
+
+  
+
 <script>
+
 window.onload = function () {
   // ✅ Telegram & Firebase Setup
   const tg = window.Telegram.WebApp;
@@ -759,23 +792,7 @@ window.onload = function () {
   // ✅ Load "My Communities" Tab
   
   
-  function showProfileTab(tab) {
-    document.getElementById("profile-communities").style.display = tab === "communities" ? "block" : "none";
-    document.getElementById("profile-complexes").style.display = tab === "complexes" ? "block" : "none";
-    document.getElementById("profile-featured").style.display = tab === "featured" ? "block" : "none";
-
-    document.getElementById("tab-communities").style.opacity = tab === "communities" ? "1" : "0.5";
-    document.getElementById("tab-complexes").style.opacity = tab === "complexes" ? "1" : "0.5";
-    document.getElementById("tab-featured").style.opacity = tab === "featured" ? "1" : "0.5";
-  }
-
-
   
-  function closeAllModals() {
-    document.querySelectorAll('[id$="-modal"]').forEach(el => {
-      el.style.display = 'none';
-    });
-  }
   
 
   
@@ -1025,17 +1042,7 @@ function updateStats(statsEl, complexCount, createdCommCount, joinedCommCount) {
   `;
 }
 
-function showTab(tabId) {
-  closeAllModals();
-  document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-  const tab = document.getElementById(tabId);
-  if (tab) tab.classList.add("active");
 
-  if (tabId === "home") loadHomeComplexes();
-  if (tabId === "communities") loadCommunities();
-  if (tabId === "my-communities") loadMyCommunities();
-  if (tabId === "profile") loadUserProfile();
-}
 </script>
 
 
