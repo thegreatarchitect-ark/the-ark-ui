@@ -8,7 +8,16 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
 
-  
+  <script>
+    // ✅ GLOBAL VARIABLES — must be outside window.onload
+    let userInfo = null;
+    let db = null;
+    let currentCommunityId = null;
+    let currentComplexId = null;
+    let currentComplexName = "";
+  </script>
+
+
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -694,7 +703,10 @@ window.onload = function () {
   
   // ✅ Submit Community
   function submitCommunity() {
-    console.log("Creating community as:", userInfo?.id); // Debug
+    if (!userInfo || !userInfo.id) {
+      alert("User not loaded. Please refresh the app.");
+      return;
+    }
 
     const name = document.getElementById("community-name").value.trim();
     const summary = document.getElementById("community-summary").value.trim();
@@ -709,8 +721,8 @@ window.onload = function () {
     db.collection("communities").add({
       name,
       summary,
-      createdBy: userInfo?.id || "anonymous",
-      members: [userInfo?.id],
+      createdBy: userInfo.id,
+      members: [userInfo.id],
       memberCount: 1,
       tags,
       createdAt: new Date()
@@ -718,12 +730,17 @@ window.onload = function () {
       alert("✅ Community created!");
       closeCommunityModal();
       loadCommunities();
-
     });
   }
 
+
   // ✅ Submit Complex (inside Community)
   function submitComplex() {
+    if (!userInfo || !userInfo.id) {
+      alert("User not loaded. Please refresh the app.");
+      return;
+    }
+
     const name = document.getElementById("complex-title").value.trim();
     const summary = document.getElementById("complex-summary").value.trim();
 
@@ -737,12 +754,12 @@ window.onload = function () {
       summary,
       communityId: currentCommunityId,
       createdAt: new Date(),
-      cells: [], // Empty array at creation
+      cells: [],
       createdBy: userInfo.id
     }).then(() => {
       alert("✅ Complex created!");
       closeAddComplexModal();
-      openDetailModal({ id: currentCommunityId, name }); // Re-open to refresh list
+      openDetailModal({ id: currentCommunityId, name });
     });
   }
 
@@ -785,8 +802,19 @@ window.onload = function () {
   function submitCell() {
     const title = document.getElementById("cell-title").value.trim();
     const content = document.getElementById("cell-content").value.trim();
-    if (!title || !currentComplexId) {
-      alert("Please provide a title and be inside a complex.");
+
+    if (!userInfo || !userInfo.id) {
+      alert("User not loaded. Please refresh.");
+      return;
+    }
+
+    if (!title || !content) {
+      alert("Please fill out both the title and content of the cell.");
+      return;
+    }
+
+    if (!currentComplexId) {
+      alert("Complex ID is missing. Try re-entering the complex.");
       return;
     }
 
@@ -797,10 +825,12 @@ window.onload = function () {
       document.getElementById("cell-title").value = "";
       document.getElementById("cell-content").value = "";
       closeAddCellModal();
-      openCellModal({ name: document.getElementById("cell-modal-title").innerText }, currentComplexId);
-
+      openCellModal({ name: currentComplexName }, currentComplexId);
+    }).catch((error) => {
+      alert("Failed to save the cell: " + error.message);
     });
   }
+
 
  
   // ✅ Load "My Communities" Tab
@@ -1000,30 +1030,31 @@ function openCellModal(complexData, complexId) {
   const list = document.getElementById("cell-list");
   list.innerHTML = "Loading...";
 
-  // ✅ Re-fetch the latest complex to get all cells
-  db.collection("complexes").doc(complexId).get().then(doc => {
-    const complex = doc.data();
-    list.innerHTML = "";
+  // Live listener
+  db.collection("complexes").doc(complexId)
+    .onSnapshot(doc => {
+      const complex = doc.data();
+      list.innerHTML = "";
 
-    if (complex.cells && complex.cells.length > 0) {
-      const container = document.createElement("div");
-      container.style.display = "flex";
-      container.style.flexWrap = "wrap";
-      container.style.gap = "10px";
+      if (complex.cells && complex.cells.length > 0) {
+        const container = document.createElement("div");
+        container.style.display = "flex";
+        container.style.flexWrap = "wrap";
+        container.style.gap = "10px";
 
-      complex.cells.forEach((cell, index) => {
-        const div = document.createElement("div");
-        div.className = "community-card";
-        div.style.width = "calc(50% - 10px)";
-        div.innerHTML = `<h4>${index + 1}. ${cell.title}</h4><p>${cell.content}</p>`;
-        container.appendChild(div);
-      });
+        complex.cells.forEach((cell, index) => {
+          const div = document.createElement("div");
+          div.className = "community-card";
+          div.style.width = "calc(50% - 10px)";
+          div.innerHTML = `<h4>${index + 1}. ${cell.title}</h4><p>${cell.content}</p>`;
+          container.appendChild(div);
+        });
 
-      list.appendChild(container);
-    } else {
-      list.innerHTML = "No cells in this complex yet.";
-    }
-  });
+        list.appendChild(container);
+      } else {
+        list.innerHTML = "No cells in this complex yet.";
+      }
+    });
 
   document.getElementById("cell-modal").style.display = "flex";
 }
@@ -1033,14 +1064,13 @@ function openDetailModal(data) {
   currentCommunityId = data.id;
   document.getElementById("detail-name").innerText = data.name;
   document.getElementById("detail-summary").innerText = data.summary || "No summary.";
-  document.getElementById("complex-feed").innerHTML = "📦 Loading...";
+  const feed = document.getElementById("complex-feed");
+  feed.innerHTML = "📦 Loading...";
 
   db.collection("complexes")
     .where("communityId", "==", data.id)
     .orderBy("createdAt", "desc")
-    .get()
-    .then(snapshot => {
-      const feed = document.getElementById("complex-feed");
+    .onSnapshot(snapshot => {
       feed.innerHTML = "";
       if (snapshot.empty) {
         feed.innerHTML = "No complexes yet.";
@@ -1061,9 +1091,10 @@ function openDetailModal(data) {
         feed.appendChild(div);
       });
     });
-
+    
   document.getElementById("detail-modal").style.display = "flex";
 }
+
   
 function updateStats(statsEl, complexCount, createdCommCount, joinedCommCount) {
   statsEl.innerHTML = `
