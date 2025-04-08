@@ -793,7 +793,12 @@
       const list = document.getElementById("cell-list");
       list.innerHTML = "";
 
-      // Create grid layout for cells
+      // Main content container with scrolling
+      const scrollWrapper = document.createElement("div");
+      scrollWrapper.style.maxHeight = "400px";
+      scrollWrapper.style.overflowY = "auto";
+      scrollWrapper.style.marginBottom = "20px";
+
       const grid = document.createElement("div");
       grid.style.display = "grid";
       grid.style.gridTemplateColumns = "1fr 1fr";
@@ -832,7 +837,21 @@
         grid.appendChild(empty);
       }
 
-      // Back button
+      scrollWrapper.appendChild(grid);
+      list.appendChild(scrollWrapper);
+
+      // Action Buttons at the bottom
+      const actionButtons = document.createElement("div");
+      actionButtons.style.display = "flex";
+      actionButtons.style.flexDirection = "column";
+      actionButtons.style.gap = "10px";
+      actionButtons.style.marginTop = "10px";
+
+      const addCellBtn = document.createElement("button");
+      addCellBtn.className = "btn";
+      addCellBtn.innerText = "➕ Add Cell";
+      addCellBtn.onclick = openAddCellModal;
+
       const backBtn = document.createElement("button");
       backBtn.className = "btn";
       backBtn.innerText = "🔙 Back to Community";
@@ -841,15 +860,16 @@
         openDetailModal({ id: currentCommunityId, name: currentComplexName });
       };
 
-      list.appendChild(grid);
-      list.appendChild(backBtn);
+      const closeBtn = document.createElement("button");
+      closeBtn.className = "btn";
+      closeBtn.innerText = "❌ Close";
+      closeBtn.onclick = closeCellModal;
 
-      // Add Cell Button
-      const addCellBtn = document.createElement("button");
-      addCellBtn.className = "btn";
-      addCellBtn.innerText = "➕ Add Cell";
-      addCellBtn.onclick = openAddCellModal;
-      list.appendChild(addCellBtn);
+      actionButtons.appendChild(addCellBtn);
+      actionButtons.appendChild(backBtn);
+      actionButtons.appendChild(closeBtn);
+
+      list.appendChild(actionButtons);
 
       // Show modal
       document.getElementById("cell-modal").style.display = "flex";
@@ -886,6 +906,7 @@
         });
       });
     }
+
 
 
     function closeCellModal() {
