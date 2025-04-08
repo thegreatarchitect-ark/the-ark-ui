@@ -728,7 +728,7 @@ window.onload = function () {
     const summary = document.getElementById("complex-summary").value.trim();
 
     if (!name || !currentCommunityId) {
-      alert("Please provide a name and be inside a community.");
+      alert("Please provide a name and open this modal from inside a community.");
       return;
     }
 
@@ -737,13 +737,15 @@ window.onload = function () {
       summary,
       communityId: currentCommunityId,
       createdAt: new Date(),
-      cells: [],
+      cells: [], // Empty array at creation
       createdBy: userInfo.id
     }).then(() => {
       alert("✅ Complex created!");
       closeAddComplexModal();
+      openDetailModal({ id: currentCommunityId, name }); // Re-open to refresh list
     });
   }
+
   // ✅ Submit Standalone Complex
   function submitStandaloneComplex() {
     const name = document.getElementById("standalone-title").value.trim();
@@ -992,10 +994,13 @@ function loadHomeComplexes() {
 
 function openCellModal(complexData, complexId) {
   currentComplexId = complexId;
+  currentComplexName = complexData.name;
+
   document.getElementById("cell-modal-title").innerText = complexData.name;
   const list = document.getElementById("cell-list");
   list.innerHTML = "Loading...";
 
+  // ✅ Re-fetch the latest complex to get all cells
   db.collection("complexes").doc(complexId).get().then(doc => {
     const complex = doc.data();
     list.innerHTML = "";
@@ -1022,6 +1027,7 @@ function openCellModal(complexData, complexId) {
 
   document.getElementById("cell-modal").style.display = "flex";
 }
+
 
 function openDetailModal(data) {
   currentCommunityId = data.id;
