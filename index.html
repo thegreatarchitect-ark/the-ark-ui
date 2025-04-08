@@ -572,7 +572,7 @@
 
   </div>
 
-  <!-- 🔁 FULL LOGIC SCRIPT START -->
+  <!-- 🔁 FULL LOGIC SCRIPT START AND FIREBASE -->
 <script>
 window.onload = function () {
   // ✅ Telegram & Firebase Setup
@@ -865,83 +865,21 @@ window.onload = function () {
       🧬 ${joinedCommCount} communities joined
     `;
   }
-  function submitStandaloneComplex() {
-    const name = document.getElementById("standalone-title").value.trim();
-    const summary = document.getElementById("standalone-summary").value.trim();
-    const cellTitle = document.getElementById("standalone-cell-title").value.trim();
-    const cellContent = document.getElementById("standalone-cell-content").value.trim();
-
-    if (!name || !cellTitle || !cellContent) {
-      alert("Please fill all fields.");
-      return;
-    }
-
-    const newComplex = {
-      name,
-      summary,
-      createdAt: new Date(),
-      createdBy: userInfo.id,
-      cells: [{ title: cellTitle, content: cellContent }],
-      communityId: null
-    };
-
-    db.collection("complexes").add(newComplex).then(() => {
-      alert("✅ Standalone Complex created!");
-      closeStandaloneComplexModal();
-      document.getElementById("standalone-title").value = "";
-      document.getElementById("standalone-summary").value = "";
-      document.getElementById("standalone-cell-title").value = "";
-      document.getElementById("standalone-cell-content").value = "";
-      loadHomeComplexes();
-    });
-  }
-
+  
   function closeAllModals() {
     document.querySelectorAll('[id$="-modal"]').forEach(el => {
       el.style.display = 'none';
     });
   }
 
-  function loadMyCommunities() {
-    const createdContainer = document.getElementById("created-community-list");
-    const joinedContainer = document.getElementById("joined-community-list");
-
-    createdContainer.innerHTML = "";
-    joinedContainer.innerHTML = "";
-
-    db.collection("communities")
-      .where("members", "array-contains", userInfo.id)
-      .onSnapshot((snapshot) => {
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          const card = document.createElement("div");
-          card.className = "community-card";
-          card.onclick = () => openDetailModal({ ...data, id: doc.id });
-
-          const name = document.createElement("h3");
-          name.innerText = `📘 ${data.name}`;
-
-          const summary = document.createElement("p");
-          summary.innerText = data.summary || "No summary provided.";
-
-          card.appendChild(name);
-          card.appendChild(summary);
-
-          if (data.createdBy === userInfo.id) {
-            createdContainer.appendChild(card);
-          } else {
-            joinedContainer.appendChild(card);
-          }
-        });
-      });
-  }
-
+  
   // ✅ Load default content
   showTab("home");
   loadCommunities();
   loadHomeComplexes();
 }
 </script>
+  
 <script>
 // Modal open/close helpers
 function openCommunityModal() {
@@ -977,9 +915,7 @@ function openAddCellModal() {
 function openComplexBuilderModal() {
   document.getElementById("add-complex-modal").style.display = "flex";
 }
-function openAddComplexModal() {
-  openComplexBuilderModal();
-}
+
 
 // Tab navigation logic
 function showProfileTab(tab) {
