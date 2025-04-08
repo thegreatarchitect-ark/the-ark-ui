@@ -1155,7 +1155,8 @@
           `;
           complexContainer.appendChild(box);
         });
-        updateStats();
+        updateStats(statsEl, complexCount, createdCommCount, joinedCommCount);
+
       });
 
       // Track rendered community IDs to avoid duplicates
@@ -1175,7 +1176,8 @@
           renderedCommunityIds.add(doc.id); // Mark as rendered
           createdCommCount++;
         });
-        updateStats();
+        updateStats(statsEl, complexCount, createdCommCount, joinedCommCount);
+
       });
 
       // 🧬 Communities Joined
@@ -1192,8 +1194,10 @@
           joinedCommContainer.appendChild(box);
           joinedCommCount++;
         });
-        updateStats();
+        updateStats(statsEl, complexCount, createdCommCount, joinedCommCount);
+
       });
+    }
 
     function showProfileTab(tab) {
       document.getElementById("profile-communities").style.display = tab === "communities" ? "block" : "none";
@@ -1203,17 +1207,15 @@
       document.getElementById("tab-communities").style.opacity = tab === "communities" ? "1" : "0.5";
       document.getElementById("tab-complexes").style.opacity = tab === "complexes" ? "1" : "0.5";
     }
-
-
-      
-    function updateStats() {
+  
+    function updateStats(statsEl, complexCount, createdCommCount, joinedCommCount) {
       statsEl.innerHTML = `
         📦 ${complexCount} complexes<br>
         👑 ${createdCommCount} communities created<br>
         🧬 ${joinedCommCount} communities joined
       `;
     }
-  }
+  
 
     function submitStandaloneComplex() {
       const name = document.getElementById("standalone-title").value.trim();
