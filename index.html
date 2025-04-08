@@ -942,27 +942,12 @@ function openAddCellModal() {
   document.getElementById("add-cell-modal").style.display = "flex";
 }
 function openComplexBuilderModal() {
-  document.getElementById("add-complex-modal").style.display = "flex";
+  document.getElementById("complex-builder-modal").style.display = "flex";
+
 }
 
 
-// Tab navigation logic
-function showProfileTab(tab) {
-  document.getElementById("profile-communities").style.display = tab === "communities" ? "block" : "none";
-  document.getElementById("profile-complexes").style.display = tab === "complexes" ? "block" : "none";
 
-  document.getElementById("tab-communities").style.opacity = tab === "communities" ? "1" : "0.5";
-  document.getElementById("tab-complexes").style.opacity = tab === "complexes" ? "1" : "0.5";
-}
-
-// Profile stats updater
-function updateStats(statsEl, complexCount, createdCommCount, joinedCommCount) {
-  statsEl.innerHTML = `
-    📦 ${complexCount} complexes<br>
-    👑 ${createdCommCount} communities created<br>
-    🧬 ${joinedCommCount} communities joined
-  `;
-}
 </script>
 
   
