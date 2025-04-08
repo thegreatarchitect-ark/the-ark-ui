@@ -213,7 +213,9 @@
       box-shadow: 0 0 12px rgba(0, 224, 255, 0.4);
     }
   </style>
+  
 
+  
 </head>
 <body>
 
@@ -294,8 +296,14 @@
       <button class="btn" id="tab-communities" onclick="showProfileTab('communities')">🫂 Communities</button>
       <button class="btn" id="tab-complexes" onclick="showProfileTab('complexes')">🧠 Complexes</button>
       <button class="btn" id="tab-featured" onclick="showProfileTab('featured')">⭐ Featured</button>
-    </div>
 
+    </div>
+    <div id="profile-featured" class="profile-section-tab" style="display: none;">
+      <div class="profile-section">
+        <h3>⭐ Featured Complexes</h3>
+        <p style="color: #999;">Coming soon...</p>
+      </div>
+    </div>
 
     <!-- 📂 Content Sections (toggle based on tab) -->
 
@@ -461,7 +469,20 @@
     overflow-y: auto;
   }
 </style>
+  
+<script>
+  let userInfo = null;
+  let db = null;
 
+  // 👇 Add these three lines
+  let currentCommunityId = null;
+  let currentComplexId = null;
+  let currentComplexName = "";
+</script>
+
+
+
+  
 <script>
   let newComplexCells = [];
   let currentBuilderStep = 1;
@@ -583,7 +604,7 @@
 window.onload = function () {
   // ✅ Telegram & Firebase Setup
   const tg = window.Telegram.WebApp;
-  const userInfo = tg?.initDataUnsafe?.user;
+  userInfo = tg?.initDataUnsafe?.user;
   const user = userInfo?.first_name || "guest";
   
   if (!userInfo || !userInfo.id) {
@@ -601,7 +622,7 @@ window.onload = function () {
   };
 
   const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+  db = firebase.firestore();
 
   // ✅ Welcome Message
   const welcome = document.getElementById("welcome-message");
@@ -736,88 +757,190 @@ window.onload = function () {
 
  
   // ✅ Load "My Communities" Tab
-  function loadMyCommunities() {
-    const createdContainer = document.getElementById("created-community-list");
-    const joinedContainer = document.getElementById("joined-community-list");
+  
+  
+  function showProfileTab(tab) {
+    document.getElementById("profile-communities").style.display = tab === "communities" ? "block" : "none";
+    document.getElementById("profile-complexes").style.display = tab === "complexes" ? "block" : "none";
+    document.getElementById("profile-featured").style.display = tab === "featured" ? "block" : "none";
 
-    createdContainer.innerHTML = "";
-    joinedContainer.innerHTML = "";
-
-    db.collection("communities")
-      .where("members", "array-contains", userInfo.id)
-      .onSnapshot((snapshot) => {
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          const card = document.createElement("div");
-          card.className = "community-card";
-          card.onclick = () => openDetailModal({ ...data, id: doc.id });
-
-          const name = document.createElement("h3");
-          name.innerText = `📘 ${data.name}`;
-
-          const summary = document.createElement("p");
-          summary.innerText = data.summary || "No summary provided.";
-
-          card.appendChild(name);
-          card.appendChild(summary);
-
-          if (data.createdBy === userInfo.id) {
-            createdContainer.appendChild(card);
-          } else {
-            joinedContainer.appendChild(card);
-          }
-        });
-      });
+    document.getElementById("tab-communities").style.opacity = tab === "communities" ? "1" : "0.5";
+    document.getElementById("tab-complexes").style.opacity = tab === "complexes" ? "1" : "0.5";
+    document.getElementById("tab-featured").style.opacity = tab === "featured" ? "1" : "0.5";
   }
-  function loadCommunities() {
-    const sort = document.getElementById("community-sort").value;
-    const container = document.getElementById("community-list");
-    container.innerHTML = "Loading...";
-    let query = db.collection("communities");
 
-    if (sort === "newest") {
-      query = query.orderBy("createdAt", "desc");
-    } else if (sort === "members") {
-      query = query.orderBy("memberCount", "desc");
-    }
 
-    query.limit(20).get().then(snapshot => {
-      container.innerHTML = "";
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const div = document.createElement("div");
-        div.className = "community-card";
-        div.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
-        div.onclick = () => openDetailModal({ ...data, id: doc.id });
-        container.appendChild(div);
-      });
+  
+  function closeAllModals() {
+    document.querySelectorAll('[id$="-modal"]').forEach(el => {
+      el.style.display = 'none';
     });
   }
+  
 
-  // ✅ Load Profile Info + Stats
-  function loadUserProfile() {
-    document.getElementById("profile-name").innerText = userInfo.first_name || "User";
-    if (userInfo.photo_url) {
-      document.getElementById("profile-photo").src = userInfo.photo_url;
-    }
+  
+  // ✅ Load default content
+  showTab("home");
+  loadCommunities();
+  loadHomeComplexes();  
 
-    const complexContainer = document.getElementById("user-complexes");
-    const createdCommContainer = document.getElementById("user-created-communities");
-    const joinedCommContainer = document.getElementById("user-joined-communities");
-    const statsEl = document.getElementById("user-stats");
+} 
+</script>
 
+<script>
+function loadMyCommunities() {
+  const createdContainer = document.getElementById("created-community-list");
+  const joinedContainer = document.getElementById("joined-community-list");
+
+  createdContainer.innerHTML = "";
+  joinedContainer.innerHTML = "";
+
+  db.collection("communities")
+    .where("members", "array-contains", userInfo.id)
+    .onSnapshot((snapshot) => {
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const card = document.createElement("div");
+        card.className = "community-card";
+        card.onclick = () => openDetailModal({ ...data, id: doc.id });
+
+        const name = document.createElement("h3");
+        name.innerText = `📘 ${data.name}`;
+
+        const summary = document.createElement("p");
+        summary.innerText = data.summary || "No summary provided.";
+
+        card.appendChild(name);
+        card.appendChild(summary);
+
+        if (data.createdBy === userInfo.id) {
+          createdContainer.appendChild(card);
+        } else {
+          joinedContainer.appendChild(card);
+        }
+      });
+    });
+}
+
+function loadCommunities() {
+  const sort = document.getElementById("community-sort").value;
+  const container = document.getElementById("community-list");
+  container.innerHTML = "Loading...";
+  let query = db.collection("communities");
+
+  if (sort === "newest") {
+    query = query.orderBy("createdAt", "desc");
+  } else if (sort === "members") {
+    query = query.orderBy("memberCount", "desc");
+  }
+
+  query.limit(20).get().then(snapshot => {
+    container.innerHTML = "";
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const div = document.createElement("div");
+      div.className = "community-card";
+      div.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
+      div.onclick = () => openDetailModal({ ...data, id: doc.id });
+      container.appendChild(div);
+    });
+  });
+}
+
+function toggleCommunityView() {
+  alert("Toggle view is not implemented yet.");
+}
+  
+function loadUserProfile() {
+  document.getElementById("profile-name").innerText = userInfo.first_name || "User";
+  const photo = userInfo.photoUrl || userInfo.photo_url;
+  if (photo) {
+    document.getElementById("profile-photo").src = photo;
+  }
+
+
+  const complexContainer = document.getElementById("user-complexes");
+  const createdCommContainer = document.getElementById("user-created-communities");
+  const joinedCommContainer = document.getElementById("user-joined-communities");
+  const statsEl = document.getElementById("user-stats");
+
+  complexContainer.innerHTML = "";
+  createdCommContainer.innerHTML = "";
+  joinedCommContainer.innerHTML = "";
+  statsEl.innerHTML = "Loading...";
+
+  let complexCount = 0;
+  let createdCommCount = 0;
+  let joinedCommCount = 0;
+
+  db.collection("complexes").where("createdBy", "==", userInfo.id).onSnapshot(snapshot => {
     complexContainer.innerHTML = "";
+    complexCount = snapshot.size;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const box = document.createElement("div");
+      box.className = "complex-card";
+      box.innerHTML = `
+        <h2>🧠 ${data.name}</h2>
+        <p style="text-align:center; font-size:12px; color:#00e0ff; margin-top:5px;">
+          ${data.communityId === null ? "#Standalone" : ""}
+        </p>
+        <p class="complex-summary">${data.summary || "No summary."}</p>
+        <div class="complex-buttons">
+          <button class="btn-complex" onclick='openCellModal(${JSON.stringify(data).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
+          <button class="btn-outline">🔗 Share</button>
+        </div>
+      `;
+      complexContainer.appendChild(box);
+    });
+    updateStats(statsEl, complexCount, createdCommCount, joinedCommCount);
+  });
+
+  const renderedCommunityIds = new Set();
+
+  db.collection("communities").where("createdBy", "==", userInfo.id).onSnapshot(snapshot => {
     createdCommContainer.innerHTML = "";
+    createdCommCount = 0;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const box = document.createElement("div");
+      box.className = "community-card";
+      box.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
+      box.onclick = () => openDetailModal({ ...data, id: doc.id });
+      createdCommContainer.appendChild(box);
+      renderedCommunityIds.add(doc.id);
+      createdCommCount++;
+    });
+    updateStats(statsEl, complexCount, createdCommCount, joinedCommCount);
+  });
+
+  db.collection("communities").where("members", "array-contains", userInfo.id).onSnapshot(snapshot => {
     joinedCommContainer.innerHTML = "";
-    statsEl.innerHTML = "Loading...";
+    joinedCommCount = 0;
+    snapshot.forEach(doc => {
+      if (renderedCommunityIds.has(doc.id)) return;
+      const data = doc.data();
+      const box = document.createElement("div");
+      box.className = "community-card";
+      box.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
+      box.onclick = () => openDetailModal({ ...data, id: doc.id });
+      joinedCommContainer.appendChild(box);
+      joinedCommCount++;
+    });
+    updateStats(statsEl, complexCount, createdCommCount, joinedCommCount);
+  });
+}
 
-    let complexCount = 0;
-    let createdCommCount = 0;
-    let joinedCommCount = 0;
+function loadHomeComplexes() {
+  const container = document.getElementById("home-complex-list");
+  container.innerHTML = "Loading...";
 
-    db.collection("complexes").where("createdBy", "==", userInfo.id).onSnapshot(snapshot => {
-      complexContainer.innerHTML = "";
-      complexCount = snapshot.size;
+  db.collection("complexes")
+    .orderBy("createdAt", "desc")
+    .limit(10)
+    .get()
+    .then(snapshot => {
+      container.innerHTML = "";
       snapshot.forEach(doc => {
         const data = doc.data();
         const box = document.createElement("div");
@@ -833,140 +956,88 @@ window.onload = function () {
             <button class="btn-outline">🔗 Share</button>
           </div>
         `;
-        complexContainer.appendChild(box);
+        container.appendChild(box);
       });
-      updateStats(statsEl, complexCount, createdCommCount, joinedCommCount);
     });
-    // ✅ Track rendered community IDs to avoid duplication
-    const renderedCommunityIds = new Set();
+}
 
-    // 👑 Communities Created
-    db.collection("communities").where("createdBy", "==", userInfo.id).onSnapshot(snapshot => {
-      createdCommContainer.innerHTML = "";
-      createdCommCount = 0;
+function openCellModal(complexData, complexId) {
+  currentComplexId = complexId;
+  document.getElementById("cell-modal-title").innerText = complexData.name;
+  const list = document.getElementById("cell-list");
+  list.innerHTML = "";
+
+  if (complexData.cells && complexData.cells.length > 0) {
+    complexData.cells.forEach((cell, index) => {
+      const div = document.createElement("div");
+      div.className = "community-card";
+      div.innerHTML = `<h4>${index + 1}. ${cell.title}</h4><p>${cell.content}</p>`;
+      list.appendChild(div);
+    });
+  } else {
+    list.innerHTML = "No cells in this complex yet.";
+  }
+
+  document.getElementById("cell-modal").style.display = "flex";
+}
+
+function openDetailModal(data) {
+  currentCommunityId = data.id;
+  document.getElementById("detail-name").innerText = data.name;
+  document.getElementById("detail-summary").innerText = data.summary || "No summary.";
+  document.getElementById("complex-feed").innerHTML = "📦 Loading...";
+
+  db.collection("complexes")
+    .where("communityId", "==", data.id)
+    .orderBy("createdAt", "desc")
+    .get()
+    .then(snapshot => {
+      const feed = document.getElementById("complex-feed");
+      feed.innerHTML = "";
+      if (snapshot.empty) {
+        feed.innerHTML = "No complexes yet.";
+        return;
+      }
       snapshot.forEach(doc => {
-        const data = doc.data();
-        const box = document.createElement("div");
-        box.className = "community-card";
-        box.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
-        box.onclick = () => openDetailModal({ ...data, id: doc.id });
-        createdCommContainer.appendChild(box);
-        renderedCommunityIds.add(doc.id);
-        createdCommCount++;
-      });
-      updateStats(statsEl, complexCount, createdCommCount, joinedCommCount);
-    });
-
-    // 🧬 Communities Joined
-    db.collection("communities").where("members", "array-contains", userInfo.id).onSnapshot(snapshot => {
-      joinedCommContainer.innerHTML = "";
-      joinedCommCount = 0;
-      snapshot.forEach(doc => {
-        if (renderedCommunityIds.has(doc.id)) return;
-        const data = doc.data();
-        const box = document.createElement("div");
-        box.className = "community-card";
-        box.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
-        box.onclick = () => openDetailModal({ ...data, id: doc.id });
-        joinedCommContainer.appendChild(box);
-        joinedCommCount++;
-      });
-      updateStats(statsEl, complexCount, createdCommCount, joinedCommCount);
-    });
-  }
-
-  function showProfileTab(tab) {
-    document.getElementById("profile-communities").style.display = tab === "communities" ? "block" : "none";
-    document.getElementById("profile-complexes").style.display = tab === "complexes" ? "block" : "none";
-    document.getElementById("tab-communities").style.opacity = tab === "communities" ? "1" : "0.5";
-    document.getElementById("tab-complexes").style.opacity = tab === "complexes" ? "1" : "0.5";
-  }
-
-  function updateStats(statsEl, complexCount, createdCommCount, joinedCommCount) {
-    statsEl.innerHTML = `
-      📦 ${complexCount} complexes<br>
-      👑 ${createdCommCount} communities created<br>
-      🧬 ${joinedCommCount} communities joined
-    `;
-  }
-  
-  function closeAllModals() {
-    document.querySelectorAll('[id$="-modal"]').forEach(el => {
-      el.style.display = 'none';
-    });
-  }
-  function loadHomeComplexes() {
-    const container = document.getElementById("home-complex-list");
-    container.innerHTML = "Loading...";
-
-    db.collection("complexes")
-      .orderBy("createdAt", "desc")
-      .limit(10)
-      .get()
-      .then(snapshot => {
-        container.innerHTML = "";
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const box = document.createElement("div");
-          box.className = "complex-card";
-          box.innerHTML = `
-            <h2>🧠 ${data.name}</h2>
-            <p style="text-align:center; font-size:12px; color:#00e0ff; margin-top:5px;">
-              ${data.communityId === null ? "#Standalone" : ""}
-            </p>
-            <p class="complex-summary">${data.summary || "No summary."}</p>
-            <div class="complex-buttons">
-              <button class="btn-complex" onclick='openCellModal(${JSON.stringify(data).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
-              <button class="btn-outline">🔗 Share</button>
-            </div>
-          `;
-          container.appendChild(box);
-        });
-      });
-  }
-
-  function openCellModal(complexData, complexId) {
-    currentComplexId = complexId;
-    document.getElementById("cell-modal-title").innerText = complexData.name;
-    const list = document.getElementById("cell-list");
-    list.innerHTML = "";
-
-    if (complexData.cells && complexData.cells.length > 0) {
-      complexData.cells.forEach((cell, index) => {
+        const complex = doc.data();
         const div = document.createElement("div");
-        div.className = "community-card";
-        div.innerHTML = `<h4>${index + 1}. ${cell.title}</h4><p>${cell.content}</p>`;
-        list.appendChild(div);
+        div.className = "complex-card";
+        div.innerHTML = `
+          <h2>🧠 ${complex.name}</h2>
+          <p class="complex-summary">${complex.summary || "No summary."}</p>
+          <div class="complex-buttons">
+            <button class="btn-complex" onclick='openCellModal(${JSON.stringify(complex).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
+            <button class="btn-outline">🔗 Share</button>
+          </div>
+        `;
+        feed.appendChild(div);
       });
-    } else {
-      list.innerHTML = "No cells in this complex yet.";
-    }
+    });
 
-    document.getElementById("cell-modal").style.display = "flex";
-  }
-
-
+  document.getElementById("detail-modal").style.display = "flex";
+}
   
-  // ✅ Load default content
-  showTab("home");
-  loadCommunities();
-  loadHomeComplexes();
+function updateStats(statsEl, complexCount, createdCommCount, joinedCommCount) {
+  statsEl.innerHTML = `
+    📦 ${complexCount} complexes<br>
+    👑 ${createdCommCount} communities created<br>
+    🧬 ${joinedCommCount} communities joined
+  `;
+}
 
+function showTab(tabId) {
+  closeAllModals();
+  document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+  const tab = document.getElementById(tabId);
+  if (tab) tab.classList.add("active");
 
-  function showTab(tabId) {
-    closeAllModals();
-    document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-      document.getElementById(tabId).classList.add("active");
-
-    // Optional: load data
-    if (tabId === "home") loadHomeComplexes();
-    if (tabId === "communities") loadCommunities();
-    if (tabId === "my-communities") loadMyCommunities();
-    if (tabId === "profile") loadUserProfile();
-  }
-
-} // ✅ Properly closes window.onload
+  if (tabId === "home") loadHomeComplexes();
+  if (tabId === "communities") loadCommunities();
+  if (tabId === "my-communities") loadMyCommunities();
+  if (tabId === "profile") loadUserProfile();
+}
 </script>
+
 
 
 
