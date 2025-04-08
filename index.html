@@ -964,18 +964,14 @@ window.onload = function () {
     if (tabId === "my-communities") loadMyCommunities();
     if (tabId === "profile") loadUserProfile();
   }
-}
-   // ✅ Clear Modals
-  function closeAllModals() {
-    document.querySelectorAll('[id$="-modal"]').forEach(el => {
-      el.style.display = "none";
-    });
-  <script>
-   
-} 
-  
 
- // Modal open/close helpers
+} // ✅ Properly closes window.onload
+</script>
+
+
+
+<!-- ✅ Modal helper functions go below this -->
+<script>
   function openCommunityModal() {
     document.getElementById("community-modal").style.display = "flex";
   }
@@ -1003,8 +999,7 @@ window.onload = function () {
   function openAddCellModal() {
     document.getElementById("add-cell-modal").style.display = "flex";
   }
-
-
+</script>
   
  
    
