@@ -230,9 +230,6 @@
     " onclick="openStandaloneComplexModal()">➕ Create Standalone Complex</button>
 
     <!-- Featured Complexes -->
-    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-      <button class="btn" onclick="openStandaloneComplexModal()">➕ Create Standalone Complex</button>
-    </div>
     <h2 style="margin-top: 60px;">📦 Featured Complexes</h2>
     <div id="home-complex-list" style="margin-top: 20px;"></div>
 
@@ -539,6 +536,7 @@
       communityId: currentCommunityId,
       createdAt: new Date(),
       cells: newComplexCells
+      createdBy: userInfo.id
     }).then(() => {
       alert("✅ Complex created!");
       closeComplexBuilder();
@@ -803,6 +801,7 @@
         communityId: currentCommunityId,
         createdAt: new Date(),
         cells: []
+        createdBy: userInfo.id
       }).then(() => {
         alert("✅ Complex created!");
         closeAddComplexModal();
@@ -1234,6 +1233,12 @@
       db.collection("complexes").add(newComplex).then(() => {
         alert("✅ Standalone Complex created!");
         closeStandaloneComplexModal();
+        // ✅ Clear all input fields
+        document.getElementById("standalone-title").value = "";
+        document.getElementById("standalone-summary").value = "";
+        document.getElementById("standalone-cell-title").value = "";
+        document.getElementById("standalone-cell-content").value = "";
+        
         loadHomeComplexes(); // Refresh view
       });
     }
