@@ -769,6 +769,30 @@ window.onload = function () {
         });
       });
   }
+  function loadCommunities() {
+    const sort = document.getElementById("community-sort").value;
+    const container = document.getElementById("community-list");
+    container.innerHTML = "Loading...";
+    let query = db.collection("communities");
+
+    if (sort === "newest") {
+      query = query.orderBy("createdAt", "desc");
+    } else if (sort === "members") {
+      query = query.orderBy("memberCount", "desc");
+    }
+
+    query.limit(20).get().then(snapshot => {
+      container.innerHTML = "";
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const div = document.createElement("div");
+        div.className = "community-card";
+        div.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
+        div.onclick = () => openDetailModal({ ...data, id: doc.id });
+        container.appendChild(div);
+      });
+    });
+  }
 
   // ✅ Load Profile Info + Stats
   function loadUserProfile() {
@@ -956,10 +980,6 @@ function closeAddCellModal() {
 }
 function openAddCellModal() {
   document.getElementById("add-cell-modal").style.display = "flex";
-}
-function openComplexBuilderModal() {
-  document.getElementById("complex-builder-modal").style.display = "flex";
-
 }
 
 
