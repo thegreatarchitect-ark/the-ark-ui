@@ -747,12 +747,7 @@ window.onload = function () {
     });
   }
 
-  // ✅ Clear Modals
-  function closeAllModals() {
-    document.querySelectorAll('[id$="-modal"]').forEach(el => {
-      el.style.display = "none";
-    });
-  }
+ 
   // ✅ Load "My Communities" Tab
   function loadMyCommunities() {
     const createdContainer = document.getElementById("created-community-list");
@@ -970,6 +965,12 @@ window.onload = function () {
   loadCommunities();
   loadHomeComplexes();
 }
+   // ✅ Clear Modals
+  function closeAllModals() {
+    document.querySelectorAll('[id$="-modal"]').forEach(el => {
+      el.style.display = "none";
+    });
+  }
 </script>
 
 <script>
