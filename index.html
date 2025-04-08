@@ -215,7 +215,16 @@
 </head>
 <body>
 
+<script>
+function showTab(tabId) {
+  closeAllModals();
+  document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+  document.getElementById(tabId).classList.add("active");
+  if (tabId === "home") loadHomeComplexes();
+}
+</script>
   <!-- TABS -->
+  
   <div id="home" class="tab-content active" style="position: relative;">
     <!-- Standalone Complex Button -->
     <button class="btn" style="
@@ -572,14 +581,7 @@
 
   </div>
 
-  <script>
-function showTab(tabId) {
-  closeAllModals();
-  document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-  document.getElementById(tabId).classList.add("active");
-  if (tabId === "home") loadHomeComplexes();
-}
-</script>
+
 
   <!-- 🔁 FULL LOGIC SCRIPT START AND FIREBASE -->
 <script>
@@ -588,6 +590,11 @@ window.onload = function () {
   const tg = window.Telegram.WebApp;
   const userInfo = tg?.initDataUnsafe?.user;
   const user = userInfo?.first_name || "guest";
+  
+  if (!userInfo || !userInfo.id) {
+    alert("Telegram user not loaded. Please restart the app.");
+    return;
+  }
 
   const firebaseConfig = {
     apiKey: "AIzaSyBCU2YmXwyT1v5kmUp1HRyUqEQ8eY0n73M",
@@ -928,33 +935,32 @@ window.onload = function () {
       });
   }
 
+  function openCellModal(complexData, complexId) {
+    currentComplexId = complexId;
+    document.getElementById("cell-modal-title").innerText = complexData.name;
+    const list = document.getElementById("cell-list");
+    list.innerHTML = "";
+
+    if (complexData.cells && complexData.cells.length > 0) {
+      complexData.cells.forEach((cell, index) => {
+        const div = document.createElement("div");
+        div.className = "community-card";
+        div.innerHTML = `<h4>${index + 1}. ${cell.title}</h4><p>${cell.content}</p>`;
+        list.appendChild(div);
+      });
+    } else {
+      list.innerHTML = "No cells in this complex yet.";
+    }
+
+    document.getElementById("cell-modal").style.display = "flex";
+  }
+
 
   
   // ✅ Load default content
   showTab("home");
   loadCommunities();
   loadHomeComplexes();
-}
-</script>
-<script>
-function openCellModal(complexData, complexId) {
-  currentComplexId = complexId;
-  document.getElementById("cell-modal-title").innerText = complexData.name;
-  const list = document.getElementById("cell-list");
-  list.innerHTML = "";
-
-  if (complexData.cells && complexData.cells.length > 0) {
-    complexData.cells.forEach((cell, index) => {
-      const div = document.createElement("div");
-      div.className = "community-card";
-      div.innerHTML = `<h4>${index + 1}. ${cell.title}</h4><p>${cell.content}</p>`;
-      list.appendChild(div);
-    });
-  } else {
-    list.innerHTML = "No cells in this complex yet.";
-  }
-
-  document.getElementById("cell-modal").style.display = "flex";
 }
 </script>
 
