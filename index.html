@@ -8,19 +8,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
 
-  <script>
-    function showTab(tabId) {
-      closeAllModals();
-      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-      document.getElementById(tabId).classList.add("active");
-
-      // Optional: load data
-      if (tabId === "home") loadHomeComplexes();
-      if (tabId === "communities") loadCommunities();
-      if (tabId === "my-communities") loadMyCommunities();
-      if (tabId === "profile") loadUserProfile();
-    }
-  </script>
   
   <style>
     body {
@@ -964,48 +951,62 @@ window.onload = function () {
   showTab("home");
   loadCommunities();
   loadHomeComplexes();
+
+
+  function showTab(tabId) {
+    closeAllModals();
+    document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+
+    // Optional: load data
+    if (tabId === "home") loadHomeComplexes();
+    if (tabId === "communities") loadCommunities();
+    if (tabId === "my-communities") loadMyCommunities();
+    if (tabId === "profile") loadUserProfile();
+  }
 }
    // ✅ Clear Modals
   function closeAllModals() {
     document.querySelectorAll('[id$="-modal"]').forEach(el => {
       el.style.display = "none";
     });
+  <script>
+    // Modal open/close helpers
+  function openCommunityModal() {
+    document.getElementById("community-modal").style.display = "flex";
+  }
+  function closeCommunityModal() {
+    document.getElementById("community-modal").style.display = "none";
+  }
+  function closeAddComplexModal() {
+    document.getElementById("add-complex-modal").style.display = "none";
+  }
+  function openStandaloneComplexModal() {
+    document.getElementById("standalone-complex-modal").style.display = "flex";
+  }
+  function closeStandaloneComplexModal() {
+    document.getElementById("standalone-complex-modal").style.display = "none";
+  }
+  function closeDetailModal() {
+    document.getElementById("detail-modal").style.display = "none";
+  }
+  function closeCellModal() {
+    document.getElementById("cell-modal").style.display = "none";
+  }
+  function closeAddCellModal() {
+    document.getElementById("add-cell-modal").style.display = "none";
+  }
+  function openAddCellModal() {
+    document.getElementById("add-cell-modal").style.display = "flex";
+  }
+
+
+
+  </script>
   }
 </script>
 
-<script>
-// Modal open/close helpers
-function openCommunityModal() {
-  document.getElementById("community-modal").style.display = "flex";
-}
-function closeCommunityModal() {
-  document.getElementById("community-modal").style.display = "none";
-}
-function closeAddComplexModal() {
-  document.getElementById("add-complex-modal").style.display = "none";
-}
-function openStandaloneComplexModal() {
-  document.getElementById("standalone-complex-modal").style.display = "flex";
-}
-function closeStandaloneComplexModal() {
-  document.getElementById("standalone-complex-modal").style.display = "none";
-}
-function closeDetailModal() {
-  document.getElementById("detail-modal").style.display = "none";
-}
-function closeCellModal() {
-  document.getElementById("cell-modal").style.display = "none";
-}
-function closeAddCellModal() {
-  document.getElementById("add-cell-modal").style.display = "none";
-}
-function openAddCellModal() {
-  document.getElementById("add-cell-modal").style.display = "flex";
-}
 
-
-
-</script>
 
   
  
