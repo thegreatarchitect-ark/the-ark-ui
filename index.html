@@ -1142,6 +1142,9 @@
           box.className = "complex-card";
           box.innerHTML = `
             <h2>🧠 ${data.name}</h2>
+            <p style="text-align:center; font-size:12px; color:#00e0ff; margin-top:5px;">
+              ${data.communityId === null ? "#Standalone" : ""}
+            </p>
             <p class="complex-summary">${data.summary || "No summary."}</p>
             <div class="complex-buttons">
               <button class="btn-complex" onclick='openCellModal(${JSON.stringify(data).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
