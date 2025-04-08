@@ -572,6 +572,15 @@
 
   </div>
 
+  <script>
+function showTab(tabId) {
+  closeAllModals();
+  document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+  document.getElementById(tabId).classList.add("active");
+  if (tabId === "home") loadHomeComplexes();
+}
+</script>
+
   <!-- 🔁 FULL LOGIC SCRIPT START AND FIREBASE -->
 <script>
 window.onload = function () {
@@ -618,13 +627,7 @@ window.onload = function () {
   let currentComplexName = "";
   let showAll = false;
 
-  // 🔁 Tabs
-  function showTab(tabId) {
-    closeAllModals();
-    document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-    document.getElementById(tabId).classList.add("active");
-    if (tabId === "home") loadHomeComplexes();
-  }
+  
   // ✅ Submit Community
   function submitCommunity() {
     console.log("Creating community as:", userInfo?.id); // Debug
@@ -924,25 +927,7 @@ window.onload = function () {
         });
       });
   }
-  function openCellModal(complexData, complexId) {
-    currentComplexId = complexId;
-    document.getElementById("cell-modal-title").innerText = complexData.name;
-    const list = document.getElementById("cell-list");
-    list.innerHTML = "";
 
-    if (complexData.cells && complexData.cells.length > 0) {
-      complexData.cells.forEach((cell, index) => {
-        const div = document.createElement("div");
-        div.className = "community-card";
-        div.innerHTML = `<h4>${index + 1}. ${cell.title}</h4><p>${cell.content}</p>`;
-        list.appendChild(div);
-      });
-    } else {
-      list.innerHTML = "No cells in this complex yet.";
-    }
-
-    document.getElementById("cell-modal").style.display = "flex";
-  }
 
   
   // ✅ Load default content
@@ -951,7 +936,28 @@ window.onload = function () {
   loadHomeComplexes();
 }
 </script>
-  
+<script>
+function openCellModal(complexData, complexId) {
+  currentComplexId = complexId;
+  document.getElementById("cell-modal-title").innerText = complexData.name;
+  const list = document.getElementById("cell-list");
+  list.innerHTML = "";
+
+  if (complexData.cells && complexData.cells.length > 0) {
+    complexData.cells.forEach((cell, index) => {
+      const div = document.createElement("div");
+      div.className = "community-card";
+      div.innerHTML = `<h4>${index + 1}. ${cell.title}</h4><p>${cell.content}</p>`;
+      list.appendChild(div);
+    });
+  } else {
+    list.innerHTML = "No cells in this complex yet.";
+  }
+
+  document.getElementById("cell-modal").style.display = "flex";
+}
+</script>
+
 <script>
 // Modal open/close helpers
 function openCommunityModal() {
