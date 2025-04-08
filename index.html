@@ -535,7 +535,7 @@
       summary,
       communityId: currentCommunityId,
       createdAt: new Date(),
-      cells: newComplexCells
+      cells: newComplexCells,
       createdBy: userInfo.id
     }).then(() => {
       alert("✅ Complex created!");
@@ -612,6 +612,7 @@
     let showAll = false;
 
     function showTab(tabId) {
+      closeAllModals(); 
       document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
       document.getElementById(tabId).classList.add("active");
 
@@ -619,6 +620,7 @@
         loadHomeComplexes();
       }
     }
+
 
     function openCommunityModal() {
       document.getElementById("community-modal").style.display = "flex";
@@ -1245,7 +1247,11 @@
         loadHomeComplexes(); // Refresh view
       });
     }
-
+    function closeAllModals() {
+      document.querySelectorAll('[id$="-modal"]').forEach(el => {
+        el.style.display = 'none';
+      });
+    }
 
     function loadMyCommunities() {
       const createdContainer = document.getElementById("created-community-list");
