@@ -487,18 +487,6 @@
   }
 </style>
   
-<script>
-  let userInfo = null;
-  let db = null;
-
-  // 👇 Add these three lines
-  let currentCommunityId = null;
-  let currentComplexId = null;
-  let currentComplexName = "";
-</script>
-
-
-
   
 <script>
   let newComplexCells = [];
@@ -763,40 +751,7 @@ window.onload = function () {
     });
   }
 
-  // ✅ Submit Standalone Complex
-  function submitStandaloneComplex() {
-    const name = document.getElementById("standalone-title").value.trim();
-    const summary = document.getElementById("standalone-summary").value.trim();
-    const cellTitle = document.getElementById("standalone-cell-title").value.trim();
-    const cellContent = document.getElementById("standalone-cell-content").value.trim();
-
-    if (!name || !cellTitle || !cellContent) {
-      alert("Please fill all fields.");
-      return;
-    }
-
-    const newComplex = {
-      name,
-      summary,
-      createdAt: new Date(),
-      createdBy: userInfo.id,
-      cells: [{ title: cellTitle, content: cellContent }],
-      communityId: null
-    };
-
-    db.collection("complexes").add(newComplex).then(() => {
-      alert("✅ Standalone Complex created!");
-      closeStandaloneComplexModal();
-
-      // Clear fields
-      document.getElementById("standalone-title").value = "";
-      document.getElementById("standalone-summary").value = "";
-      document.getElementById("standalone-cell-title").value = "";
-      document.getElementById("standalone-cell-content").value = "";
-
-      loadHomeComplexes();
-    });
-  }
+  
 
   // ✅ Submit Cell inside a Complex
   function submitCell() {
@@ -1147,7 +1102,46 @@ function updateStats(statsEl, complexCount, createdCommCount, joinedCommCount) {
     document.getElementById("add-cell-modal").style.display = "flex";
   }
 </script>
-  
+
+<script>
+function submitStandaloneComplex() {
+  const name = document.getElementById("standalone-title").value.trim();
+  const summary = document.getElementById("standalone-summary").value.trim();
+  const cellTitle = document.getElementById("standalone-cell-title").value.trim();
+  const cellContent = document.getElementById("standalone-cell-content").value.trim();
+
+  if (!name || !cellTitle || !cellContent) {
+    alert("Please fill all fields.");
+    return;
+  }
+
+  const newComplex = {
+    name,
+    summary,
+    createdAt: new Date(),
+    createdBy: userInfo.id,
+    cells: [{ title: cellTitle, content: cellContent }],
+    communityId: null
+  };
+
+  db.collection("complexes").add(newComplex).then(() => {
+    alert("✅ Standalone Complex created!");
+    closeStandaloneComplexModal();
+
+    // Clear form fields
+    document.getElementById("standalone-title").value = "";
+    document.getElementById("standalone-summary").value = "";
+    document.getElementById("standalone-cell-title").value = "";
+    document.getElementById("standalone-cell-content").value = "";
+
+    loadHomeComplexes(); // ✅ Refresh the list
+  }).catch((error) => {
+    console.error("❌ Failed to create standalone complex:", error.message);
+    alert("Error: " + error.message);
+  });
+}
+</script>
+
  
    
 </body>
