@@ -899,8 +899,9 @@ function loadUserProfile() {
       box.innerHTML = `
         <h2>🧠 ${data.name}</h2>
         <p style="text-align:center; font-size:12px; color:#00e0ff; margin-top:5px;">
-          ${data.communityId === null ? "#Standalone" : ""}
+          ${data.communityId === null ? "#Standalone" : "#Community"}
         </p>
+
         <p class="complex-summary">${data.summary || "No summary."}</p>
         <div class="complex-buttons">
           <button class="btn-complex" onclick='openCellModal(${JSON.stringify(data).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
@@ -963,8 +964,9 @@ function loadHomeComplexes() {
         box.innerHTML = `
           <h2>🧠 ${data.name}</h2>
           <p style="text-align:center; font-size:12px; color:#00e0ff; margin-top:5px;">
-            ${data.communityId === null ? "#Standalone" : ""}
+            ${data.communityId === null ? "#Standalone" : "#Community"}
           </p>
+
           <p class="complex-summary">${data.summary || "No summary."}</p>
           <div class="complex-buttons">
             <button class="btn-complex" onclick='openCellModal(${JSON.stringify(data).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
@@ -1043,6 +1045,10 @@ function openDetailModal(data) {
         div.className = "complex-card";
         div.innerHTML = `
           <h2>🧠 ${complex.name}</h2>
+          <p style="text-align:center; font-size:12px; color:#00e0ff; margin-top:5px;">
+            ${data.communityId === null ? "#Standalone" : "#Community"}
+          </p>
+
           <p class="complex-summary">${complex.summary || "No summary."}</p>
           <div class="complex-buttons">
             <button class="btn-complex" onclick='openCellModal(${JSON.stringify(complex).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
