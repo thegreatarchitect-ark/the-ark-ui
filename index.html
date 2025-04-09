@@ -689,38 +689,7 @@ window.onload = function () {
   let showAll = false;
 
   
-  // ✅ Submit Community
-  function submitCommunity() {
-    if (!userInfo || !userInfo.id) {
-      alert("User not loaded. Please refresh the app.");
-      return;
-    }
-
-    const name = document.getElementById("community-name").value.trim();
-    const summary = document.getElementById("community-summary").value.trim();
-    const tagsInput = document.getElementById("community-tags").value.trim();
-    const tags = tagsInput ? tagsInput.split(",").map(t => t.trim()).filter(Boolean) : [];
-
-    if (!name) {
-      alert("Please enter a community name.");
-      return;
-    }
-
-    db.collection("communities").add({
-      name,
-      summary,
-      createdBy: userInfo.id,
-      members: [userInfo.id],
-      memberCount: 1,
-      tags,
-      createdAt: new Date()
-    }).then(() => {
-      alert("✅ Community created!");
-      closeCommunityModal();
-      loadCommunities();
-    });
-  }
-
+  
 
   // ✅ Submit Complex (inside Community)
   function submitComplex() {
@@ -838,10 +807,25 @@ function loadMyCommunities() {
     });
 }
 
+<script>
 function loadCommunities() {
+  if (typeof db === "undefined" || !db || typeof db.collection !== "function") {
+    console.error("❌ Firestore 'db' is not initialized or is null.");
+    const container = document.getElementById("community-list");
+    if (container) container.innerHTML = "<p style='color:red;'>Error loading communities. Please refresh the app.</p>";
+    return;
+  }
+
   const sort = document.getElementById("community-sort").value;
   const container = document.getElementById("community-list");
+
+  if (!container) {
+    console.error("❌ Element with id 'community-list' not found.");
+    return;
+  }
+
   container.innerHTML = "Loading...";
+
   let query = db.collection("communities");
 
   if (sort === "newest") {
@@ -860,8 +844,13 @@ function loadCommunities() {
       div.onclick = () => openDetailModal({ ...data, id: doc.id });
       container.appendChild(div);
     });
+  }).catch(error => {
+    console.error("❌ Failed to load communities:", error);
+    container.innerHTML = "<p style='color:red;'>Failed to load communities.</p>";
   });
 }
+</script>
+
 
 function toggleCommunityView() {
   alert("Toggle view is not implemented yet.");
@@ -1147,7 +1136,129 @@ function submitStandaloneComplex() {
   });
 }
 </script>
+  
+<script>
+  function submitCommunity() {
+    if (!userInfo || !userInfo.id) {
+      alert("User not loaded. Please refresh the app.");
+      return;
+    }
 
+    const name = document.getElementById("community-name").value.trim();
+    const summary = document.getElementById("community-summary").value.trim();
+    const tagsInput = document.getElementById("community-tags").value.trim();
+    const tags = tagsInput ? tagsInput.split(",").map(t => t.trim()).filter(Boolean) : [];
+
+    if (!name) {
+      alert("Please enter a community name.");
+      return;
+    }
+
+    db.collection("communities").add({
+      name,
+      summary,
+      createdBy: userInfo.id,
+      members: [userInfo.id],
+      memberCount: 1,
+      tags,
+      createdAt: new Date()
+    }).then(() => {
+      alert("✅ Community created!");
+      closeCommunityModal();
+      loadCommunities();
+    }).catch((error) => {
+      console.error("❌ Error creating community:", error);
+      alert("Failed to create community. See console for details.");
+    });
+  }
+</script>
+<script>
+function loadUserProfile() {
+  if (!userInfo || !userInfo.id || !userInfo.first_name) {
+    console.error("❌ userInfo not loaded yet:", userInfo);
+    return;
+  }
+
+  document.getElementById("profile-name").innerText = userInfo.first_name || "User";
+  const photo = userInfo.photoUrl || userInfo.photo_url;
+  if (photo) {
+    document.getElementById("profile-photo").src = photo;
+  }
+
+  const complexContainer = document.getElementById("user-complexes");
+  const createdCommContainer = document.getElementById("user-created-communities");
+  const joinedCommContainer = document.getElementById("user-joined-communities");
+  const statsEl = document.getElementById("user-stats");
+
+  complexContainer.innerHTML = "";
+  createdCommContainer.innerHTML = "";
+  joinedCommContainer.innerHTML = "";
+  statsEl.innerHTML = "Loading...";
+
+  let complexCount = 0;
+  let createdCommCount = 0;
+  let joinedCommCount = 0;
+
+  db.collection("complexes").where("createdBy", "==", userInfo.id).onSnapshot(snapshot => {
+    complexContainer.innerHTML = "";
+    complexCount = snapshot.size;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const box = document.createElement("div");
+      box.className = "complex-card";
+      box.innerHTML = `
+        <h2>🧠 ${data.name}</h2>
+        <p style="text-align:center; font-size:12px; color:#00e0ff; margin-top:5px;">
+          ${data.communityId === null ? "#Standalone" : "#Community"}
+        </p>
+        <p class="complex-summary">${data.summary || "No summary."}</p>
+        <div class="complex-buttons">
+          <button class="btn-complex" onclick='openCellModal(${JSON.stringify(data).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
+          <button class="btn-outline">🔗 Share</button>
+        </div>
+      `;
+      complexContainer.appendChild(box);
+    });
+    updateStats(statsEl, complexCount, createdCommCount, joinedCommCount);
+  });
+
+  const renderedCommunityIds = new Set();
+
+  db.collection("communities").where("createdBy", "==", userInfo.id).onSnapshot(snapshot => {
+    createdCommContainer.innerHTML = "";
+    createdCommCount = 0;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const box = document.createElement("div");
+      box.className = "community-card";
+      box.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
+      box.onclick = () => openDetailModal({ ...data, id: doc.id });
+      createdCommContainer.appendChild(box);
+      renderedCommunityIds.add(doc.id);
+      createdCommCount++;
+    });
+    updateStats(statsEl, complexCount, createdCommCount, joinedCommCount);
+  });
+
+  db.collection("communities").where("members", "array-contains", userInfo.id).onSnapshot(snapshot => {
+    joinedCommContainer.innerHTML = "";
+    joinedCommCount = 0;
+    snapshot.forEach(doc => {
+      if (renderedCommunityIds.has(doc.id)) return;
+      const data = doc.data();
+      const box = document.createElement("div");
+      box.className = "community-card";
+      box.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
+      box.onclick = () => openDetailModal({ ...data, id: doc.id });
+      joinedCommContainer.appendChild(box);
+      joinedCommCount++;
+    });
+    updateStats(statsEl, complexCount, createdCommCount, joinedCommCount);
+  });
+}
+</script>
+
+   
  
    
 </body>
