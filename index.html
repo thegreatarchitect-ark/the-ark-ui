@@ -1065,6 +1065,8 @@ function saveBio() {
     document.getElementById("profile-bio-input").style.display = "none";
     document.getElementById("save-bio-btn").style.display = "none";
     bioText.style.display = "block";
+    document.getElementById("edit-bio-btn").style.display = "inline-block"; // <— This is missing
+
 
     alert("✅ Bio saved!");
   }).catch(err => {
@@ -1076,14 +1078,15 @@ function saveBio() {
 
 <script>
 function shareProfile() {
-  if (!userInfo) {
+  if (!userInfo || (!userInfo.username && !userInfo.id)) {
     alert("User info not loaded.");
     return;
   }
 
   const username = userInfo.username;
-  if (!username) {
-    alert("❌ You need to set a Telegram username to share your profile.");
+
+  if (!username || username.trim() === "") {
+    alert("❌ You need to set a Telegram username in your Telegram settings to share your profile.");
     return;
   }
 
@@ -1095,6 +1098,7 @@ function shareProfile() {
     alert("Failed to copy link.");
   });
 }
+
 </script>
 
 <script>
