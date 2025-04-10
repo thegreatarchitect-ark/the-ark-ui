@@ -681,12 +681,13 @@ window.onload = function () {
       }
     });
   }
+  
+  // 🔁 Globals (assign without re-declaring)
+  currentCommunityId = null;
+  currentComplexId = null;
+  currentComplexName = "";
+  let showAll = false; // ✅ you can declare this here, since it's not globally declared
 
-  // 🔁 Globals
-  let currentCommunityId = null;
-  let currentComplexId = null;
-  let currentComplexName = "";
-  let showAll = false;
 
   
   
@@ -849,9 +850,11 @@ function loadCommunities() {
     container.innerHTML = "<p style='color:red;'>Failed to load communities.</p>";
   });
 }
+
 </script>
 
-
+</script>
+  
 function toggleCommunityView() {
   alert("Toggle view is not implemented yet.");
 }
