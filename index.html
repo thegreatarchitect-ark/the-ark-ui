@@ -1131,38 +1131,40 @@ function submitStandaloneComplex() {
   
 <script>
   function submitCommunity() {
-    if (!userInfo || !userInfo.id) {
-      alert("User not loaded. Please refresh the app.");
-      return;
-    }
-
-    const name = document.getElementById("community-name").value.trim();
-    const summary = document.getElementById("community-summary").value.trim();
-    const tagsInput = document.getElementById("community-tags").value.trim();
-    const tags = tagsInput ? tagsInput.split(",").map(t => t.trim()).filter(Boolean) : [];
-
-    if (!name) {
-      alert("Please enter a community name.");
-      return;
-    }
-
-    db.collection("communities").add({
-      name,
-      summary,
-      createdBy: userInfo.id,
-      members: [userInfo.id],
-      memberCount: 1,
-      tags,
-      createdAt: new Date()
-    }).then(() => {
-      alert("✅ Community created!");
-      closeCommunityModal();
-      loadCommunities();
-    }).catch((error) => {
-      console.error("❌ Error creating community:", error);
-      alert("Failed to create community. See console for details.");
-    });
+  if (!db || !userInfo || !userInfo.id) {
+    alert("❌ App not ready yet. Please wait a moment or refresh.");
+    console.error("❌ submitCommunity error: db or userInfo not loaded.", db, userInfo);
+    return;
   }
+
+  const name = document.getElementById("community-name").value.trim();
+  const summary = document.getElementById("community-summary").value.trim();
+  const tagsInput = document.getElementById("community-tags").value.trim();
+  const tags = tagsInput ? tagsInput.split(",").map(t => t.trim()).filter(Boolean) : [];
+
+  if (!name) {
+    alert("Please enter a community name.");
+    return;
+  }
+
+  db.collection("communities").add({
+    name,
+    summary,
+    createdBy: userInfo.id,
+    members: [userInfo.id],
+    memberCount: 1,
+    tags,
+    createdAt: new Date()
+  }).then(() => {
+    alert("✅ Community created!");
+    closeCommunityModal();
+    loadCommunities();
+  }).catch((error) => {
+    console.error("❌ Error creating community:", error);
+    alert("Failed to create community. See console for details.");
+  });
+}
+
 </script>
 <script>
 function loadUserProfile() {
