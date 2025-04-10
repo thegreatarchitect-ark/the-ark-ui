@@ -603,6 +603,50 @@
   </div>
 
 <script>
+function loadCommunities() {
+  if (typeof db === "undefined" || !db || typeof db.collection !== "function") {
+    console.error("❌ Firestore 'db' is not initialized or is null.");
+    const container = document.getElementById("community-list");
+    if (container) container.innerHTML = "<p style='color:red;'>Error loading communities. Please refresh the app.</p>";
+    return;
+  }
+
+  const sort = document.getElementById("community-sort").value;
+  const container = document.getElementById("community-list");
+
+  if (!container) {
+    console.error("❌ Element with id 'community-list' not found.");
+    return;
+  }
+
+  container.innerHTML = "Loading...";
+
+  let query = db.collection("communities");
+
+  if (sort === "newest") {
+    query = query.orderBy("createdAt", "desc");
+  } else if (sort === "members") {
+    query = query.orderBy("memberCount", "desc");
+  }
+
+  query.limit(20).get().then(snapshot => {
+    container.innerHTML = "";
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const div = document.createElement("div");
+      div.className = "community-card";
+      div.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
+      div.onclick = () => openDetailModal({ ...data, id: doc.id });
+      container.appendChild(div);
+    });
+  }).catch(error => {
+    console.error("❌ Failed to load communities:", error);
+    container.innerHTML = "<p style='color:red;'>Failed to load communities.</p>";
+  });
+}
+
+</script>
+<script>
 function closeAllModals() {
   document.querySelectorAll('[id$="-modal"]').forEach(el => {
     el.style.display = 'none';
@@ -775,8 +819,11 @@ window.onload = function () {
   showTab("home");
   loadCommunities();
   loadHomeComplexes();  
-
+  
+  window.appReady = true;
+  console.log("✅ App is fully initialized.");
 } 
+  
 </script>
 
 <script>
@@ -813,51 +860,9 @@ function loadMyCommunities() {
       });
     });
 }
-
 <script>
-function loadCommunities() {
-  if (typeof db === "undefined" || !db || typeof db.collection !== "function") {
-    console.error("❌ Firestore 'db' is not initialized or is null.");
-    const container = document.getElementById("community-list");
-    if (container) container.innerHTML = "<p style='color:red;'>Error loading communities. Please refresh the app.</p>";
-    return;
-  }
+  
 
-  const sort = document.getElementById("community-sort").value;
-  const container = document.getElementById("community-list");
-
-  if (!container) {
-    console.error("❌ Element with id 'community-list' not found.");
-    return;
-  }
-
-  container.innerHTML = "Loading...";
-
-  let query = db.collection("communities");
-
-  if (sort === "newest") {
-    query = query.orderBy("createdAt", "desc");
-  } else if (sort === "members") {
-    query = query.orderBy("memberCount", "desc");
-  }
-
-  query.limit(20).get().then(snapshot => {
-    container.innerHTML = "";
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const div = document.createElement("div");
-      div.className = "community-card";
-      div.innerHTML = `<h3>📘 ${data.name}</h3><p>${data.summary || "No summary."}</p>`;
-      div.onclick = () => openDetailModal({ ...data, id: doc.id });
-      container.appendChild(div);
-    });
-  }).catch(error => {
-    console.error("❌ Failed to load communities:", error);
-    container.innerHTML = "<p style='color:red;'>Failed to load communities.</p>";
-  });
-}
-
-</script>
 
 <script>
 function toggleCommunityView() {
@@ -1053,41 +1058,43 @@ function submitStandaloneComplex() {
   
 <script>
   function submitCommunity() {
-  if (!db || !userInfo || !userInfo.id) {
-    alert("❌ App not ready yet. Please wait a moment or refresh.");
-    console.error("❌ submitCommunity error: db or userInfo not loaded.", db, userInfo);
-    return;
+    if (!db || !userInfo || !userInfo.id) {
+      alert("❌ App not ready yet. Please wait a moment or refresh.");
+      console.error("❌ submitCommunity error: db or userInfo not loaded.", db, userInfo);
+      return;
+    }
+
+    const name = document.getElementById("community-name").value.trim();
+    const summary = document.getElementById("community-summary").value.trim();
+    const tagsInput = document.getElementById("community-tags").value.trim();
+    const tags = tagsInput ? tagsInput.split(",").map(t => t.trim()).filter(Boolean) : [];
+
+    if (!name) {
+      alert("Please enter a community name.");
+      return;
+    }
+
+    db.collection("communities").add({
+      name,
+      summary,
+      createdBy: userInfo.id,
+      members: [userInfo.id],
+      memberCount: 1,
+      tags,
+      createdAt: new Date()
+    }).then(() => {
+      alert("✅ Community created!");
+      closeCommunityModal();
+      loadCommunities();
+    }).catch((error) => {
+      console.error("❌ Error creating community:", error);
+      alert("Failed to create community. See console for details.");
+    });
   }
-
-  const name = document.getElementById("community-name").value.trim();
-  const summary = document.getElementById("community-summary").value.trim();
-  const tagsInput = document.getElementById("community-tags").value.trim();
-  const tags = tagsInput ? tagsInput.split(",").map(t => t.trim()).filter(Boolean) : [];
-
-  if (!name) {
-    alert("Please enter a community name.");
-    return;
-  }
-
-  db.collection("communities").add({
-    name,
-    summary,
-    createdBy: userInfo.id,
-    members: [userInfo.id],
-    memberCount: 1,
-    tags,
-    createdAt: new Date()
-  }).then(() => {
-    alert("✅ Community created!");
-    closeCommunityModal();
-    loadCommunities();
-  }).catch((error) => {
-    console.error("❌ Error creating community:", error);
-    alert("Failed to create community. See console for details.");
-  });
-}
-
 </script>
+
+
+  
 <script>
 function loadUserProfile() {
   if (!userInfo || !userInfo.id || !userInfo.first_name) {
