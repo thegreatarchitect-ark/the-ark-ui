@@ -742,7 +742,24 @@ window.onload = function () {
   
   
 
-  // ✅ Submit Complex (inside Community)
+  
+  
+ 
+ 
+  
+  // ✅ Load default content
+  showTab("home");
+  loadCommunities();
+  loadHomeComplexes();  
+  
+  window.appReady = true;
+  console.log("✅ App is fully initialized.");
+} 
+  
+</script>
+  
+<script>
+// ✅ Submit Complex (inside Community)
   function submitComplex() {
     if (!userInfo || !userInfo.id) {
       alert("User not loaded. Please refresh the app.");
@@ -771,27 +788,9 @@ window.onload = function () {
     });
   }
 
-  
+</script> 
 
-  
- 
- 
-  
-  
-  
-  
 
-  
-  // ✅ Load default content
-  showTab("home");
-  loadCommunities();
-  loadHomeComplexes();  
-  
-  window.appReady = true;
-  console.log("✅ App is fully initialized.");
-} 
-  
-</script>
 
 <script>
 
