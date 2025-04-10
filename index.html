@@ -773,7 +773,29 @@ window.onload = function () {
 
   
 
-  // ✅ Submit Cell inside a Complex
+  
+ 
+ 
+  
+  
+  
+  
+
+  
+  // ✅ Load default content
+  showTab("home");
+  loadCommunities();
+  loadHomeComplexes();  
+  
+  window.appReady = true;
+  console.log("✅ App is fully initialized.");
+} 
+  
+</script>
+
+<script>
+
+// ✅ Submit Cell inside a Complex
   function submitCell() {
     const title = document.getElementById("cell-title").value.trim();
     const content = document.getElementById("cell-content").value.trim();
@@ -805,25 +827,6 @@ window.onload = function () {
       alert("Failed to save the cell: " + error.message);
     });
   }
-
-
- 
-  // ✅ Load "My Communities" Tab
-  
-  
-  
-  
-
-  
-  // ✅ Load default content
-  showTab("home");
-  loadCommunities();
-  loadHomeComplexes();  
-  
-  window.appReady = true;
-  console.log("✅ App is fully initialized.");
-} 
-  
 </script>
 
 <script>
