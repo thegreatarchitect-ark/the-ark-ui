@@ -304,7 +304,13 @@
     <div style="text-align: center; margin-bottom: 20px;">
       <img id="profile-photo" src="" alt="Profile Photo" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #00e0ff;" />
       <h2 id="profile-name" style="margin-top: 10px;">👤 Username</h2>
-      <p id="profile-bio" style="color: #aaa; font-size: 14px;">Click to add your bio</p>
+      <button class="btn" style="font-size:13px; padding:6px 12px; margin-top:8px;" onclick="shareProfile()">🔗 Share My Profile</button>
+
+     <div style="margin-top: 10px;">
+      <textarea id="profile-bio" style="width: 100%; background: #121212; color: #ccc; border: 1px solid #444; border-radius: 8px; padding: 8px;" rows="3" placeholder="Click to edit your bio..."></textarea>
+      <button class="btn" style="margin-top: 8px;" onclick="saveBio()">💾 Save Bio</button>
+    </div>
+
       <p id="user-stats" style="color: #ccc; margin-top: 10px;">Loading...</p>
     </div>
 
@@ -1019,6 +1025,42 @@ function updateStats(statsEl, complexCount, createdCommCount, joinedCommCount) {
     document.getElementById("add-cell-modal").style.display = "flex";
   }
 </script>
+  
+<script>
+function shareProfile() {
+  if (!userInfo || !userInfo.username) {
+    alert("No username available to share.");
+    return;
+  }
+
+  const url = `https://theark.com/user/${userInfo.username}`;
+  navigator.clipboard.writeText(url).then(() => {
+    alert("✅ Profile link copied to clipboard!");
+  }).catch(err => {
+    console.error("❌ Failed to copy:", err);
+    alert("Failed to copy link.");
+  });
+}
+</script>
+
+<script>
+function saveBio() {
+  const bioText = document.getElementById("profile-bio").value.trim();
+  if (!userInfo || !userInfo.id) {
+    alert("User not loaded.");
+    return;
+  }
+
+  db.collection("users").doc(userInfo.id.toString()).update({
+    bio: bioText
+  }).then(() => {
+    alert("✅ Bio saved!");
+  }).catch((err) => {
+    console.error("❌ Error saving bio:", err);
+    alert("Failed to save bio.");
+  });
+}
+</script>
 
 <script>
 function submitStandaloneComplex() {
@@ -1106,6 +1148,13 @@ function loadUserProfile() {
   }
 
   document.getElementById("profile-name").innerText = userInfo.first_name || "User";
+  db.collection("users").doc(userInfo.id.toString()).get().then((doc) => {
+  if (doc.exists) {
+    const data = doc.data();
+    const bioInput = document.getElementById("profile-bio");
+    bioInput.value = data.bio || "";
+    }
+  });
   const photo = userInfo.photoUrl || userInfo.photo_url;
   if (photo) {
     document.getElementById("profile-photo").src = photo;
