@@ -853,19 +853,17 @@ function loadCommunities() {
 
 </script>
 
-</script>
-  
+<script>
 function toggleCommunityView() {
   alert("Toggle view is not implemented yet.");
 }
-  
+
 function loadUserProfile() {
   document.getElementById("profile-name").innerText = userInfo.first_name || "User";
   const photo = userInfo.photoUrl || userInfo.photo_url;
   if (photo) {
     document.getElementById("profile-photo").src = photo;
   }
-
 
   const complexContainer = document.getElementById("user-complexes");
   const createdCommContainer = document.getElementById("user-created-communities");
@@ -893,7 +891,6 @@ function loadUserProfile() {
         <p style="text-align:center; font-size:12px; color:#00e0ff; margin-top:5px;">
           ${data.communityId === null ? "#Standalone" : "#Community"}
         </p>
-
         <p class="complex-summary">${data.summary || "No summary."}</p>
         <div class="complex-buttons">
           <button class="btn-complex" onclick='openCellModal(${JSON.stringify(data).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
@@ -958,7 +955,6 @@ function loadHomeComplexes() {
           <p style="text-align:center; font-size:12px; color:#00e0ff; margin-top:5px;">
             ${data.communityId === null ? "#Standalone" : "#Community"}
           </p>
-
           <p class="complex-summary">${data.summary || "No summary."}</p>
           <div class="complex-buttons">
             <button class="btn-complex" onclick='openCellModal(${JSON.stringify(data).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
@@ -970,7 +966,6 @@ function loadHomeComplexes() {
     });
 }
 
-
 function openCellModal(complexData, complexId) {
   currentComplexId = complexId;
   currentComplexName = complexData.name;
@@ -979,7 +974,6 @@ function openCellModal(complexData, complexId) {
   const list = document.getElementById("cell-list");
   list.innerHTML = "Loading...";
 
-  // Live listener
   db.collection("complexes").doc(complexId)
     .onSnapshot(doc => {
       const complex = doc.data();
@@ -1008,24 +1002,18 @@ function openCellModal(complexData, complexId) {
   document.getElementById("cell-modal").style.display = "flex";
 }
 
-
 function openDetailModal(data) {
   currentCommunityId = data.id;
   document.getElementById("detail-name").innerText = data.name;
   document.getElementById("detail-summary").innerText = data.summary || "No summary.";
-  document.getElementById("complex-feed").innerHTML = "📦 Loading...";
-
   const feed = document.getElementById("complex-feed");
+  feed.innerHTML = "📦 Loading...";
 
-  // Clear any existing content
-  feed.innerHTML = "";
-
-  // Listen to real-time updates from Firestore
   db.collection("complexes")
     .where("communityId", "==", data.id)
     .orderBy("createdAt", "desc")
     .onSnapshot(snapshot => {
-      feed.innerHTML = ""; // Clear again to prevent duplicates
+      feed.innerHTML = "";
       if (snapshot.empty) {
         feed.innerHTML = "No complexes yet.";
         return;
@@ -1040,7 +1028,6 @@ function openDetailModal(data) {
           <p style="text-align:center; font-size:12px; color:#00e0ff; margin-top:5px;">
             ${data.communityId === null ? "#Standalone" : "#Community"}
           </p>
-
           <p class="complex-summary">${complex.summary || "No summary."}</p>
           <div class="complex-buttons">
             <button class="btn-complex" onclick='openCellModal(${JSON.stringify(complex).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
@@ -1054,8 +1041,6 @@ function openDetailModal(data) {
   document.getElementById("detail-modal").style.display = "flex";
 }
 
-
-  
 function updateStats(statsEl, complexCount, createdCommCount, joinedCommCount) {
   statsEl.innerHTML = `
     📦 ${complexCount} complexes<br>
@@ -1063,8 +1048,6 @@ function updateStats(statsEl, complexCount, createdCommCount, joinedCommCount) {
     🧬 ${joinedCommCount} communities joined
   `;
 }
-
-
 </script>
 
 
