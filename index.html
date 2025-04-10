@@ -642,13 +642,19 @@ function showTab(tabId) {
 window.onload = function () {
   // ✅ Telegram & Firebase Setup
   const tg = window.Telegram.WebApp;
-  userInfo = tg?.initDataUnsafe?.user;
-  const user = userInfo?.first_name || "guest";
-  
-  if (!userInfo || !userInfo.id) {
+  const loadedUser = tg?.initDataUnsafe?.user;
+  if (!loadedUser || !loadedUser.id) {
     alert("Telegram user not loaded. Please restart the app.");
     return;
   }
+  userInfo = {
+    id: loadedUser.id,
+    first_name: loadedUser.first_name,
+    username: loadedUser.username || "",
+    photo_url: loadedUser.photo_url || "",
+    photoUrl: loadedUser.photo_url || "", // normalize for both cases
+  };
+
 
   const firebaseConfig = {
     apiKey: "AIzaSyBCU2YmXwyT1v5kmUp1HRyUqEQ8eY0n73M",
@@ -667,8 +673,8 @@ window.onload = function () {
   if (welcome) welcome.innerText = `Hello, ${user}!`;
 
   // ✅ Save Telegram user profile to Firestore if not exists
-  if (userInfo) {
-    const userRef = db.collection("users").doc(userInfo.id.toString());
+  const userRef = db.collection("users").doc(userInfo.id.toString());
+
     userRef.get().then((doc) => {
       if (!doc.exists) {
         userRef.set({
