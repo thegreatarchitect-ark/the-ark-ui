@@ -1339,8 +1339,10 @@ document.getElementById("generateAIButton").addEventListener("click", async () =
     // Show the generated content
     let html = `<h3>🧠 ${data.title}</h3>`;
     html += "<ul>";
-    data.cells.forEach(cell => {
-      html += `<li><strong>${cell.title}:</strong> ${cell.content}</li>`;
+    data.cells.forEach(cellString => {
+      const [title, ...rest] = cellString.split(":");
+      const content = rest.join(":").trim();
+      html += `<li><strong>${title.trim()}:</strong> ${content}</li>`;
     });
     html += "</ul>";
 
