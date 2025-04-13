@@ -1309,6 +1309,9 @@ document.getElementById("generateAIButton").addEventListener("click", async () =
   const summary = document.getElementById("complexSummaryInput").value.trim();
   const outputDiv = document.getElementById("aiResults");
   outputDiv.innerHTML = ""; // Clear previous results
+  outputDiv.style.display = "block"; // ✅ This is what was missing
+  outputDiv.scrollIntoView({ behavior: 'smooth' });
+
 
   if (!summary) {
     outputDiv.innerHTML = "<p style='color: red;'>Please enter a summary first.</p>";
