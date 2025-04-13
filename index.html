@@ -488,6 +488,24 @@
   </div>
 </div>
 
+<!-- 🔍 Complex Summary Input -->
+<div style="margin: 20px 0;">
+  <label for="complexSummaryInput">Enter a summary to generate a Complex:</label>
+  <textarea id="complexSummaryInput" placeholder="e.g. The future of education in AI-driven societies..." rows="3" style="width: 100%; padding: 10px; border-radius: 10px;"></textarea>
+</div>
+
+<!-- ⚡ Generate Button -->
+<div style="margin-bottom: 20px;">
+  <button id="generateAIButton" class="btn">✨ Generate with AI</button>
+</div>
+
+<!-- 📦 AI Results Container -->
+<div id="aiResults" style="background-color: #111; padding: 20px; border-radius: 12px; display: none;">
+  <h3 style="color: #00e0ff;">🔮 AI Generated Complex</h3>
+  <div id="aiTitle" style="font-size: 18px; font-weight: bold; margin-bottom: 10px;"></div>
+  <div id="aiCells"></div>
+</div>
+
 <!-- Add style for scrollable complex list and fix modal scrolling issues -->
 <style>
   #complex-feed {
@@ -1286,7 +1304,52 @@ function loadUserProfile() {
 }
 </script>
 
-   
+<script>
+document.getElementById("generateAIButton").addEventListener("click", async () => {
+  const summary = document.getElementById("complexSummaryInput").value.trim();
+  const outputDiv = document.getElementById("aiResults");
+  outputDiv.innerHTML = ""; // Clear previous results
+
+  if (!summary) {
+    outputDiv.innerHTML = "<p style='color: red;'>Please enter a summary first.</p>";
+    return;
+  }
+
+  outputDiv.innerHTML = "<p>⏳ Generating your complex with AI...</p>";
+
+  try {
+    const response = await fetch('https://the-ark-ai-server.onrender.com/generate', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ summary }),
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      outputDiv.innerHTML = `<p style='color: red;'>❌ Error: ${data.error}</p>`;
+      return;
+    }
+
+    // Show the generated content
+    let html = `<h3>🧠 ${data.title}</h3>`;
+    html += "<ul>";
+    data.cells.forEach(cell => {
+      html += `<li><strong>${cell.title}:</strong> ${cell.content}</li>`;
+    });
+    html += "</ul>";
+
+    outputDiv.innerHTML = html;
+
+  } catch (err) {
+    outputDiv.innerHTML = `<p style='color: red;'>❌ Something went wrong while contacting the AI server.</p>`;
+    console.error(err);
+  }
+});
+</script>
+
  
    
 </body>
