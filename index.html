@@ -1338,14 +1338,25 @@ document.getElementById("generateAIButton").addEventListener("click", async () =
     }
 
     // Show the generated content
-    let html = `<h3>🧠 ${data.title}</h3>`;
-    html += "<ul>";
-    data.cells.forEach(cell => {
-      html += `<li><strong>${cell.title}:</strong> ${cell.content}</li>`;
+    let html = `<h2 style="color:#00e0ff; margin-bottom: 20px;">🧠 ${data.title}</h2>`;
+    data.cells.forEach((cell, index) => {
+      html += `
+        <div style="
+          background: #1a1a1a;
+          border: 1px solid #333;
+          border-radius: 12px;
+          padding: 16px;
+          margin-bottom: 16px;
+          box-shadow: 0 0 10px rgba(0, 224, 255, 0.1);
+        ">
+          <h4 style="color:#00e0ff; margin-bottom:8px;">${index + 1}. ${cell.title}</h4>
+          <p style="color:#ccc; font-size:14px;">${cell.content}</p>
+        </div>
+      `;
     });
-    html += "</ul>";
-
     outputDiv.innerHTML = html;
+    outputDiv.scrollIntoView({ behavior: 'smooth' });
+
 
 
   } catch (err) {
