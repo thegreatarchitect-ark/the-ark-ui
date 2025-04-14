@@ -1330,6 +1330,7 @@ document.getElementById("generateAIButton").addEventListener("click", async () =
     });
 
     const data = await response.json();
+    console.log("🧪 AI Response in frontend:", data);
 
     if (data.error) {
       outputDiv.innerHTML = `<p style='color: red;'>❌ Error: ${data.error}</p>`;
