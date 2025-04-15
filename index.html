@@ -572,20 +572,21 @@
   let currentBuilderStep = 1;
 
   function openComplexBuilderModal() {
-    newComplexCells = [];
-    currentBuilderStep = 1;
-    document.getElementById("builder-title").value = "";
-    document.getElementById("builder-summary").value = "";
-    document.getElementById("cell-temp-title").value = "";
-    document.getElementById("cell-temp-content").value = "";
-    document.getElementById("preview-cells").innerHTML = "";
-    goToStep(1);
-    document.getElementById("complex-builder-modal").style.display = "flex";
-  }
+  newComplexCells = [];
+  currentBuilderStep = 1;
 
-  function closeComplexBuilder() {
-    document.getElementById("complex-builder-modal").style.display = "none";
-  }
+  document.getElementById("builder-title").value = "";
+  document.getElementById("builder-summary").value = "";
+  document.getElementById("cell-temp-title").value = "";
+  document.getElementById("cell-temp-content").value = "";
+  document.getElementById("preview-cells").innerHTML = "";
+  document.getElementById("aiCellSuggestions").innerHTML = "";
+  document.getElementById("cell-preview-list").innerHTML = "";
+
+  goToStep(1);
+  document.getElementById("complex-builder-modal").style.display = "flex";
+}
+
 
   function goToStep(step) {
     currentBuilderStep = step;
@@ -608,44 +609,62 @@
     }
   }
 
-  function addCellToBuilder() {
-    const title = document.getElementById("cell-temp-title").value.trim();
-    const content = document.getElementById("cell-temp-content").value.trim();
-    if (!title || !content) {
+  function addCellToBuilder(title, content) {
+    const cellTitle = title || document.getElementById("cell-temp-title").value.trim();
+    const cellContent = content || document.getElementById("cell-temp-content").value.trim();
+
+    if (!cellTitle || !cellContent) {
       alert("Please fill in both fields.");
       return;
     }
-    newComplexCells.push({ title, content });
+
+    // Push cell to memory
+    newComplexCells.push({ title: cellTitle, content: cellContent });
+
+    // Clear inputs
     document.getElementById("cell-temp-title").value = "";
     document.getElementById("cell-temp-content").value = "";
+
+    // Re-render
     renderCellPreviewList();
   }
+
 
   function renderCellPreviewList() {
     const container = document.getElementById("cell-preview-list");
     container.innerHTML = "";
+
     newComplexCells.forEach((cell, index) => {
       const div = document.createElement("div");
       div.className = "cell-preview-card";
 
-      // Add cell title and content preview
+      // Add base cell content
       div.innerHTML = `
         <h4>${index + 1}. ${cell.title}</h4>
         <p>${cell.content.slice(0, 80)}...</p>
+        ${cell.simulation ? `
+          <div style="margin-top: 10px; padding: 10px; border: 1px dashed #00e0ff; background: #1a1a1a;">
+            <strong>${cell.simulation.title}</strong>
+            <p style="font-size:13px; color:#ccc;">${cell.simulation.description}</p>
+          </div>` : ''
+        }
       `;
 
-      // 🔹 Add Simulation Button
+      // Add simulation button
       const simButton = document.createElement("button");
       simButton.innerText = "➕ Add Simulation or Content";
       simButton.className = "btn";
-      simButton.onclick = () => openSimulationModal(simButton);
+      simButton.onclick = () => {
+        currentSimulationTargetIndex = index; // Track the right cell
+        openSimulationModal();
+      };
 
-      // Append the button below each card
       div.appendChild(simButton);
-
       container.appendChild(div);
     });
   }
+
+
 
 
 
@@ -1681,13 +1700,27 @@ async function askAISimulation() {
 }
 
 function applySimulationToCell(title, description) {
-  const block = document.createElement("div");
-  block.style.marginTop = "10px";
-  block.style.padding = "10px";
-  block.style.background = "#222";
-  block.style.border = "1px dashed #00e0ff";
-  block.innerHTML = `<strong>${title}</strong><p>${description}</p>`;
-  currentCellTarget.appendChild(block);
+  // Identify the index of the current cell in preview
+  const allCards = Array.from(document.querySelectorAll(".cell-preview-card"));
+  const cardIndex = allCards.indexOf(currentCellTarget);
+  if (cardIndex === -1 || !newComplexCells[cardIndex]) {
+    alert("⚠️ Cannot apply simulation: target cell not found.");
+    return;
+  }
+
+  // Update content of the correct cell
+  newComplexCells[cardIndex].content += `\n\n🔬 Simulation: ${title}\n${description}`;
+
+  // Add visual simulation block
+  const simBlock = document.createElement("div");
+  simBlock.style.marginTop = "10px";
+  simBlock.style.padding = "10px";
+  simBlock.style.background = "#1b1b1b";
+  simBlock.style.border = "1px dashed #00e0ff";
+  simBlock.style.borderRadius = "8px";
+  simBlock.innerHTML = `<strong style="color:#00e0ff;">${title}</strong><p style="color:#ccc;">${description}</p>`;
+
+  currentCellTarget.appendChild(simBlock);
   closeSimulationModal();
 }
 
