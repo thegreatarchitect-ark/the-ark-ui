@@ -111,7 +111,12 @@
       border-radius: 14px;
       width: 90%;
       max-width: 420px;
+
+      /* 🔥 NEW SCROLLING AND HEIGHT */
+      max-height: 90vh;
+      overflow-y: auto;
     }
+
     .modal-content input,
     .modal-content textarea {
       width: 100%;
@@ -484,18 +489,22 @@
 
 
     <!-- Step 2: Add Cells -->
-    <div id="step-2" style="display:none">
+    <div id="step-2" style="display:none; overflow-y: auto; max-height: 70vh;">
+      <!-- 📝 Manual Cell Input -->
       <input id="cell-temp-title" type="text" placeholder="Cell Title" />
       <textarea id="cell-temp-content" placeholder="Cell Content"></textarea>
       <button class="btn" onclick="addCellToBuilder()">➕ Add Cell</button>
 
-      <!-- 🔹 AI Suggestion Trigger -->
-      <button class="btn" style="margin-top: 10px;" onclick="generateCellSuggestions()">✨ Suggest Cells with AI</button>
+      <!-- 🤖 Generate with AI -->
+      <button class="btn" onclick="generateAICells()" style="margin-top: 10px;">✨ Generate AI Cells</button>
 
-      <!-- 🔹 AI Suggestions Container -->
-      <div id="aiCellSuggestions" style="margin-top: 15px;"></div>
+      <!-- 🔄 AI Suggestions Scrollable -->
+      <div id="aiCellSuggestions" style="margin-top: 20px; max-height: 200px; overflow-y: auto;"></div>
 
+      <!-- 📦 Preview of Added Cells -->
       <div id="cell-preview-list" style="margin-top:20px;"></div>
+
+      <!-- 🔀 Navigation Buttons -->
       <button class="btn" onclick="goToStep(3)">Next ➡️</button>
       <button class="btn" style="background:#444; margin-left:10px;" onclick="goToStep(1)">⬅️ Back</button>
     </div>
@@ -1425,6 +1434,98 @@ async function generateAITitleSummary() {
   }
 }
 </script>
+  <script>
+async function generateAICells() {
+  const title = document.getElementById("builder-title").value.trim();
+  const summary = document.getElementById("builder-summary").value.trim();
+  const suggestionsDiv = document.getElementById("aiCellSuggestions");
+
+  suggestionsDiv.innerHTML = "<p style='color: #00e0ff;'>⏳ Generating cells...</p>";
+
+  try {
+    const response = await fetch("https://the-ark-ai-server.onrender.com/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ summary: summary || title })
+    });
+
+    const data = await response.json();
+    if (data.error) {
+      suggestionsDiv.innerHTML = `<p style='color: red;'>❌ Error: ${data.error}</p>`;
+      return;
+    }
+
+    suggestionsDiv.innerHTML = ""; // clear loading text
+
+    // Show each suggested cell
+    data.cells.forEach((cell) => {
+      const card = document.createElement("div");
+      card.style.border = "1px solid #444";
+      card.style.borderRadius = "10px";
+      card.style.padding = "10px";
+      card.style.marginBottom = "10px";
+      card.style.background = "#111";
+
+      const titleEl = document.createElement("h4");
+      titleEl.innerText = cell.title;
+
+      const contentEl = document.createElement("p");
+      contentEl.innerText = cell.content;
+
+      const addButton = document.createElement("button");
+      addButton.innerText = "➕ Add";
+      addButton.className = "btn";
+      addButton.onclick = () => {
+        addCellToBuilder(cell.title, cell.content);
+        addButton.innerText = "✅ Added";
+        addButton.disabled = true;
+      };
+
+      const editButton = document.createElement("button");
+      editButton.innerText = "✏️ Edit";
+      editButton.className = "btn";
+      editButton.style.marginLeft = "10px";
+      editButton.onclick = () => {
+        document.getElementById("cell-temp-title").value = cell.title;
+        document.getElementById("cell-temp-content").value = cell.content;
+      };
+
+      card.appendChild(titleEl);
+      card.appendChild(contentEl);
+      card.appendChild(addButton);
+      card.appendChild(editButton);
+
+      suggestionsDiv.appendChild(card);
+    });
+
+  } catch (err) {
+    suggestionsDiv.innerHTML = `<p style='color: red;'>❌ Failed to generate AI cells.</p>`;
+    console.error("AI cell generation error:", err);
+  }
+}
+
+function addCellToBuilder(title, content) {
+  const cellTitle = title || document.getElementById("cell-temp-title").value.trim();
+  const cellContent = content || document.getElementById("cell-temp-content").value.trim();
+
+  if (!cellTitle || !cellContent) return;
+
+  const preview = document.createElement("div");
+  preview.style.border = "1px solid #333";
+  preview.style.padding = "8px";
+  preview.style.marginBottom = "8px";
+  preview.style.borderRadius = "8px";
+  preview.style.background = "#222";
+
+  preview.innerHTML = `<strong>${cellTitle}</strong><p>${cellContent}</p>`;
+  document.getElementById("cell-preview-list").appendChild(preview);
+
+  // Clear inputs if user was typing
+  document.getElementById("cell-temp-title").value = "";
+  document.getElementById("cell-temp-content").value = "";
+}
+</script>
+
 <script>
 async function generateCellSuggestions() {
   const title = document.getElementById("builder-title").value.trim();
