@@ -1493,7 +1493,8 @@ async function generateAITitleSummary() {
   }
 }
 </script>
-  <script>
+
+<script>
 async function generateAICells() {
   const title = document.getElementById("builder-title").value.trim();
   const summary = document.getElementById("builder-summary").value.trim();
@@ -1563,7 +1564,7 @@ async function generateAICells() {
   }
 }
 
-
+</script>
 
 <script>
 async function generateCellSuggestions() {
@@ -1710,6 +1711,12 @@ function applySimulationToCell(title, description) {
 
 function editSimulation(title, description) {
   document.getElementById("simulationRequestInput").value = `${title}: ${description}`;
+}
+</script>
+
+<script>
+function closeComplexBuilder() {
+  document.getElementById("complex-builder-modal").style.display = "none";
 }
 </script>
 
