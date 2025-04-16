@@ -667,10 +667,11 @@
       const simButton = document.createElement("button");
       simButton.innerText = "➕ Add Simulation or Content";
       simButton.className = "btn";
-      simButton.onclick = () => {
-        currentSimulationTargetIndex = index; // Track which cell gets the simulation
-        openSimulationModal();
+      simButton.onclick = (event) => {
+        currentSimulationTargetIndex = index;
+        openSimulationModal(event.target); // ✅ Pass the button itself
       };
+
 
       div.appendChild(simButton);
       container.appendChild(div);
