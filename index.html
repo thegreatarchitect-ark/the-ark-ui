@@ -599,15 +599,29 @@
     if (step === 3) {
       document.getElementById("preview-title").innerText = document.getElementById("builder-title").value;
       document.getElementById("preview-summary").innerText = document.getElementById("builder-summary").value;
+
       const preview = document.getElementById("preview-cells");
       preview.innerHTML = "";
+
       newComplexCells.forEach((cell, index) => {
         const div = document.createElement("div");
         div.className = "community-card";
-        div.innerHTML = `<h4>${index + 1}. ${cell.title}</h4><p>${cell.content.slice(0, 80)}...</p>`;
+
+        div.innerHTML = `
+          <h4>${index + 1}. ${cell.title}</h4>
+          <p>${cell.content.slice(0, 80)}...</p>
+          ${cell.simulation ? `
+            <div style="margin-top:10px; padding:10px; background:#1b1b1b; border:1px dashed #00e0ff; border-radius:8px;">
+              <strong style="color:#00e0ff;">${cell.simulation.title}</strong>
+              <p style="font-size:13px; color:#ccc;">${cell.simulation.description}</p>
+            </div>` : ''
+          }
+        `;
+
         preview.appendChild(div);
       });
     }
+
   }
 
   function addCellToBuilder(title, content) {
