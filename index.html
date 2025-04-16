@@ -569,6 +569,7 @@
   
 <script>
   let newComplexCells = [];
+  let currentSimulationTargetIndex = null;
   let currentBuilderStep = 1;
 
   function openComplexBuilderModal() {
@@ -638,24 +639,22 @@
       const div = document.createElement("div");
       div.className = "cell-preview-card";
 
-      // Add base cell content
       div.innerHTML = `
         <h4>${index + 1}. ${cell.title}</h4>
         <p>${cell.content.slice(0, 80)}...</p>
         ${cell.simulation ? `
-          <div style="margin-top: 10px; padding: 10px; border: 1px dashed #00e0ff; background: #1a1a1a;">
-            <strong>${cell.simulation.title}</strong>
+          <div style="margin-top: 10px; padding: 10px; border: 1px dashed #00e0ff; background: #1a1a1a; border-radius: 8px;">
+            <strong style="color:#00e0ff;">${cell.simulation.title}</strong>
             <p style="font-size:13px; color:#ccc;">${cell.simulation.description}</p>
           </div>` : ''
         }
       `;
 
-      // Add simulation button
       const simButton = document.createElement("button");
       simButton.innerText = "➕ Add Simulation or Content";
       simButton.className = "btn";
       simButton.onclick = () => {
-        currentSimulationTargetIndex = index; // Track the right cell
+        currentSimulationTargetIndex = index; // Track which cell gets the simulation
         openSimulationModal();
       };
 
@@ -663,6 +662,7 @@
       container.appendChild(div);
     });
   }
+
 
 
 
@@ -1549,27 +1549,7 @@ async function generateAICells() {
   }
 }
 
-function addCellToBuilder(title, content) {
-  const cellTitle = title || document.getElementById("cell-temp-title").value.trim();
-  const cellContent = content || document.getElementById("cell-temp-content").value.trim();
 
-  if (!cellTitle || !cellContent) return;
-
-  const preview = document.createElement("div");
-  preview.style.border = "1px solid #333";
-  preview.style.padding = "8px";
-  preview.style.marginBottom = "8px";
-  preview.style.borderRadius = "8px";
-  preview.style.background = "#222";
-
-  preview.innerHTML = `<strong>${cellTitle}</strong><p>${cellContent}</p>`;
-  document.getElementById("cell-preview-list").appendChild(preview);
-
-  // Clear inputs if user was typing
-  document.getElementById("cell-temp-title").value = "";
-  document.getElementById("cell-temp-content").value = "";
-}
-</script>
 
 <script>
 async function generateCellSuggestions() {
@@ -1700,29 +1680,19 @@ async function askAISimulation() {
 }
 
 function applySimulationToCell(title, description) {
-  // Identify the index of the current cell in preview
-  const allCards = Array.from(document.querySelectorAll(".cell-preview-card"));
-  const cardIndex = allCards.indexOf(currentCellTarget);
-  if (cardIndex === -1 || !newComplexCells[cardIndex]) {
-    alert("⚠️ Cannot apply simulation: target cell not found.");
-    return;
+  if (currentSimulationTargetIndex !== null && newComplexCells[currentSimulationTargetIndex]) {
+    newComplexCells[currentSimulationTargetIndex].simulation = {
+      title,
+      description
+    };
+
+    renderCellPreviewList();
+    closeSimulationModal();
+  } else {
+    alert("⚠️ Could not apply simulation. Target cell not found.");
   }
-
-  // Update content of the correct cell
-  newComplexCells[cardIndex].content += `\n\n🔬 Simulation: ${title}\n${description}`;
-
-  // Add visual simulation block
-  const simBlock = document.createElement("div");
-  simBlock.style.marginTop = "10px";
-  simBlock.style.padding = "10px";
-  simBlock.style.background = "#1b1b1b";
-  simBlock.style.border = "1px dashed #00e0ff";
-  simBlock.style.borderRadius = "8px";
-  simBlock.innerHTML = `<strong style="color:#00e0ff;">${title}</strong><p style="color:#ccc;">${description}</p>`;
-
-  currentCellTarget.appendChild(simBlock);
-  closeSimulationModal();
 }
+
 
 function editSimulation(title, description) {
   document.getElementById("simulationRequestInput").value = `${title}: ${description}`;
