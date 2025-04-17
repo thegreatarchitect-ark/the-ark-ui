@@ -1628,7 +1628,8 @@ function editAISuggestedCell(title, content) {
   document.getElementById("aiCellSuggestions").scrollIntoView({ behavior: 'smooth' });
 }
 </script>
-  <script>
+  
+<script>
 let currentCellTarget = null;
 
 function openSimulationModal(button) {
@@ -1643,21 +1644,16 @@ function closeSimulationModal() {
   document.getElementById("simulationStatus").style.display = "none";
 }
 
+
 async function askAISimulation() {
   const input = document.getElementById("simulationRequestInput").value.trim();
   const status = document.getElementById("simulationStatus");
   const results = document.getElementById("simulationResults");
 
-  console.log("🧠 Ask AI Simulation button clicked");
-
-  if (!input) {
-    console.warn("⚠️ No input provided for AI simulation");
-    status.innerText = "⚠️ Please enter a topic first.";
-    return;
-  }
+  if (!input) return;
 
   status.style.display = "block";
-  status.innerText = "⏳ Asking AI to generate simulation ideas...";
+  status.innerText = "⏳ Asking AI to generate ideas...";
   results.innerHTML = "";
 
   try {
@@ -1668,20 +1664,18 @@ async function askAISimulation() {
     });
 
     const data = await response.json();
-    console.log("📦 AI Response:", data);
 
     if (data.error) {
       status.innerText = "❌ AI Error: " + data.error;
       return;
     }
 
-    if (!data.suggestions || !Array.isArray(data.suggestions) || data.suggestions.length === 0) {
+    if (!data.suggestions || data.suggestions.length === 0) {
       status.innerText = "❌ No suggestions returned by AI.";
-      console.warn("⚠️ AI returned empty or invalid suggestions array.");
       return;
     }
 
-    status.innerText = "✅ Select a suggestion below to use or edit:";
+    status.innerText = "✅ Select a simulation below:";
     results.innerHTML = "";
 
     data.suggestions.forEach((sim) => {
@@ -1694,16 +1688,25 @@ async function askAISimulation() {
 
       const safeTitle = sim.title.replace(/'/g, "\\'");
       const safeDesc = sim.description.replace(/`/g, "\\`").replace(/'/g, "\\'");
+      const safeType = sim.type || "generic";
+      const config = sim.config || {};
 
       simCard.innerHTML = `
         <strong>${sim.title}</strong>
+        <p><em>Type:</em> ${sim.type || "N/A"}</p>
         <p>${sim.description}</p>
-        <button class="btn" onclick="applySimulationToCell('${safeTitle}', \`${safeDesc}\`)">✅ Use</button>
-        <button class="btn" style="margin-left:10px;" onclick="editSimulation('${safeTitle}', \`${safeDesc}\`)">✏️ Edit</button>
+        <button class="btn" onclick="applySimulationToCell('${safeTitle}', \`${safeDesc}\`, '${safeType}', ${JSON.stringify(config)})">✅ Use</button>
       `;
 
       results.appendChild(simCard);
     });
+
+  } catch (err) {
+    console.error("AI Sim Error:", err);
+    status.innerText = "❌ Failed to contact AI server.";
+  }
+}
+
 
   } catch (err) {
     console.error("❌ Failed to contact AI server:", err);
@@ -1712,19 +1715,20 @@ async function askAISimulation() {
 }
 
 
-function applySimulationToCell(title, description) {
+
+function applySimulationToCell(title, description, type = "generic", config = {}) {
   if (currentSimulationTargetIndex !== null && newComplexCells[currentSimulationTargetIndex]) {
     newComplexCells[currentSimulationTargetIndex].simulation = {
       title,
-      description
+      description,
+      type,
+      config
     };
-
-    renderCellPreviewList();
-    closeSimulationModal();
-  } else {
-    alert("⚠️ Could not apply simulation. Target cell not found.");
+    renderCellPreviewList(); // Refresh
   }
+  closeSimulationModal();
 }
+
 
 
 function editSimulation(title, description) {
