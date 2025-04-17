@@ -678,7 +678,12 @@
     });
   }
 
-
+  function openSimulationModal(button) {
+    currentCellTarget = button.closest("div");
+    document.getElementById("simulationModal").style.display = "flex";
+    document.getElementById("simulationRequestInput").value = "";
+    document.getElementById("simulationResults").innerHTML = "";
+  }
 
 
 
@@ -1632,12 +1637,7 @@ function editAISuggestedCell(title, content) {
 <script>
 let currentCellTarget = null;
 
-function openSimulationModal(button) {
-  currentCellTarget = button.closest("div");
-  document.getElementById("simulationModal").style.display = "flex";
-  document.getElementById("simulationRequestInput").value = "";
-  document.getElementById("simulationResults").innerHTML = "";
-}
+
 
 function closeSimulationModal() {
   document.getElementById("simulationModal").style.display = "none";
