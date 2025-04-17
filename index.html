@@ -1668,6 +1668,12 @@ async function askAISimulation() {
       return;
     }
 
+    // ✅ Check if there are suggestions before looping
+    if (!data.suggestions || data.suggestions.length === 0) {
+      status.innerText = "❌ No suggestions returned by AI.";
+      return;
+    }
+
     status.innerText = "✅ Select a suggestion below to use or edit:";
     results.innerHTML = "";
 
@@ -1679,11 +1685,14 @@ async function askAISimulation() {
       simCard.style.background = "#111";
       simCard.style.marginBottom = "10px";
 
+      const safeTitle = sim.title.replace(/'/g, "\\'");
+      const safeDesc = sim.description.replace(/`/g, "\\`").replace(/'/g, "\\'");
+
       simCard.innerHTML = `
         <strong>${sim.title}</strong>
         <p>${sim.description}</p>
-        <button class="btn" onclick="applySimulationToCell('${sim.title}', \`${sim.description}\`)">✅ Use</button>
-        <button class="btn" style="margin-left:10px;" onclick="editSimulation('${sim.title}', \`${sim.description}\`)">✏️ Edit</button>
+        <button class="btn" onclick="applySimulationToCell('${safeTitle}', \`${safeDesc}\`)">✅ Use</button>
+        <button class="btn" style="margin-left:10px;" onclick="editSimulation('${safeTitle}', \`${safeDesc}\`)">✏️ Edit</button>
       `;
 
       results.appendChild(simCard);
