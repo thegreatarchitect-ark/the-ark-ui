@@ -571,6 +571,7 @@
   let newComplexCells = [];
   let currentSimulationTargetIndex = null;
   let currentBuilderStep = 1;
+  let simulationSuggestions
 
   function openComplexBuilderModal() {
   newComplexCells = [];
@@ -1665,6 +1666,7 @@ function editSimulation(title, description) {
   document.getElementById("simulationRequestInput").value = `${title}: ${description}`;
 }
 </script>
+  
 <script>
 async function askAISimulation() {
   const input = document.getElementById("simulationRequestInput").value.trim();
@@ -1676,6 +1678,7 @@ async function askAISimulation() {
   status.style.display = "block";
   status.innerText = "⏳ Asking AI to generate ideas...";
   results.innerHTML = "";
+  simulationSuggestions = []; // Reset previous ones
 
   try {
     const response = await fetch("https://the-ark-ai-server.onrender.com/generate-cell-simulation", {
@@ -1699,7 +1702,10 @@ async function askAISimulation() {
     status.innerText = "✅ Select a simulation below:";
     results.innerHTML = "";
 
-    data.suggestions.forEach((sim) => {
+    data.suggestions.forEach((sim, index) => {
+      // Save to global array
+      simulationSuggestions.push(sim);
+
       const simCard = document.createElement("div");
       simCard.style.border = "1px solid #444";
       simCard.style.padding = "10px";
@@ -1707,16 +1713,12 @@ async function askAISimulation() {
       simCard.style.background = "#111";
       simCard.style.marginBottom = "10px";
 
-      const safeTitle = sim.title.replace(/'/g, "\\'");
-      const safeDesc = sim.description.replace(/`/g, "\\`").replace(/'/g, "\\'");
-      const safeType = sim.type || "generic";
-      const config = sim.config || {};
-
       simCard.innerHTML = `
         <strong>${sim.title}</strong>
         <p><em>Type:</em> ${sim.type || "N/A"}</p>
         <p>${sim.description}</p>
-        <button class="btn" onclick="applySimulationToCell('${safeTitle}', \`${safeDesc}\`, '${safeType}', ${JSON.stringify(config)})">✅ Use</button>
+        <button class="btn" onclick="applySimulationFromList(${index})">✅ Use</button>
+        <button class="btn" style="margin-left:10px;" onclick="editSimulation('${sim.title.replace(/'/g, "\\'")}', \`${sim.description.replace(/`/g, "\\`").replace(/'/g, "\\'")}\`)">✏️ Edit</button>
       `;
 
       results.appendChild(simCard);
@@ -1727,6 +1729,22 @@ async function askAISimulation() {
     status.innerText = "❌ Failed to contact AI server.";
   }
 }
+
+function applySimulationFromList(index) {
+  const sim = simulationSuggestions[index];
+  if (!sim || currentSimulationTargetIndex === null) return;
+
+  newComplexCells[currentSimulationTargetIndex].simulation = {
+    title: sim.title,
+    description: sim.description,
+    type: sim.type || "generic",
+    config: sim.config || {}
+  };
+
+  renderCellPreviewList();
+  closeSimulationModal();
+}
+
 </script>
 
   
