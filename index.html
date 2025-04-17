@@ -1645,6 +1645,27 @@ function closeSimulationModal() {
 }
 
 
+
+function applySimulationToCell(title, description, type = "generic", config = {}) {
+  if (currentSimulationTargetIndex !== null && newComplexCells[currentSimulationTargetIndex]) {
+    newComplexCells[currentSimulationTargetIndex].simulation = {
+      title,
+      description,
+      type,
+      config
+    };
+    renderCellPreviewList(); // Refresh
+  }
+  closeSimulationModal();
+}
+
+
+
+function editSimulation(title, description) {
+  document.getElementById("simulationRequestInput").value = `${title}: ${description}`;
+}
+</script>
+<script>
 async function askAISimulation() {
   const input = document.getElementById("simulationRequestInput").value.trim();
   const status = document.getElementById("simulationStatus");
@@ -1714,28 +1735,7 @@ async function askAISimulation() {
   }
 }
 
-
-
-function applySimulationToCell(title, description, type = "generic", config = {}) {
-  if (currentSimulationTargetIndex !== null && newComplexCells[currentSimulationTargetIndex]) {
-    newComplexCells[currentSimulationTargetIndex].simulation = {
-      title,
-      description,
-      type,
-      config
-    };
-    renderCellPreviewList(); // Refresh
-  }
-  closeSimulationModal();
-}
-
-
-
-function editSimulation(title, description) {
-  document.getElementById("simulationRequestInput").value = `${title}: ${description}`;
-}
 </script>
-
 <script>
 function closeComplexBuilder() {
   document.getElementById("complex-builder-modal").style.display = "none";
