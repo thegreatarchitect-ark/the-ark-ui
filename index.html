@@ -1648,10 +1648,16 @@ async function askAISimulation() {
   const status = document.getElementById("simulationStatus");
   const results = document.getElementById("simulationResults");
 
-  if (!input) return;
+  console.log("🧠 Ask AI Simulation button clicked");
+
+  if (!input) {
+    console.warn("⚠️ No input provided for AI simulation");
+    status.innerText = "⚠️ Please enter a topic first.";
+    return;
+  }
 
   status.style.display = "block";
-  status.innerText = "⏳ Asking AI to generate ideas...";
+  status.innerText = "⏳ Asking AI to generate simulation ideas...";
   results.innerHTML = "";
 
   try {
@@ -1662,22 +1668,23 @@ async function askAISimulation() {
     });
 
     const data = await response.json();
+    console.log("📦 AI Response:", data);
 
     if (data.error) {
       status.innerText = "❌ AI Error: " + data.error;
       return;
     }
 
-    // ✅ Check if there are suggestions before looping
-    if (!data.suggestions || data.suggestions.length === 0) {
+    if (!data.suggestions || !Array.isArray(data.suggestions) || data.suggestions.length === 0) {
       status.innerText = "❌ No suggestions returned by AI.";
+      console.warn("⚠️ AI returned empty or invalid suggestions array.");
       return;
     }
 
     status.innerText = "✅ Select a suggestion below to use or edit:";
     results.innerHTML = "";
 
-    data.suggestions.forEach((sim, index) => {
+    data.suggestions.forEach((sim) => {
       const simCard = document.createElement("div");
       simCard.style.border = "1px solid #444";
       simCard.style.padding = "10px";
@@ -1699,10 +1706,11 @@ async function askAISimulation() {
     });
 
   } catch (err) {
-    console.error("AI Sim Error:", err);
+    console.error("❌ Failed to contact AI server:", err);
     status.innerText = "❌ Failed to contact AI server.";
   }
 }
+
 
 function applySimulationToCell(title, description) {
   if (currentSimulationTargetIndex !== null && newComplexCells[currentSimulationTargetIndex]) {
