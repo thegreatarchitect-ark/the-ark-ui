@@ -1727,15 +1727,9 @@ async function askAISimulation() {
     status.innerText = "❌ Failed to contact AI server.";
   }
 }
-
-
-  } catch (err) {
-    console.error("❌ Failed to contact AI server:", err);
-    status.innerText = "❌ Failed to contact AI server.";
-  }
-}
-
 </script>
+
+  
 <script>
 function closeComplexBuilder() {
   document.getElementById("complex-builder-modal").style.display = "none";
