@@ -644,31 +644,7 @@
     // Re-render
     renderCellPreviewList();
   }
-  // ✅ Step 1: Insert this function globally in your JS (outside window.onload)
-    function renderSimulationBlock(simulation) {
-    if (!simulation || !simulation.type) return "";
-
-    switch (simulation.type) {
-      case "slider":
-        return renderSliderSimulation(simulation);
-      case "forecast":
-        return renderForecastSimulation(simulation);
-      case "tree":
-        return renderTreeSimulation(simulation);
-      case "rich-text":
-        return renderRichTextSimulation(simulation);
-      case "animated-map":
-        return renderAnimatedMapSimulation(simulation);
-
-      default:
-        return `
-          <div style="margin-top:10px; background:#1a1a1a; padding:10px; border-radius:8px; border:1px dashed #555;">
-            <strong style="color:#00e0ff;">${simulation.title}</strong>
-            <p style="font-size:13px; color:#ccc;">${simulation.description}</p>
-          </div>
-        `;
-    }
-  }
+ 
 
 
   // ✅ Step 2: Create the Slider Simulation Renderer
@@ -762,13 +738,11 @@
       div.innerHTML = `
         <h4>${index + 1}. ${cell.title}</h4>
         <p>${cell.content.slice(0, 80)}...</p>
-        ${cell.simulation ? '__SIM_BLOCK__' : ''}
       `;
 
-      // ✅ Replace placeholder with rendered simulation block
       if (cell.simulation) {
-        const simHTML = renderSimulationBlock(cell.simulation);
-        div.innerHTML = div.innerHTML.replace('__SIM_BLOCK__', simHTML);
+        const simBlock = renderSimulationBlock(cell.simulation);
+        div.appendChild(simBlock);
       }
 
       // ✅ Simulation button
@@ -797,10 +771,21 @@
   function submitComplexBuilder() {
     const name = document.getElementById("builder-title").value.trim();
     const summary = document.getElementById("builder-summary").value.trim();
-    if (!name || !currentCommunityId) {
-      alert("Please provide a title and be inside a community.");
+    if (!name) {
+      alert("Please provide a Complex title.");
       return;
     }
+
+    const complexData = {
+      name,
+      summary,
+      creatorId: userInfo?.id || null,
+      communityId: currentCommunityId || null,
+      createdAt: new Date(),
+      cells: newComplexCells || []
+    };
+
+    
     db.collection("complexes").add({
       name,
       summary,
@@ -2388,6 +2373,18 @@ function closeComplexBuilder() {
     <p id="simulationStatus" style="color:#00e0ff; font-size:13px; margin:10px 0; display:none;"></p>
     <div id="simulationResults"></div>
     <button class="btn" onclick="closeSimulationModal()" style="margin-top:15px;">❌ Cancel</button>
+  </div>
+</div>
+  
+<!-- Calling SImulationModal DOM -->
+<div id="simulationModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center;">
+  <div class="modal-content" style="max-height:90vh; overflow-y:auto;">
+    <h3>🤖 Ask AI for a Simulation</h3>
+    <input id="simulationRequestInput" type="text" placeholder="e.g. simulate education policy impact..." style="width:100%; margin-bottom:10px;" />
+    <button class="btn" onclick="askAISimulation()">✨ Ask AI</button>
+    <p id="simulationStatus" style="color:#00e0ff; margin-top:10px; display:none;"></p>
+    <div id="simulationResults" style="margin-top:20px;"></div>
+    <button class="btn" style="margin-top:20px;" onclick="closeSimulationModal()">❌ Close</button>
   </div>
 </div>
 
