@@ -765,6 +765,24 @@
     document.getElementById("simulationResults").innerHTML = "";
   }
 
+  function renderSimulationBlock(simulation) {
+    if (!simulation || !simulation.type) {
+      console.warn("⚠️ No simulation type found");
+      return document.createElement("div");
+    }
+
+    switch (simulation.type) {
+      case "slider":
+        const container = document.createElement("div");
+        container.innerHTML = renderSliderSimulation(simulation); // currently returns outerHTML
+        return container;
+      // TODO: Add future types like narrative, map, etc.
+      default:
+        const unknown = document.createElement("div");
+        unknown.innerText = "⚠️ Unknown simulation type.";
+        return unknown;
+    }
+  }
 
 
 
@@ -2436,6 +2454,15 @@ function renderCauseEffectSimulation(sim) {
     <p id="simulationStatus" style="margin-top:10px; color:#00e0ff; display:none;"></p>
     <div id="simulationResults" style="margin-top: 20px;"></div>
     <button class="btn" onclick="closeSimulationModal()" style="background:#444;">Cancel</button>
+  </div>
+</div>
+<div id="simulationModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000c; z-index:9999; justify-content:center; align-items:center;">
+  <div class="modal-content">
+    <h2>AI Simulation Generator</h2>
+    <textarea id="simulationRequestInput" placeholder="e.g. simulate food chain..." rows="3"></textarea>
+    <button class="btn" onclick="generateAISimulation()">✨ Generate</button>
+    <div id="simulationResults" style="margin-top: 20px;"></div>
+    <button class="btn" style="background:#444;" onclick="document.getElementById('simulationModal').style.display='none'">Close</button>
   </div>
 </div>
 
