@@ -2363,6 +2363,45 @@ function closeComplexBuilder() {
   document.getElementById("complex-builder-modal").style.display = "none";
 }
 </script>
+<script>
+function renderTreeSimulation(sim) {
+  if (!sim.config || !Array.isArray(sim.config.nodes)) {
+    const errorBox = document.createElement("div");
+    errorBox.innerText = "⚠️ Invalid simulation config.";
+    errorBox.style.color = "red";
+    return errorBox;
+  }
+  const box = document.createElement("div");
+  box.innerText = "🌲 Tree Simulation Coming Soon...";
+  box.style.color = "#ccc";
+  return box;
+}
+
+function renderRichTextSimulation(sim) {
+  const box = document.createElement("div");
+  box.innerHTML = `<div style="color: #ccc;">📝 ${sim.description || "Rich text simulation here."}</div>`;
+  return box;
+}
+
+function renderNarrativeSimulation(sim) {
+  if (!sim.config || !Array.isArray(sim.config.steps)) {
+    const box = document.createElement("div");
+    box.innerText = "⚠️ Narrative structure missing.";
+    box.style.color = "red";
+    return box;
+  }
+  const box = document.createElement("div");
+  box.innerHTML = `<strong style="color:#00e0ff;">🎭 Narrative</strong><p style="color:#ccc;">${sim.description}</p>`;
+  return box;
+}
+
+function renderCauseEffectSimulation(sim) {
+  const box = document.createElement("div");
+  box.innerHTML = `<strong>Cause → Effect:</strong><br>${sim.description}`;
+  box.style.color = "#ccc";
+  return box;
+}
+</script>
 
 <!-- ✅ Cell Simulation Modal -->
 <div id="simulationModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000000cc; z-index:99999; justify-content:center; align-items:center;">
@@ -2387,6 +2426,7 @@ function closeComplexBuilder() {
     <button class="btn" style="margin-top:20px;" onclick="closeSimulationModal()">❌ Close</button>
   </div>
 </div>
+
 
    
 </body>
