@@ -765,24 +765,6 @@
     document.getElementById("simulationResults").innerHTML = "";
   }
 
-  function renderSimulationBlock(simulation) {
-    if (!simulation || !simulation.type) {
-      console.warn("⚠️ No simulation type found");
-      return document.createElement("div");
-    }
-
-    switch (simulation.type) {
-      case "slider":
-        const container = document.createElement("div");
-        container.innerHTML = renderSliderSimulation(simulation); // currently returns outerHTML
-        return container;
-      // TODO: Add future types like narrative, map, etc.
-      default:
-        const unknown = document.createElement("div");
-        unknown.innerText = "⚠️ Unknown simulation type.";
-        return unknown;
-    }
-  }
 
 
 
@@ -1855,12 +1837,18 @@ function applySimulationFromList(index) {
 </script>
 <script>
 function renderSimulationBlock(sim) {
+  if (!sim || !sim.type) {
+    console.warn("⚠️ No simulation type found");
+    return document.createElement("div");
+  }
+
   const container = document.createElement("div");
+  container.className = "sim-block";
   container.style.padding = "10px";
-  container.style.background = "#111";
-  container.style.border = "1px dashed #00e0ff";
-  container.style.borderRadius = "8px";
   container.style.marginTop = "10px";
+  container.style.border = "1px dashed #00e0ff";
+  container.style.background = "#111";
+  container.style.borderRadius = "10px";
   container.style.color = "#ccc";
 
   const title = document.createElement("h4");
@@ -1873,16 +1861,25 @@ function renderSimulationBlock(sim) {
   desc.style.fontSize = "13px";
   container.appendChild(desc);
 
+  // ✅ Use real renderers
   if (sim.type === "slider") {
-    container.innerHTML += renderSliderSimulation(sim);
-  } else if (sim.type === "logic-tree") {
-    container.innerHTML += `<p>🧭 Logic tree will appear here. (render logic coming soon)</p>`;
+    container.appendChild(renderSliderSimulation(sim));
   } else if (sim.type === "forecast") {
-    container.innerHTML += `<p>📈 Forecast chart will appear here. (render logic coming soon)</p>`;
-  } else if (sim.type === "map") {
-    container.innerHTML += `<p>🗺️ Animated map coming soon.</p>`;
+    container.appendChild(renderForecastSimulation(sim));
+  } else if (sim.type === "logic-tree") {
+    container.appendChild(renderLogicTreeSimulation(sim));
   } else if (sim.type === "narrative") {
-    container.innerHTML += `<p>🎭 Narrative summary: ${sim.config?.text || 'No content yet.'}</p>`;
+    container.appendChild(renderNarrativeSimulation(sim));
+  } else if (sim.type === "map" || sim.type === "animated-map") {
+    container.appendChild(renderAnimatedMapSimulation(sim));
+  } else if (sim.type === "rich-text") {
+    container.appendChild(renderRichTextSimulation(sim));
+  } else if (sim.type === "cause-effect") {
+    container.appendChild(renderCauseEffectSimulation(sim));
+  } else {
+    const fallback = document.createElement("p");
+    fallback.innerText = "⚠️ Unknown simulation type.";
+    container.appendChild(fallback);
   }
 
   return container;
