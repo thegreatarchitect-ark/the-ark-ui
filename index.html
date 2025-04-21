@@ -660,8 +660,7 @@ function renderSliderSimulation(simulation) {
   console.log("Rendering slider with config:", simulation.config);
   const config = simulation.config || {};
   const sliders = config.sliders || [];
-  const output = simulation.output || config.output || "Output";
-
+  const output = config.output || "Total";
 
   const container = document.createElement("div");
   container.style.border = "1px solid #00e0ff";
@@ -673,30 +672,34 @@ function renderSliderSimulation(simulation) {
   container.style.color = "#fff";
 
   const title = document.createElement("h4");
-  title.innerText = simulation.title;
+  title.innerText = simulation.title || "🧮 Slider Simulation";
   title.style.color = "#00e0ff";
   title.style.marginBottom = "10px";
   container.appendChild(title);
 
   const description = document.createElement("p");
-  description.innerText = simulation.description;
+  description.innerText = simulation.description || "";
   description.style.fontSize = "14px";
   description.style.color = "#ccc";
   container.appendChild(description);
 
   const values = {};
+  let initialTotal = 0;
+
+  sliders.forEach(slider => {
+    const midpoint = (slider.min + slider.max) / 2;
+    values[slider.name] = midpoint;
+    initialTotal += midpoint;
+  });
+
   const resultOutput = document.createElement("div");
   resultOutput.style.marginTop = "10px";
   resultOutput.style.padding = "8px";
   resultOutput.style.background = "#111";
   resultOutput.style.borderRadius = "6px";
   resultOutput.style.border = "1px dashed #00e0ff";
-  const initialTotal = sliders.reduce((sum, slider) => {
-    const mid = (slider.min + slider.max) / 2;
-    values[slider.name] = mid;
-    return sum + mid;
-  }, 0);
   resultOutput.innerText = `${output}: ${initialTotal.toFixed(1)}`;
+  container.appendChild(resultOutput);
 
   sliders.forEach(slider => {
     const wrapper = document.createElement("div");
@@ -734,7 +737,6 @@ function renderSliderSimulation(simulation) {
     container.appendChild(wrapper);
   });
 
-  container.appendChild(resultOutput);
   return container;
 }
 
