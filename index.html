@@ -405,8 +405,10 @@
       <p id="detail-summary">Summary will appear here.</p>
 
     <!-- Sticky Buttons Container -->
+      
       <div style="margin-bottom: 10px;">
-        <button id="create-complex-btn" onclick="openComplexBuilderModal()">Create a Complex</button>
+        <button id="create-complex-btn" class="btn">➕ Create a Complex</button>
+      </div>
 
 
       </div>
@@ -1808,10 +1810,18 @@ function openDetailModal(data) {
         feed.appendChild(div);
       });
     });
+  const btn = document.getElementById("create-complex-btn");
+  if (btn) {
+    btn.onclick = () => {
+      openComplexBuilderModal();
+    };
+  }
+
   
   document.getElementById("detail-modal").style.display = "flex";
 }
 
+  
 function updateStats(statsEl, complexCount, createdCommCount, joinedCommCount) {
   statsEl.innerHTML = `
     📦 ${complexCount} complexes<br>
