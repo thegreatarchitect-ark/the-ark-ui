@@ -690,7 +690,12 @@ function renderSliderSimulation(simulation) {
   resultOutput.style.background = "#111";
   resultOutput.style.borderRadius = "6px";
   resultOutput.style.border = "1px dashed #00e0ff";
-  resultOutput.innerText = `${output}: waiting for input...`;
+  const initialTotal = sliders.reduce((sum, slider) => {
+    const mid = (slider.min + slider.max) / 2;
+    values[slider.name] = mid;
+    return sum + mid;
+  }, 0);
+  resultOutput.innerText = `${output}: ${initialTotal.toFixed(1)}`;
 
   sliders.forEach(slider => {
     const wrapper = document.createElement("div");
