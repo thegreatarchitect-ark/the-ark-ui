@@ -1170,8 +1170,15 @@ function openCellModal(complexData, complexId) {
           div.className = "community-card";
           div.style.width = "calc(50% - 10px)";
           div.innerHTML = `<h4>${index + 1}. ${cell.title}</h4><p>${cell.content}</p>`;
+  
+          if (cell.simulation) {
+            const simBlock = renderSimulationBlock(cell.simulation);
+            div.appendChild(simBlock);
+          }
+
           container.appendChild(div);
         });
+
 
         list.appendChild(container);
       } else {
@@ -1779,65 +1786,56 @@ function editSimulation(title, description) {
 <script>
 async function askAISimulation() {
   const input = document.getElementById("simulationRequestInput").value.trim();
-  const status = document.getElementById("simulationStatus");
   const results = document.getElementById("simulationResults");
+  if (!input) return alert("Please enter a request.");
 
-  if (!input) return;
-
-  status.style.display = "block";
-  status.innerText = "⏳ Asking AI to generate ideas...";
-  results.innerHTML = "";
-  simulationSuggestions = []; // Reset previous ones
+  results.innerHTML = "⏳ Loading AI suggestions...";
 
   try {
-    const response = await fetch("https://the-ark-ai-server.onrender.com/generate-cell-simulation", {
+    const res = await fetch("https://the-ark-ai-server.onrender.com/generate-cell-simulation", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ request: input })
     });
-
-    const data = await response.json();
-
+    const data = await res.json();
     if (data.error) {
-      status.innerText = "❌ AI Error: " + data.error;
+      results.innerHTML = `❌ Error: ${data.error}`;
       return;
     }
 
-    if (!data.suggestions || data.suggestions.length === 0) {
-      status.innerText = "❌ No suggestions returned by AI.";
-      return;
-    }
-
-    status.innerText = "✅ Select a simulation below:";
     results.innerHTML = "";
-
-    data.suggestions.forEach((sim, index) => {
-      // Save to global array
-      simulationSuggestions.push(sim);
-
-      const simCard = document.createElement("div");
-      simCard.style.border = "1px solid #444";
-      simCard.style.padding = "10px";
-      simCard.style.borderRadius = "10px";
-      simCard.style.background = "#111";
-      simCard.style.marginBottom = "10px";
-
-      simCard.innerHTML = `
-        <strong>${sim.title}</strong>
-        <p><em>Type:</em> ${sim.type || "N/A"}</p>
-        <p>${sim.description}</p>
-        <button class="btn" onclick="applySimulationFromList(${index})">✅ Use</button>
-        <button class="btn" style="margin-left:10px;" onclick="editSimulation('${sim.title.replace(/'/g, "\\'")}', \`${sim.description.replace(/`/g, "\\`").replace(/'/g, "\\'")}\`)">✏️ Edit</button>
+    data.suggestions.forEach(sim => {
+      const block = document.createElement("div");
+      block.style.border = "1px solid #00e0ff";
+      block.style.borderRadius = "10px";
+      block.style.margin = "10px 0";
+      block.style.padding = "10px";
+      block.style.background = "#111";
+      block.innerHTML = `
+        <h4 style="color:#00e0ff;">${sim.title}</h4>
+        <p style="color:#ccc; font-size:14px;">${sim.description}</p>
+        <button class="btn" onclick='addSimulationToCell(${JSON.stringify(sim).replace(/"/g, "&quot;")})'>✅ Add to Cell</button>
       `;
-
-      results.appendChild(simCard);
+      results.appendChild(block);
     });
 
   } catch (err) {
-    console.error("AI Sim Error:", err);
-    status.innerText = "❌ Failed to contact AI server.";
+    results.innerHTML = `❌ Failed to contact AI server.`;
+    console.error(err);
   }
 }
+
+function addSimulationToCell(simulation) {
+  if (currentSimulationTargetIndex == null) return;
+  newComplexCells[currentSimulationTargetIndex].simulation = simulation;
+  closeSimulationModal();
+  renderCellPreviewList();
+}
+
+function closeSimulationModal() {
+  document.getElementById("simulationModal").style.display = "none";
+}
+
 
 function applySimulationFromList(index) {
   const sim = simulationSuggestions[index];
@@ -1856,44 +1854,38 @@ function applySimulationFromList(index) {
 
 </script>
 <script>
-function renderSimulationBlock(simulation) {
-  switch (simulation.type) {
-    case 'slider':
-      return renderSliderSimulation(simulation);
-    case 'forecast':
-      return renderForecastSimulation(simulation);
-    case 'tree':
-      return renderTreeSimulation(simulation);
-    case 'rich-text':
-      return renderRichTextSimulation(simulation);
-    case 'cause-effect':
-      return renderCauseEffectSimulation(simulation);
-    case 'narrative':
-      
-      const narrativeHTML = renderNarrativeSimulation(simulation);
-      const wrapper = document.createElement("div");
-      wrapper.innerHTML = narrativeHTML;
-      return wrapper;
-    default:
-      const container = document.createElement("div");
-      container.style.border = "1px dashed #555";
-      container.style.padding = "10px";
-      container.style.borderRadius = "8px";
-      container.style.background = "#1a1a1a";
+function renderSimulationBlock(sim) {
+  const container = document.createElement("div");
+  container.style.padding = "10px";
+  container.style.background = "#111";
+  container.style.border = "1px dashed #00e0ff";
+  container.style.borderRadius = "8px";
+  container.style.marginTop = "10px";
+  container.style.color = "#ccc";
 
-      const title = document.createElement("strong");
-      title.style.color = "#00e0ff";
-      title.innerText = simulation.title;
+  const title = document.createElement("h4");
+  title.innerText = sim.title || "Simulation";
+  title.style.color = "#00e0ff";
+  container.appendChild(title);
 
-      const desc = document.createElement("p");
-      desc.style.fontSize = "13px";
-      desc.style.color = "#ccc";
-      desc.innerText = simulation.description;
+  const desc = document.createElement("p");
+  desc.innerText = sim.description || "";
+  desc.style.fontSize = "13px";
+  container.appendChild(desc);
 
-      container.appendChild(title);
-      container.appendChild(desc);
-      return container;
+  if (sim.type === "slider") {
+    container.innerHTML += renderSliderSimulation(sim);
+  } else if (sim.type === "logic-tree") {
+    container.innerHTML += `<p>🧭 Logic tree will appear here. (render logic coming soon)</p>`;
+  } else if (sim.type === "forecast") {
+    container.innerHTML += `<p>📈 Forecast chart will appear here. (render logic coming soon)</p>`;
+  } else if (sim.type === "map") {
+    container.innerHTML += `<p>🗺️ Animated map coming soon.</p>`;
+  } else if (sim.type === "narrative") {
+    container.innerHTML += `<p>🎭 Narrative summary: ${sim.config?.text || 'No content yet.'}</p>`;
   }
+
+  return container;
 }
 
 </script>
