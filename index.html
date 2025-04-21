@@ -1069,7 +1069,7 @@
     title.innerHTML = simulation.title || "🎭 Narrative Simulation";
     title.style.color = "#00e0ff";
     container.appendChild(title);
-  
+
     if (!simulation.config || !Array.isArray(simulation.config.steps)) {
       const error = document.createElement("p");
       error.innerText = "⚠️ No narrative steps found.";
@@ -1084,30 +1084,6 @@
       pathSummary: "",
       summaryEl: null,
     };
-
-    const story = document.createElement("div");
-    story.style.marginTop = "10px";
-    container.appendChild(story);
-
-    const btn = document.createElement("button");
-    btn.innerText = "▶️ Next";
-     btn.style.marginTop = "12px";
-      btn.onclick = () => {
-      if (state.stepIndex < state.steps.length) {
-        const step = state.steps[state.stepIndex];
-        const p = document.createElement("p");
-        p.innerText = step;
-        p.style.marginTop = "6px";
-        story.appendChild(p);
-        state.stepIndex++;
-      } else {
-        btn.disabled = true;
-      }
-    };
-    container.appendChild(btn);
-
-    return container;
-  }
 
     function showStep() {
       container.style.opacity = 0;
@@ -1163,10 +1139,11 @@
         container.style.opacity = 1;
       }, 300);
     }
-  
-    showStep();
-    return container;
+
+    showStep(); // ✅ call it
+    return container; // ✅ legal and correct
   }
+
   
   function simulateNarrativeChoice(simId, choices) {
     const radios = document.querySelectorAll(`input[name='${simId}-choice']`);
