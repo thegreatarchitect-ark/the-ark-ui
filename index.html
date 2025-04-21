@@ -590,12 +590,7 @@
   document.getElementById("complex-builder-modal").style.display = "flex";
   
   }
-  function openAddComplexModal() {
-  openComplexBuilderModal();
-  }
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("create-complex-btn").addEventListener("click", openAddComplexModal);
-  });
+  
 
 
   function goToStep(step) {
@@ -1802,6 +1797,10 @@ function openDetailModal(data) {
         feed.appendChild(div);
       });
     });
+  document.getElementById("create-complex-btn").onclick = () => {
+    openComplexBuilderModal();
+  };
+
 
   document.getElementById("detail-modal").style.display = "flex";
 }
