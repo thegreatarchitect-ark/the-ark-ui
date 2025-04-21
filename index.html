@@ -743,10 +743,11 @@
     div.appendChild(content);
 
     // ✅ If the cell has a simulation, render it visually
-    if (cell.simulation) {
+    if (cell && cell.simulation && cell.simulation.config) {
       const simBlock = renderSimulationBlock(cell.simulation);
       div.appendChild(simBlock);
     }
+
 
     // ✅ Add button to open AI simulation modal
     const simButton = document.createElement("button");
