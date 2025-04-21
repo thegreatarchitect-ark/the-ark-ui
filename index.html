@@ -406,7 +406,8 @@
 
     <!-- Sticky Buttons Container -->
       <div style="margin-bottom: 10px;">
-        <button class="btn" onclick="openAddComplexModal()">➕ Create Complex</button>
+        <button id="create-complex-btn">Create a Complex</button>
+
       </div>
 
     <!-- Scrollable Complex List -->
@@ -592,6 +593,9 @@
   function openAddComplexModal() {
   openComplexBuilderModal();
   }
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("create-complex-btn").addEventListener("click", openAddComplexModal);
+  });
 
 
   function goToStep(step) {
