@@ -1310,8 +1310,8 @@ function renderSimulationBlock(sim) {
         content: cell.content,
         simulation: {
           type: sim.type,
-          title: sim.title,
-          description: sim.description,
+          title: sim.title || "Untitled Simulation",
+          description: sim.description || "No description provided.",
           config: fixedConfig
          }
       };
@@ -1343,8 +1343,8 @@ function attachSimulationToCell(sim) {
   const fixedSim = {
     type,
     title: sim.title || "Untitled Simulation",
-    description: sim.description || "",
-    config: {}
+    description: sim.description || "No description provided.", // ✅ fallback added
+    config: sim.config || {} // ✅ use existing config if it exists
   };
 
   // Simulation config defaults
