@@ -2400,10 +2400,7 @@ function closeComplexBuilder() {
 </div>
 
 <script>
-  
-let simulationSuggestions = [];
-  
-async function askAISimulation() {
+window.askAISimulation = async function () {
   const inputEl = document.getElementById("simulationRequestInput");
   const statusEl = document.getElementById("simulationStatus");
   const suggestionList = document.getElementById("ai-sim-suggestion-list");
@@ -2416,11 +2413,8 @@ async function askAISimulation() {
   const input = inputEl.value.trim();
   if (!input) return alert("Please enter a request.");
 
-  // Show loading status
   statusEl.innerHTML = "⏳ Asking AI...";
   statusEl.style.display = "block";
-
-  // Clear previous results
   suggestionList.innerHTML = "";
 
   try {
@@ -2437,19 +2431,16 @@ async function askAISimulation() {
       return;
     }
 
-    // Hide loading status
     statusEl.style.display = "none";
-
-    // ✅ Render AI suggestions using your display function
     showAISuggestions(data.suggestions);
 
   } catch (err) {
     statusEl.innerHTML = `❌ Failed to contact AI server.`;
     console.error("AI Simulation Error:", err);
   }
-}
-
+};
 </script>
+
    
 </body>
 </html>
