@@ -1771,6 +1771,9 @@ function editSimulation(title, description) {
 </script>
   
 <script>
+  
+let simulationSuggestions = [];
+  
 async function askAISimulation() {
   const inputEl = document.getElementById("simulationRequestInput");
   const statusEl = document.getElementById("simulationStatus");
@@ -1819,6 +1822,8 @@ async function askAISimulation() {
 
 
 function showAISuggestions(suggestions) {
+  simulationSuggestions = suggestions; // ✅ Save globally
+  
   const simList = document.getElementById("ai-sim-suggestion-list");
   if (!simList) {
     console.warn("⚠️ Cannot find #ai-sim-suggestion-list container.");
@@ -1846,12 +1851,15 @@ function showAISuggestions(suggestions) {
   });
 }
 
-function addSimulationToCell(simulation) {
-  if (currentSimulationTargetIndex == null) return;
-  newComplexCells[currentSimulationTargetIndex].simulation = simulation;
-  closeSimulationModal();
+function addSimulationToCell(index) {
+  const sim = simulationSuggestions[index];
+  if (!sim || currentSimulationTargetIndex == null) return;
+
+  newComplexCells[currentSimulationTargetIndex].simulation = sim;
   renderCellPreviewList();
+  closeSimulationModal();
 }
+
 
 function closeSimulationModal() {
   document.getElementById("simulationModal").style.display = "none";
@@ -1882,48 +1890,23 @@ function renderSimulationBlock(sim) {
     return document.createElement("div");
   }
 
-  const container = document.createElement("div");
-  container.className = "sim-block";
-  container.style.padding = "10px";
-  container.style.marginTop = "10px";
-  container.style.border = "1px dashed #00e0ff";
-  container.style.background = "#111";
-  container.style.borderRadius = "10px";
-  container.style.color = "#ccc";
-
-  const title = document.createElement("h4");
-  title.innerText = sim.title || "Simulation";
-  title.style.color = "#00e0ff";
-  container.appendChild(title);
-
-  const desc = document.createElement("p");
-  desc.innerText = sim.description || "";
-  desc.style.fontSize = "13px";
-  container.appendChild(desc);
-
-  // Attach correct visual
-  if (sim.type === "slider") {
-    container.appendChild(renderSliderSimulation(sim));
-  } else if (sim.type === "forecast") {
-    container.appendChild(renderForecastSimulation(sim));
-  } else if (sim.type === "logic-tree") {
-    container.appendChild(renderLogicTreeSimulation(sim));
-  } else if (sim.type === "narrative") {
-    container.appendChild(renderNarrativeSimulation(sim));
-  } else if (sim.type === "map" || sim.type === "animated-map") {
-    container.appendChild(renderAnimatedMapSimulation(sim));
-  } else if (sim.type === "rich-text") {
-    container.appendChild(renderRichTextSimulation(sim));
-  } else if (sim.type === "cause-effect") {
-    container.appendChild(renderCauseEffectSimulation(sim));
-  } else {
-    const fallback = document.createElement("p");
-    fallback.innerText = "⚠️ Unknown simulation type.";
-    container.appendChild(fallback);
+  switch (sim.type) {
+    case "slider": return renderSliderSimulation(sim);
+    case "forecast": return renderForecastSimulation(sim);
+    case "logic-tree":
+    case "tree": return renderTreeSimulation(sim);
+    case "narrative": return renderNarrativeSimulation(sim);
+    case "map":
+    case "animated-map": return renderAnimatedMapSimulation(sim);
+    case "rich-text": return renderRichTextSimulation(sim);
+    case "cause-effect": return renderCauseEffectSimulation(sim);
+    default:
+      const fallback = document.createElement("div");
+      fallback.innerHTML = `<p style="color:red;">⚠️ Unknown simulation type: ${sim.type}</p>`;
+      return fallback;
   }
-
-  return container;
 }
+
 
 
 </script>
