@@ -647,7 +647,7 @@
  
 
 
-  // ✅ Step 2: Create the Slider Simulation Renderer
+  // ✅ Simulations
   function renderSliderSimulation(simulation) {
     const config = simulation.config || {};
     const sliders = config.sliders || [];
@@ -724,7 +724,467 @@
 
     return container;
   }
+  function renderForecastSimulation(sim) {
+    const container = document.createElement("div");
+    container.style.border = "1px solid #333";
+    container.style.borderRadius = "12px";
+    container.style.padding = "15px";
+    container.style.background = "#121212";
+    container.style.marginTop = "15px";
 
+    const title = document.createElement("h4");
+    title.innerHTML = sim.title || "📈 Forecast Simulation";
+    title.style.color = "#00e0ff";
+    container.appendChild(title);
+
+    const desc = document.createElement("p");
+    desc.innerText = sim.description || "This simulation shows a trend forecast over time.";
+    desc.style.color = "#ccc";
+    desc.style.fontSize = "14px";
+    container.appendChild(desc);
+
+    if (!sim.config || !Array.isArray(sim.config.values) || !Array.isArray(sim.config.labels)) {
+      const error = document.createElement("p");
+      error.innerText = "⚠️ Forecast config is incomplete.";
+      error.style.color = "red";
+      container.appendChild(error);
+      return container;
+    }
+
+    const canvas = document.createElement("canvas");
+    container.appendChild(canvas);
+
+    setTimeout(() => {
+      new Chart(canvas, {
+        type: "line",
+        data: {
+          labels: sim.config.labels,
+          datasets: [{
+            label: sim.config.label || "Forecast",
+            data: sim.config.values,
+            borderColor: "#00e0ff",
+            backgroundColor: "rgba(0, 224, 255, 0.2)",
+            fill: true,
+            tension: 0.4,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { labels: { color: "#ccc" } },
+          },
+          scales: {
+            x: { ticks: { color: "#ccc" }, grid: { color: "#222" } },
+            y: { ticks: { color: "#ccc" }, grid: { color: "#222" } }
+          }
+        }
+      });
+    }, 100);
+
+    return container;
+  }
+
+
+
+  function renderTreeSimulation(sim) {
+    const container = document.createElement("div");
+    container.style.border = "1px solid #333";
+    container.style.borderRadius = "12px";
+    container.style.padding = "15px";
+    container.style.background = "#121212";
+    container.style.marginTop = "15px";
+    container.style.fontFamily = "sans-serif";
+
+    const title = document.createElement("h4");
+    title.innerHTML = sim.title || "🧭 Decision Tree Simulation";
+    title.style.color = "#00e0ff";
+    container.appendChild(title);
+
+    const desc = document.createElement("p");
+    desc.innerText = sim.description || "This simulation shows how decisions lead to consequences.";
+    desc.style.color = "#ccc";
+    desc.style.fontSize = "14px";
+    container.appendChild(desc);
+
+    if (!sim.config || !Array.isArray(sim.config.nodes) || sim.config.nodes.length === 0) {
+      const error = document.createElement("div");
+      error.innerText = "⚠️ Tree config is missing or invalid.";
+      error.style.color = "red";
+      container.appendChild(error);
+      return container;
+    }
+
+    const treeDiv = document.createElement("div");
+    treeDiv.style.marginTop = "10px";
+    container.appendChild(treeDiv);
+
+    // Recursive rendering of tree nodes
+    function renderNode(nodeId, depth = 0) {
+      const node = sim.config.nodes.find(n => n.id === nodeId);
+      if (!node) return;
+
+      const nodeEl = document.createElement("div");
+      nodeEl.style.marginLeft = `${depth * 20}px`;
+      nodeEl.style.borderLeft = "2px solid #00e0ff";
+      nodeEl.style.paddingLeft = "10px";
+      nodeEl.style.marginTop = "5px";
+      nodeEl.style.color = "#eee";
+      nodeEl.innerText = node.text;
+
+      treeDiv.appendChild(nodeEl);
+
+      (node.children || []).forEach(childId => renderNode(childId, depth + 1));
+    }
+
+    // Start rendering from root node (first in array)
+    renderNode(sim.config.nodes[0].id);
+
+    return container;
+  }
+
+  
+  function renderRichTextSimulation(sim) {
+    const container = document.createElement("div");
+    container.style.marginTop = "15px";
+    container.style.background = "#1a1a1a";
+    container.style.padding = "15px";
+    container.style.borderRadius = "10px";
+    container.style.border = "1px solid #333";
+
+    const title = document.createElement("h4");
+    title.innerText = sim.title;
+    title.style.color = "#00e0ff";
+    container.appendChild(title);
+
+    const desc = document.createElement("p");
+    desc.innerText = sim.description;
+    desc.style.color = "#aaa";
+    desc.style.fontSize = "13px";
+    container.appendChild(desc);
+
+    if (!sim.config || !Array.isArray(sim.config.paragraphs)) {
+      const error = document.createElement("div");
+      error.innerText = "⚠️ No content to display.";
+      error.style.color = "red";
+      container.appendChild(error);
+      return container;
+    }
+
+    const inner = document.createElement("div");
+    inner.style.marginTop = "10px";
+    container.appendChild(inner);
+
+    sim.config.paragraphs.forEach((para) => {
+      const section = document.createElement("div");
+      section.style.marginBottom = "12px";
+
+      const pTitle = document.createElement("div");
+      pTitle.innerText = para.title;
+      pTitle.style.color = "#00e0ff";
+      pTitle.style.fontWeight = "bold";
+      pTitle.style.cursor = "pointer";
+
+      const body = document.createElement("div");
+      body.innerText = para.body;
+      body.style.display = "none";
+      body.style.color = "#ccc";
+      body.style.fontSize = "13px";
+
+      pTitle.onclick = () => {
+        body.style.display = body.style.display === "none" ? "block" : "none";
+      };
+
+      section.appendChild(pTitle);
+      section.appendChild(body);
+      inner.appendChild(section);
+    });
+
+    return container;
+  }
+
+
+  
+  function renderCauseEffectSimulation(sim) {
+    const container = document.createElement("div");
+    container.style.border = "1px solid #333";
+    container.style.borderRadius = "12px";
+    container.style.padding = "15px";
+    container.style.background = "#111";
+    container.style.marginTop = "15px";
+
+    const title = document.createElement("h4");
+    title.innerHTML = sim.title || "🧱 Cause-Effect Simulation";
+    title.style.color = "#00e0ff";
+    container.appendChild(title);
+
+    const desc = document.createElement("p");
+    desc.innerText = sim.description || "Explore how causes lead to effects.";
+    desc.style.color = "#ccc";
+    desc.style.fontSize = "14px";
+    container.appendChild(desc);
+
+    if (!sim.config || !Array.isArray(sim.config.nodes) || !Array.isArray(sim.config.links)) {
+      const error = document.createElement("div");
+      error.innerText = "⚠️ Cause-effect data missing.";
+      error.style.color = "red";
+      container.appendChild(error);
+      return container;
+    }
+
+    const graph = document.createElement("div");
+    graph.style.display = "flex";
+    graph.style.flexDirection = "column";
+    graph.style.alignItems = "center";
+    graph.style.marginTop = "10px";
+    container.appendChild(graph);
+
+    sim.config.links.forEach(link => {
+      const fromNode = sim.config.nodes.find(n => n.id === link.from);
+      const toNode = sim.config.nodes.find(n => n.id === link.to);
+      if (!fromNode || !toNode) return;
+
+      const fromEl = document.createElement("div");
+      fromEl.innerText = fromNode.text;
+      fromEl.style.padding = "10px 15px";
+      fromEl.style.marginBottom = "5px";
+      fromEl.style.borderRadius = "8px";
+      fromEl.style.background = "#1e1e1e";
+      fromEl.style.color = "#fff";
+      fromEl.style.border = "1px solid #00e0ff";
+      fromEl.style.boxShadow = "0 0 8px #00e0ff";
+      graph.appendChild(fromEl);
+
+      const arrow = document.createElement("div");
+      arrow.innerText = "↓";
+      arrow.style.fontSize = "24px";
+      arrow.style.color = "#00e0ff";
+      arrow.style.margin = "5px 0";
+      graph.appendChild(arrow);
+    });
+
+    const lastLink = sim.config.links[sim.config.links.length - 1];
+    const lastNode = sim.config.nodes.find(n => n.id === lastLink.to);
+    if (lastNode) {
+      const final = document.createElement("div");
+      final.innerText = lastNode.text;
+      final.style.padding = "10px 15px";
+      final.style.borderRadius = "8px";
+      final.style.background = "#1e1e1e";
+      final.style.color = "#fff";
+      final.style.border = "1px solid #00e0ff";
+      final.style.boxShadow = "0 0 8px #00e0ff";
+      graph.appendChild(final);
+    }
+
+    return container;
+  }
+
+  
+  function renderAnimatedMapSimulation(simulation) {
+    const container = document.createElement("div");
+    container.className = "animated-map";
+    container.style.border = "1px solid #00e0ff";
+    container.style.borderRadius = "12px";
+    container.style.padding = "16px";
+    container.style.background = "#111";
+    container.style.color = "#eee";
+    container.style.marginTop = "10px";
+
+    const title = document.createElement("h4");
+    title.style.color = "#00e0ff";
+    title.innerText = simulation.title || "🗺️ Animated Map Simulation";
+    container.appendChild(title);
+
+    const desc = document.createElement("p");
+    desc.innerText = simulation.description || "";
+    desc.style.marginBottom = "10px";
+    container.appendChild(desc);
+
+    const years = simulation.config?.years || [];
+    if (!Array.isArray(years) || years.length === 0 || !simulation.config.mapRegions) {
+      const error = document.createElement("div");
+      error.innerText = "⚠️ Map configuration missing.";
+      error.style.color = "red";
+      container.appendChild(error);
+      return container;
+    }
+
+    const yearSelect = document.createElement("select");
+    years.forEach((year, i) => {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.innerText = year;
+      yearSelect.appendChild(opt);
+    });
+    container.appendChild(yearSelect);
+
+    const mapBox = document.createElement("div");
+    mapBox.style.marginTop = "12px";
+    container.appendChild(mapBox);
+
+    function renderYear(index) {
+      mapBox.innerHTML = "";
+      const values = simulation.config?.mapRegions || {};
+      Object.keys(values).forEach(region => {
+        const row = document.createElement("div");
+        row.style.marginBottom = "8px";
+        row.innerHTML = `
+          <strong style="color:#00e0ff;">${region}:</strong> 
+          ${"🟣".repeat(Math.min(10, Math.floor(values[region][index] / 10)))} 
+          <span style="color:#ccc;"> ${values[region][index]}M</span>
+        `;
+        mapBox.appendChild(row);
+      });
+    }
+
+    yearSelect.onchange = (e) => {
+      renderYear(parseInt(e.target.value));
+    };
+
+    renderYear(0);
+    return container;
+  }
+
+
+  function renderNarrativeSimulation(simulation) {
+    const container = document.createElement("div");
+    container.className = "narrative-sim";
+    container.style.border = "1px solid #00e0ff";
+    container.style.borderRadius = "12px";
+    container.style.padding = "16px";
+    container.style.background = "#111";
+    container.style.color = "#eee";
+    container.style.marginTop = "10px";
+    container.style.transition = "opacity 0.5s ease-in-out";
+
+    const title = document.createElement("h4");
+    title.innerHTML = simulation.title || "🎭 Narrative Simulation";
+    title.style.color = "#00e0ff";
+    container.appendChild(title);
+  
+    if (!simulation.config || !Array.isArray(simulation.config.steps)) {
+      const error = document.createElement("p");
+      error.innerText = "⚠️ No narrative steps found.";
+      error.style.color = "red";
+      container.appendChild(error);
+      return container;
+    }
+
+    const state = {
+      stepIndex: 0,
+      steps: simulation.config.steps,
+      pathSummary: "",
+      summaryEl: null,
+    };
+
+    const story = document.createElement("div");
+    story.style.marginTop = "10px";
+    container.appendChild(story);
+
+    const btn = document.createElement("button");
+    btn.innerText = "▶️ Next";
+     btn.style.marginTop = "12px";
+      btn.onclick = () => {
+      if (state.stepIndex < state.steps.length) {
+        const step = state.steps[state.stepIndex];
+        const p = document.createElement("p");
+        p.innerText = step;
+        p.style.marginTop = "6px";
+        story.appendChild(p);
+        state.stepIndex++;
+      } else {
+        btn.disabled = true;
+      }
+    };
+    container.appendChild(btn);
+
+    return container;
+  }
+
+    function showStep() {
+      container.style.opacity = 0;
+      setTimeout(() => {
+        container.innerHTML = "";
+        container.appendChild(title);
+        const currentStep = state.steps[state.stepIndex];
+
+        if (!currentStep) {
+          const summaryBox = document.createElement("div");
+          summaryBox.style.marginTop = "10px";
+          summaryBox.style.padding = "12px";
+          summaryBox.style.border = "1px dashed #0f0";
+          summaryBox.style.borderRadius = "10px";
+          summaryBox.style.background = "#191919";
+
+          state.summaryEl = summaryBox;
+          summaryBox.innerHTML = `
+            <strong style="color:#0f0;">✅ Summary of your journey:</strong>
+            <p style="margin-top:6px;">${state.pathSummary || "You reached the end."}</p>
+
+            <button class="btn" onclick="navigator.clipboard.writeText('${state.pathSummary}')">📤 Copy Summary</button>
+            <button class="btn" style="margin-left:10px;" onclick="(${askAIWhatItMeans.toString()})()">🤖 What does it mean?</button>
+          `;
+
+          container.appendChild(summaryBox);
+          container.style.opacity = 1;
+          return;
+        }
+
+        const prompt = document.createElement("p");
+        prompt.innerText = currentStep.prompt;
+        prompt.style.marginBottom = "12px";
+        container.appendChild(prompt);
+
+        currentStep.options.forEach(option => {
+          const btn = document.createElement("button");
+          btn.innerText = option.label;
+          btn.className = "btn";
+          btn.style.margin = "5px 10px 5px 0";
+          btn.onclick = () => {
+            if (option.next === "end") {
+              state.stepIndex = -1;
+              state.pathSummary = option.summary || "You reached the end.";
+            } else {
+              state.stepIndex = option.next;
+            }
+            showStep();
+          };
+          container.appendChild(btn);
+        });
+
+        container.style.opacity = 1;
+      }, 300);
+    }
+  
+    showStep();
+    return container;
+  }
+  
+  function simulateNarrativeChoice(simId, choices) {
+    const radios = document.querySelectorAll(`input[name='${simId}-choice']`);
+    const resultDiv = document.getElementById(`${simId}-result`);
+    let selected = null;
+
+    radios.forEach((r, i) => {
+      if (r.checked) selected = i;
+    });
+
+    if (selected === null) {
+      resultDiv.innerHTML = `<p style="color: red;">⚠️ Please select an option first.</p>`;
+      return;
+    }
+
+    const choice = choices[selected];
+    resultDiv.innerHTML = `
+      <div style="margin-top: 10px; background: #1a1a1a; padding: 10px; border-radius: 8px;">
+        <p><strong>✅ You chose:</strong> ${choice.label}</p>
+        <p><strong>📜 Outcome:</strong> ${choice.outcome}</p>
+        <p style="color:#ccc;"><em>${choice.summary}</em></p>
+      </div>
+    `;
+  }
+
+  
 
   function renderCellPreviewList() {
   const container = document.getElementById("cell-preview-list");
@@ -817,6 +1277,13 @@
     openComplexBuilderModal();
   }
 </script>
+
+
+
+  
+
+
+
 
 
 
@@ -1899,550 +2366,6 @@ function renderSimulationBlock(sim) {
 
 </script>
 
-<script>
-// ✅ Updated renderSliderSimulation with animations and modern design
-function renderSliderSimulation(sim) {
-  const container = document.createElement("div");
-  container.className = "simulation-card";
-  container.style.border = "1px solid #00e0ff";
-  container.style.borderRadius = "12px";
-  container.style.padding = "16px";
-  container.style.marginTop = "10px";
-  container.style.background = "#111";
-  container.style.boxShadow = "0 0 10px rgba(0, 224, 255, 0.2)";
-  container.style.transition = "all 0.3s ease-in-out";
-
-  const title = document.createElement("h4");
-  title.innerHTML = "📊 " + sim.title;
-  title.style.color = "#00e0ff";
-  title.style.marginBottom = "8px";
-  container.appendChild(title);
-
-  const desc = document.createElement("p");
-  desc.innerText = sim.description;
-  desc.style.color = "#ccc";
-  desc.style.fontSize = "13px";
-  desc.style.marginBottom = "12px";
-  container.appendChild(desc);
-
-  const sliders = sim.config.sliders || [];
-  const output = document.createElement("div");
-  output.style.marginTop = "10px";
-  output.style.fontWeight = "bold";
-  output.style.color = "#00e0ff";
-
-  // Initialize state
-  let values = {};
-  sliders.forEach(sl => values[sl.name] = (sl.min + sl.max) / 2);
-
-  // Function to update output text (can be improved with real formulas)
-  function updateOutput() {
-    let resultText = sim.config.output || "Result";
-    const sum = Object.values(values).reduce((a, b) => a + b, 0);
-    output.innerText = `🔎 ${resultText}: ${Math.round(sum)}`;
-  }
-
-  // Render sliders
-  sliders.forEach(sl => {
-    const label = document.createElement("label");
-    label.innerText = `${sl.name}: `;
-    label.style.color = "#aaa";
-    label.style.display = "block";
-    label.style.marginTop = "6px";
-
-    const range = document.createElement("input");
-    range.type = "range";
-    range.min = sl.min;
-    range.max = sl.max;
-    range.value = (sl.min + sl.max) / 2;
-    range.style.width = "100%";
-    range.className = "neon-slider";
-
-    const val = document.createElement("span");
-    val.innerText = range.value;
-    val.style.marginLeft = "10px";
-    val.style.color = "#0ff";
-
-    range.oninput = () => {
-      val.innerText = range.value;
-      values[sl.name] = Number(range.value);
-      updateOutput();
-    };
-
-    container.appendChild(label);
-    container.appendChild(range);
-    container.appendChild(val);
-  });
-
-  container.appendChild(output);
-  updateOutput();
-  return container;
-}
-
-  
-
-
-function renderForecastSimulation(sim) {
-  const container = document.createElement("div");
-  container.style.border = "1px solid #333";
-  container.style.borderRadius = "12px";
-  container.style.padding = "15px";
-  container.style.background = "#121212";
-  container.style.marginTop = "15px";
-
-  const title = document.createElement("h4");
-  title.innerHTML = sim.title || "📈 Forecast Simulation";
-  title.style.color = "#00e0ff";
-  container.appendChild(title);
-
-  const desc = document.createElement("p");
-  desc.innerText = sim.description || "This simulation shows a trend forecast over time.";
-  desc.style.color = "#ccc";
-  desc.style.fontSize = "14px";
-  container.appendChild(desc);
-
-  if (!sim.config || !Array.isArray(sim.config.values) || !Array.isArray(sim.config.labels)) {
-    const error = document.createElement("p");
-    error.innerText = "⚠️ Forecast config is incomplete.";
-    error.style.color = "red";
-    container.appendChild(error);
-    return container;
-  }
-
-  const canvas = document.createElement("canvas");
-  container.appendChild(canvas);
-
-  setTimeout(() => {
-    new Chart(canvas, {
-      type: "line",
-      data: {
-        labels: sim.config.labels,
-        datasets: [{
-          label: sim.config.label || "Forecast",
-          data: sim.config.values,
-          borderColor: "#00e0ff",
-          backgroundColor: "rgba(0, 224, 255, 0.2)",
-          fill: true,
-          tension: 0.4,
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { labels: { color: "#ccc" } },
-        },
-        scales: {
-          x: { ticks: { color: "#ccc" }, grid: { color: "#222" } },
-          y: { ticks: { color: "#ccc" }, grid: { color: "#222" } }
-        }
-      }
-    });
-  }, 100);
-
-  return container;
-}
-
-
-
-function renderTreeSimulation(sim) {
-  const container = document.createElement("div");
-  container.style.border = "1px solid #333";
-  container.style.borderRadius = "12px";
-  container.style.padding = "15px";
-  container.style.background = "#121212";
-  container.style.marginTop = "15px";
-  container.style.fontFamily = "sans-serif";
-
-  const title = document.createElement("h4");
-  title.innerHTML = sim.title || "🧭 Decision Tree Simulation";
-  title.style.color = "#00e0ff";
-  container.appendChild(title);
-
-  const desc = document.createElement("p");
-  desc.innerText = sim.description || "This simulation shows how decisions lead to consequences.";
-  desc.style.color = "#ccc";
-  desc.style.fontSize = "14px";
-  container.appendChild(desc);
-
-  if (!sim.config || !Array.isArray(sim.config.nodes) || sim.config.nodes.length === 0) {
-    const error = document.createElement("div");
-    error.innerText = "⚠️ Tree config is missing or invalid.";
-    error.style.color = "red";
-    container.appendChild(error);
-    return container;
-  }
-
-  const treeDiv = document.createElement("div");
-  treeDiv.style.marginTop = "10px";
-  container.appendChild(treeDiv);
-
-  // Recursive rendering of tree nodes
-  function renderNode(nodeId, depth = 0) {
-    const node = sim.config.nodes.find(n => n.id === nodeId);
-    if (!node) return;
-
-    const nodeEl = document.createElement("div");
-    nodeEl.style.marginLeft = `${depth * 20}px`;
-    nodeEl.style.borderLeft = "2px solid #00e0ff";
-    nodeEl.style.paddingLeft = "10px";
-    nodeEl.style.marginTop = "5px";
-    nodeEl.style.color = "#eee";
-    nodeEl.innerText = node.text;
-
-    treeDiv.appendChild(nodeEl);
-
-    (node.children || []).forEach(childId => renderNode(childId, depth + 1));
-  }
-
-  // Start rendering from root node (first in array)
-  renderNode(sim.config.nodes[0].id);
-
-  return container;
-}
-
-  
-function renderRichTextSimulation(sim) {
-  const container = document.createElement("div");
-  container.style.marginTop = "15px";
-  container.style.background = "#1a1a1a";
-  container.style.padding = "15px";
-  container.style.borderRadius = "10px";
-  container.style.border = "1px solid #333";
-
-  const title = document.createElement("h4");
-  title.innerText = sim.title;
-  title.style.color = "#00e0ff";
-  container.appendChild(title);
-
-  const desc = document.createElement("p");
-  desc.innerText = sim.description;
-  desc.style.color = "#aaa";
-  desc.style.fontSize = "13px";
-  container.appendChild(desc);
-
-  if (!sim.config || !Array.isArray(sim.config.paragraphs)) {
-    const error = document.createElement("div");
-    error.innerText = "⚠️ No content to display.";
-    error.style.color = "red";
-    container.appendChild(error);
-    return container;
-  }
-
-  const inner = document.createElement("div");
-  inner.style.marginTop = "10px";
-  container.appendChild(inner);
-
-  sim.config.paragraphs.forEach((para) => {
-    const section = document.createElement("div");
-    section.style.marginBottom = "12px";
-
-    const pTitle = document.createElement("div");
-    pTitle.innerText = para.title;
-    pTitle.style.color = "#00e0ff";
-    pTitle.style.fontWeight = "bold";
-    pTitle.style.cursor = "pointer";
-
-    const body = document.createElement("div");
-    body.innerText = para.body;
-    body.style.display = "none";
-    body.style.color = "#ccc";
-    body.style.fontSize = "13px";
-
-    pTitle.onclick = () => {
-      body.style.display = body.style.display === "none" ? "block" : "none";
-    };
-
-    section.appendChild(pTitle);
-    section.appendChild(body);
-    inner.appendChild(section);
-  });
-
-  return container;
-}
-
-
-  
-function renderCauseEffectSimulation(sim) {
-  const container = document.createElement("div");
-  container.style.border = "1px solid #333";
-  container.style.borderRadius = "12px";
-  container.style.padding = "15px";
-  container.style.background = "#111";
-  container.style.marginTop = "15px";
-
-  const title = document.createElement("h4");
-  title.innerHTML = sim.title || "🧱 Cause-Effect Simulation";
-  title.style.color = "#00e0ff";
-  container.appendChild(title);
-
-  const desc = document.createElement("p");
-  desc.innerText = sim.description || "Explore how causes lead to effects.";
-  desc.style.color = "#ccc";
-  desc.style.fontSize = "14px";
-  container.appendChild(desc);
-
-  if (!sim.config || !Array.isArray(sim.config.nodes) || !Array.isArray(sim.config.links)) {
-    const error = document.createElement("div");
-    error.innerText = "⚠️ Cause-effect data missing.";
-    error.style.color = "red";
-    container.appendChild(error);
-    return container;
-  }
-
-  const graph = document.createElement("div");
-  graph.style.display = "flex";
-  graph.style.flexDirection = "column";
-  graph.style.alignItems = "center";
-  graph.style.marginTop = "10px";
-  container.appendChild(graph);
-
-  sim.config.links.forEach(link => {
-    const fromNode = sim.config.nodes.find(n => n.id === link.from);
-    const toNode = sim.config.nodes.find(n => n.id === link.to);
-    if (!fromNode || !toNode) return;
-
-    const fromEl = document.createElement("div");
-    fromEl.innerText = fromNode.text;
-    fromEl.style.padding = "10px 15px";
-    fromEl.style.marginBottom = "5px";
-    fromEl.style.borderRadius = "8px";
-    fromEl.style.background = "#1e1e1e";
-    fromEl.style.color = "#fff";
-    fromEl.style.border = "1px solid #00e0ff";
-    fromEl.style.boxShadow = "0 0 8px #00e0ff";
-    graph.appendChild(fromEl);
-
-    const arrow = document.createElement("div");
-    arrow.innerText = "↓";
-    arrow.style.fontSize = "24px";
-    arrow.style.color = "#00e0ff";
-    arrow.style.margin = "5px 0";
-    graph.appendChild(arrow);
-  });
-
-  const lastLink = sim.config.links[sim.config.links.length - 1];
-  const lastNode = sim.config.nodes.find(n => n.id === lastLink.to);
-  if (lastNode) {
-    const final = document.createElement("div");
-    final.innerText = lastNode.text;
-    final.style.padding = "10px 15px";
-    final.style.borderRadius = "8px";
-    final.style.background = "#1e1e1e";
-    final.style.color = "#fff";
-    final.style.border = "1px solid #00e0ff";
-    final.style.boxShadow = "0 0 8px #00e0ff";
-    graph.appendChild(final);
-  }
-
-  return container;
-}
-
-  
-function renderAnimatedMapSimulation(simulation) {
-  const container = document.createElement("div");
-  container.className = "animated-map";
-  container.style.border = "1px solid #00e0ff";
-  container.style.borderRadius = "12px";
-  container.style.padding = "16px";
-  container.style.background = "#111";
-  container.style.color = "#eee";
-  container.style.marginTop = "10px";
-
-  const title = document.createElement("h4");
-  title.style.color = "#00e0ff";
-  title.innerText = simulation.title || "🗺️ Animated Map Simulation";
-  container.appendChild(title);
-
-  const desc = document.createElement("p");
-  desc.innerText = simulation.description || "";
-  desc.style.marginBottom = "10px";
-  container.appendChild(desc);
-
-  const years = simulation.config?.years || [];
-  if (!Array.isArray(years) || years.length === 0 || !simulation.config.mapRegions) {
-    const error = document.createElement("div");
-    error.innerText = "⚠️ Map configuration missing.";
-    error.style.color = "red";
-    container.appendChild(error);
-    return container;
-  }
-
-  const yearSelect = document.createElement("select");
-  years.forEach((year, i) => {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.innerText = year;
-    yearSelect.appendChild(opt);
-  });
-  container.appendChild(yearSelect);
-
-  const mapBox = document.createElement("div");
-  mapBox.style.marginTop = "12px";
-  container.appendChild(mapBox);
-
-  function renderYear(index) {
-    mapBox.innerHTML = "";
-    const values = simulation.config?.mapRegions || {};
-    Object.keys(values).forEach(region => {
-      const row = document.createElement("div");
-      row.style.marginBottom = "8px";
-      row.innerHTML = `
-        <strong style="color:#00e0ff;">${region}:</strong> 
-        ${"🟣".repeat(Math.min(10, Math.floor(values[region][index] / 10)))} 
-        <span style="color:#ccc;"> ${values[region][index]}M</span>
-      `;
-      mapBox.appendChild(row);
-    });
-  }
-
-  yearSelect.onchange = (e) => {
-    renderYear(parseInt(e.target.value));
-  };
-
-  renderYear(0);
-  return container;
-}
-
-
-function renderNarrativeSimulation(simulation) {
-  const container = document.createElement("div");
-  container.className = "narrative-sim";
-  container.style.border = "1px solid #00e0ff";
-  container.style.borderRadius = "12px";
-  container.style.padding = "16px";
-  container.style.background = "#111";
-  container.style.color = "#eee";
-  container.style.marginTop = "10px";
-  container.style.transition = "opacity 0.5s ease-in-out";
-
-  const title = document.createElement("h4");
-  title.innerHTML = simulation.title || "🎭 Narrative Simulation";
-  title.style.color = "#00e0ff";
-  container.appendChild(title);
-
-  if (!simulation.config || !Array.isArray(simulation.config.steps)) {
-    const error = document.createElement("p");
-    error.innerText = "⚠️ No narrative steps found.";
-    error.style.color = "red";
-    container.appendChild(error);
-    return container;
-  }
-
-  const state = {
-    stepIndex: 0,
-    steps: simulation.config.steps,
-    pathSummary: "",
-    summaryEl: null,
-  };
-
-  const story = document.createElement("div");
-  story.style.marginTop = "10px";
-  container.appendChild(story);
-
-  const btn = document.createElement("button");
-  btn.innerText = "▶️ Next";
-  btn.style.marginTop = "12px";
-  btn.onclick = () => {
-    if (state.stepIndex < state.steps.length) {
-      const step = state.steps[state.stepIndex];
-      const p = document.createElement("p");
-      p.innerText = step;
-      p.style.marginTop = "6px";
-      story.appendChild(p);
-      state.stepIndex++;
-    } else {
-      btn.disabled = true;
-    }
-  };
-  container.appendChild(btn);
-
-  return container;
-}
-
-  function showStep() {
-    container.style.opacity = 0;
-    setTimeout(() => {
-      container.innerHTML = "";
-      container.appendChild(title);
-      const currentStep = state.steps[state.stepIndex];
-
-      if (!currentStep) {
-        const summaryBox = document.createElement("div");
-        summaryBox.style.marginTop = "10px";
-        summaryBox.style.padding = "12px";
-        summaryBox.style.border = "1px dashed #0f0";
-        summaryBox.style.borderRadius = "10px";
-        summaryBox.style.background = "#191919";
-
-        state.summaryEl = summaryBox;
-        summaryBox.innerHTML = `
-          <strong style="color:#0f0;">✅ Summary of your journey:</strong>
-          <p style="margin-top:6px;">${state.pathSummary || "You reached the end."}</p>
-
-          <button class="btn" onclick="navigator.clipboard.writeText('${state.pathSummary}')">📤 Copy Summary</button>
-          <button class="btn" style="margin-left:10px;" onclick="(${askAIWhatItMeans.toString()})()">🤖 What does it mean?</button>
-        `;
-
-        container.appendChild(summaryBox);
-        container.style.opacity = 1;
-        return;
-      }
-
-      const prompt = document.createElement("p");
-      prompt.innerText = currentStep.prompt;
-      prompt.style.marginBottom = "12px";
-      container.appendChild(prompt);
-
-      currentStep.options.forEach(option => {
-        const btn = document.createElement("button");
-        btn.innerText = option.label;
-        btn.className = "btn";
-        btn.style.margin = "5px 10px 5px 0";
-        btn.onclick = () => {
-          if (option.next === "end") {
-            state.stepIndex = -1;
-            state.pathSummary = option.summary || "You reached the end.";
-          } else {
-            state.stepIndex = option.next;
-          }
-          showStep();
-        };
-        container.appendChild(btn);
-      });
-
-      container.style.opacity = 1;
-    }, 300);
-  }
-
-  showStep();
-  return container;
-}
-  
-function simulateNarrativeChoice(simId, choices) {
-  const radios = document.querySelectorAll(`input[name='${simId}-choice']`);
-  const resultDiv = document.getElementById(`${simId}-result`);
-  let selected = null;
-
-  radios.forEach((r, i) => {
-    if (r.checked) selected = i;
-  });
-
-  if (selected === null) {
-    resultDiv.innerHTML = `<p style="color: red;">⚠️ Please select an option first.</p>`;
-    return;
-  }
-
-  const choice = choices[selected];
-  resultDiv.innerHTML = `
-    <div style="margin-top: 10px; background: #1a1a1a; padding: 10px; border-radius: 8px;">
-      <p><strong>✅ You chose:</strong> ${choice.label}</p>
-      <p><strong>📜 Outcome:</strong> ${choice.outcome}</p>
-      <p style="color:#ccc;"><em>${choice.summary}</em></p>
-    </div>
-  `;
-}
-
-</script>
 
   
 <script>
