@@ -721,7 +721,7 @@
 
     container.appendChild(resultOutput);
 
-    return container.outerHTML;
+    return container;
   }
 
 
@@ -1816,10 +1816,18 @@ function addSimulationToCell(index) {
   const sim = simulationSuggestions[index];
   if (!sim || currentSimulationTargetIndex == null) return;
 
-  newComplexCells[currentSimulationTargetIndex].simulation = sim;
+  newComplexCells[currentSimulationTargetIndex].simulation = {
+    title: sim.title || "Untitled Simulation",
+    description: sim.description || "No description",
+    type: sim.type || "slider",
+    config: sim.config ? { ...sim.config } : {} // ✅ critical fix
+  };
+
   renderCellPreviewList();
   closeSimulationModal();
 }
+
+
 
 
 function closeSimulationModal() {
