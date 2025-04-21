@@ -764,14 +764,13 @@
   });
 }
 
-  function openSimulationModal(button) {
-    currentCellTarget = button.closest("div");
+  function openSimulationModal() {
     document.getElementById("simulationModal").style.display = "flex";
     document.getElementById("simulationRequestInput").value = "";
-    document.getElementById("simulationResults").innerHTML = "";
+    document.getElementById("simulationStatus").innerHTML = "";
+    document.getElementById("simulationStatus").style.display = "none";
+    document.getElementById("ai-sim-suggestion-list").innerHTML = "";
   }
-
-
 
 
   function submitComplexBuilder() {
