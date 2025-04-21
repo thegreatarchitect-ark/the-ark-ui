@@ -1114,6 +1114,7 @@ function loadHomeComplexes() {
       container.innerHTML = "";
       snapshot.forEach(doc => {
         const data = doc.data();
+
         const box = document.createElement("div");
         box.className = "complex-card";
         box.innerHTML = `
@@ -1123,10 +1124,17 @@ function loadHomeComplexes() {
           </p>
           <p class="complex-summary">${data.summary || "No summary."}</p>
           <div class="complex-buttons">
-            <button class="btn-complex" onclick='openCellModal(${JSON.stringify(data).replace(/"/g, "&quot;")}, "${doc.id}")'>🚪 Enter Complex</button>
             <button class="btn-outline">🔗 Share</button>
           </div>
         `;
+
+        // ✅ Safely create "Enter Complex" button and attach event
+        const enterBtn = document.createElement("button");
+        enterBtn.className = "btn-complex";
+        enterBtn.innerText = "🚪 Enter Complex";
+        enterBtn.onclick = () => openCellModal(data, doc.id);
+        
+        box.querySelector(".complex-buttons").prepend(enterBtn);
         container.appendChild(box);
       });
     });
