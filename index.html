@@ -1771,53 +1771,6 @@ function editSimulation(title, description) {
   
 <script>
   
-let simulationSuggestions = [];
-  
-async function askAISimulation() {
-  const inputEl = document.getElementById("simulationRequestInput");
-  const statusEl = document.getElementById("simulationStatus");
-  const suggestionList = document.getElementById("ai-sim-suggestion-list");
-
-  if (!inputEl || !statusEl || !suggestionList) {
-    console.error("❌ Missing required elements in the DOM.");
-    return;
-  }
-
-  const input = inputEl.value.trim();
-  if (!input) return alert("Please enter a request.");
-
-  // Show loading status
-  statusEl.innerHTML = "⏳ Asking AI...";
-  statusEl.style.display = "block";
-
-  // Clear previous results
-  suggestionList.innerHTML = "";
-
-  try {
-    const res = await fetch("https://the-ark-ai-server.onrender.com/generate-cell-simulation", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ request: input })
-    });
-
-    const data = await res.json();
-
-    if (data.error) {
-      statusEl.innerHTML = `❌ Error: ${data.error}`;
-      return;
-    }
-
-    // Hide loading status
-    statusEl.style.display = "none";
-
-    // ✅ Render AI suggestions using your display function
-    showAISuggestions(data.suggestions);
-
-  } catch (err) {
-    statusEl.innerHTML = `❌ Failed to contact AI server.`;
-    console.error("AI Simulation Error:", err);
-  }
-}
 
 
 function showAISuggestions(suggestions) {
@@ -2446,8 +2399,57 @@ function closeComplexBuilder() {
   </div>
 </div>
 
+<script>
+  
+let simulationSuggestions = [];
+  
+async function askAISimulation() {
+  const inputEl = document.getElementById("simulationRequestInput");
+  const statusEl = document.getElementById("simulationStatus");
+  const suggestionList = document.getElementById("ai-sim-suggestion-list");
 
+  if (!inputEl || !statusEl || !suggestionList) {
+    console.error("❌ Missing required elements in the DOM.");
+    return;
+  }
 
+  const input = inputEl.value.trim();
+  if (!input) return alert("Please enter a request.");
+
+  // Show loading status
+  statusEl.innerHTML = "⏳ Asking AI...";
+  statusEl.style.display = "block";
+
+  // Clear previous results
+  suggestionList.innerHTML = "";
+
+  try {
+    const res = await fetch("https://the-ark-ai-server.onrender.com/generate-cell-simulation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ request: input })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      statusEl.innerHTML = `❌ Error: ${data.error}`;
+      return;
+    }
+
+    // Hide loading status
+    statusEl.style.display = "none";
+
+    // ✅ Render AI suggestions using your display function
+    showAISuggestions(data.suggestions);
+
+  } catch (err) {
+    statusEl.innerHTML = `❌ Failed to contact AI server.`;
+    console.error("AI Simulation Error:", err);
+  }
+}
+
+</script>
    
 </body>
 </html>
