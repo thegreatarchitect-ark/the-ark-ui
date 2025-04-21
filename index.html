@@ -1815,47 +1815,29 @@ function showAISuggestions(suggestions) {
 
 function addSimulationToCell(index) {
   const sim = simulationSuggestions[index];
-  if (!sim || currentSimulationTargetIndex == null) return;
+  if (!sim || currentSimulationTargetIndex == null || !newComplexCells[currentSimulationTargetIndex]) {
+    console.error("❌ Cannot apply simulation. Invalid index or cell:", currentSimulationTargetIndex, newComplexCells);
+    return;
+  }
 
+  // 🛠️ Attach the simulation
   newComplexCells[currentSimulationTargetIndex].simulation = {
     title: sim.title || "Untitled Simulation",
     description: sim.description || "No description",
     type: sim.type || "slider",
-    config: sim.config ? { ...sim.config } : {} // ✅ critical fix to avoid 'undefined'
+    config: sim.config ? { ...sim.config } : {}
   };
 
-  console.log("✅ Simulation saved to cell:", newComplexCells[currentSimulationTargetIndex].simulation);
+  console.log("✅ Simulation saved to cell:", newComplexCells[currentSimulationTargetIndex]);
 
   renderCellPreviewList();
   closeSimulationModal();
 }
-
-
-
 
 
 function closeSimulationModal() {
   document.getElementById("simulationModal").style.display = "none";
 }
-
-
-function applySimulationFromList(index) {
-  const sim = simulationSuggestions[index];
-  if (!sim || currentSimulationTargetIndex === null) return;
-
-  // ✅ Fully store the simulation with config
-  newComplexCells[currentSimulationTargetIndex].simulation = {
-    title: sim.title || "Untitled Simulation",
-    description: sim.description || "No description provided.",
-    type: sim.type || "generic",
-    config: sim.config ? { ...sim.config } : {} // very important!
-  };
-
-  // ✅ Re-render preview and close modal
-  renderCellPreviewList();
-  closeSimulationModal();
-}
-console.log("✅ Simulation saved to cell:", newComplexCells[currentSimulationTargetIndex].simulation);
 
 
 </script>
