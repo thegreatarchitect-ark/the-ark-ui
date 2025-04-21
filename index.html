@@ -1830,16 +1830,19 @@ function applySimulationFromList(index) {
   const sim = simulationSuggestions[index];
   if (!sim || currentSimulationTargetIndex === null) return;
 
+  // ✅ Fully store the simulation with config
   newComplexCells[currentSimulationTargetIndex].simulation = {
-    title: sim.title,
-    description: sim.description,
+    title: sim.title || "Untitled Simulation",
+    description: sim.description || "No description provided.",
     type: sim.type || "generic",
-    config: sim.config || {}
+    config: sim.config ? { ...sim.config } : {} // very important!
   };
 
+  // ✅ Re-render preview and close modal
   renderCellPreviewList();
   closeSimulationModal();
 }
+
 
 </script>
   
