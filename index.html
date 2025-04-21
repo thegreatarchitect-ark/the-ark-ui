@@ -587,7 +587,11 @@
 
   goToStep(1);
   document.getElementById("complex-builder-modal").style.display = "flex";
-}
+  
+  }
+  function openAddComplexModal() {
+  openComplexBuilderModal();
+  }
 
 
   function goToStep(step) {
@@ -1271,12 +1275,7 @@
   }
 </script>
 
-<!-- Replace old complex creation trigger -->
-<script>
-  function openAddComplexModal() {
-    openComplexBuilderModal();
-  }
-</script>
+
 
 
 
