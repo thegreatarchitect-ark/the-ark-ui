@@ -2113,50 +2113,51 @@ function renderTreeSimulation(sim) {
   
 function renderRichTextSimulation(sim) {
   const container = document.createElement("div");
+  container.style.marginTop = "15px";
   container.style.background = "#1a1a1a";
   container.style.padding = "15px";
-  container.style.marginTop = "10px";
   container.style.borderRadius = "10px";
-  container.style.border = "1px solid #00e0ff";
+  container.style.border = "1px solid #333";
 
   const title = document.createElement("h4");
+  title.innerText = sim.title;
   title.style.color = "#00e0ff";
-  title.innerText = sim.title || "📝 Rich Text Simulation";
   container.appendChild(title);
 
   const desc = document.createElement("p");
+  desc.innerText = sim.description;
   desc.style.color = "#aaa";
   desc.style.fontSize = "13px";
-  desc.innerText = sim.description || "";
   container.appendChild(desc);
 
-  if (Array.isArray(sim.config?.paragraphs)) {
-    sim.config.paragraphs.forEach(para => {
-      const section = document.createElement("div");
-      section.style.marginBottom = "12px";
+  const inner = document.createElement("div");
+  inner.style.marginTop = "10px";
+  container.appendChild(inner);
 
-      const header = document.createElement("div");
-      header.innerText = para.title;
-      header.style.color = "#00e0ff";
-      header.style.cursor = "pointer";
-      header.style.fontWeight = "bold";
-      header.style.marginBottom = "5px";
+  (sim?.config?.paragraphs || []).forEach((para) => {
+    const section = document.createElement("div");
+    section.style.marginBottom = "12px";
 
-      const body = document.createElement("div");
-      body.innerText = para.body;
-      body.style.display = "none";
-      body.style.color = "#ccc";
-      body.style.fontSize = "13px";
+    const pTitle = document.createElement("div");
+    pTitle.innerText = para.title;
+    pTitle.style.color = "#00e0ff";
+    pTitle.style.fontWeight = "bold";
+    pTitle.style.cursor = "pointer";
 
-      header.onclick = () => {
-        body.style.display = body.style.display === "none" ? "block" : "none";
-      };
+    const body = document.createElement("div");
+    body.innerText = para.body;
+    body.style.display = "none";
+    body.style.color = "#ccc";
+    body.style.fontSize = "13px";
 
-      section.appendChild(header);
-      section.appendChild(body);
-      container.appendChild(section);
-    });
-  }
+    pTitle.onclick = () => {
+      body.style.display = body.style.display === "none" ? "block" : "none";
+    };
+
+    section.appendChild(pTitle);
+    section.appendChild(body);
+    inner.appendChild(section);
+  });
 
   return container;
 }
