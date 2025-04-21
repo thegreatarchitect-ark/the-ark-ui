@@ -753,10 +753,11 @@
     const simButton = document.createElement("button");
     simButton.innerText = "➕ Add Simulation or Content";
     simButton.className = "btn";
-    simButton.onclick = (event) => {
+    simButton.onclick = () => {
       currentSimulationTargetIndex = index;
-      openSimulationModal(event.target); // modal logic
+      openSimulationModal(); // no argument needed
     };
+
 
     div.appendChild(simButton);
     container.appendChild(div);
@@ -1772,11 +1773,24 @@ function editSimulation(title, description) {
   
 <script>
 async function askAISimulation() {
-  const input = document.getElementById("simulationRequestInput").value.trim();
-  const results = document.getElementById("simulationResults");
+  const inputEl = document.getElementById("simulationRequestInput");
+  const statusEl = document.getElementById("simulationStatus");
+  const suggestionList = document.getElementById("ai-sim-suggestion-list");
+
+  if (!inputEl || !statusEl || !suggestionList) {
+    console.error("❌ Missing required elements in the DOM.");
+    return;
+  }
+
+  const input = inputEl.value.trim();
   if (!input) return alert("Please enter a request.");
 
-  results.innerHTML = "⏳ Loading AI suggestions...";
+  // Show loading status
+  statusEl.innerHTML = "⏳ Asking AI...";
+  statusEl.style.display = "block";
+
+  // Clear previous results
+  suggestionList.innerHTML = "";
 
   try {
     const res = await fetch("https://the-ark-ai-server.onrender.com/generate-cell-simulation", {
@@ -1784,35 +1798,23 @@ async function askAISimulation() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ request: input })
     });
+
     const data = await res.json();
 
     if (data.error) {
-      document.getElementById("ai-sim-suggestion-list").innerHTML = `❌ Error: ${data.error}`;
+      statusEl.innerHTML = `❌ Error: ${data.error}`;
       return;
     }
 
+    // Hide loading status
+    statusEl.style.display = "none";
+
+    // ✅ Render AI suggestions using your display function
     showAISuggestions(data.suggestions);
 
-
-    results.innerHTML = "";
-    data.suggestions.forEach(sim => {
-      const block = document.createElement("div");
-      block.style.border = "1px solid #00e0ff";
-      block.style.borderRadius = "10px";
-      block.style.margin = "10px 0";
-      block.style.padding = "10px";
-      block.style.background = "#111";
-      block.innerHTML = `
-        <h4 style="color:#00e0ff;">${sim.title}</h4>
-        <p style="color:#ccc; font-size:14px;">${sim.description}</p>
-        <button class="btn" onclick='addSimulationToCell(${JSON.stringify(sim).replace(/"/g, "&quot;")})'>✅ Add to Cell</button>
-      `;
-      results.appendChild(block);
-    });
-
   } catch (err) {
-    results.innerHTML = `❌ Failed to contact AI server.`;
-    console.error(err);
+    statusEl.innerHTML = `❌ Failed to contact AI server.`;
+    console.error("AI Simulation Error:", err);
   }
 }
 
