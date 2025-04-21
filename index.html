@@ -1816,26 +1816,36 @@ function showAISuggestions(suggestions) {
 function addSimulationToCell(index) {
   const sim = simulationSuggestions[index];
 
-  // 🛑 Add full guard checks
+  if (!sim) {
+    console.error("⚠️ Simulation not found at index:", index);
+    return;
+  }
+
   if (
-    !sim ||
     currentSimulationTargetIndex === null ||
     currentSimulationTargetIndex >= newComplexCells.length ||
     !newComplexCells[currentSimulationTargetIndex]
   ) {
-    console.error("❌ Cannot apply simulation — invalid index or cell not found:", currentSimulationTargetIndex, newComplexCells);
+    alert("❌ You must click on '➕ Add Simulation or Content' inside a cell first.");
     return;
   }
 
-  // ✅ Safely apply simulation
+  // Ensure type is valid
+  const validTypes = [
+    "slider", "forecast", "tree", "logic-tree", "narrative", "map", "animated-map",
+    "animated", "rich-text", "cause-effect"
+  ];
+
+  const safeType = sim.type && validTypes.includes(sim.type) ? sim.type : "slider";
+
   newComplexCells[currentSimulationTargetIndex].simulation = {
     title: sim.title || "Untitled Simulation",
-    description: sim.description || "No description",
-    type: sim.type || "slider",
+    description: sim.description || "No description provided.",
+    type: safeType,
     config: sim.config ? { ...sim.config } : {}
   };
 
-  console.log("✅ Simulation saved to cell:", newComplexCells[currentSimulationTargetIndex]);
+  console.log("✅ Simulation added to cell:", newComplexCells[currentSimulationTargetIndex]);
   renderCellPreviewList();
   closeSimulationModal();
 }
@@ -1850,28 +1860,40 @@ function closeSimulationModal() {
   
 <script>
 function renderSimulationBlock(sim) {
-  console.log("SIM DEBUG:", sim);
   if (!sim || !sim.type) {
-    console.warn("⚠️ No simulation type found");
-    return document.createElement("div");
+    const error = document.createElement("div");
+    error.innerText = "⚠️ Simulation type is missing.";
+    error.style.color = "red";
+    return error;
   }
 
-  switch (sim.type) {
-    case "slider": return renderSliderSimulation(sim);
-    case "forecast": return renderForecastSimulation(sim);
+  const type = sim.type.toLowerCase();
+
+  switch (type) {
+    case "slider":
+      return renderSliderSimulation(sim);
+    case "forecast":
+      return renderForecastSimulation(sim);
+    case "tree":
     case "logic-tree":
-    case "tree": return renderTreeSimulation(sim);
-    case "narrative": return renderNarrativeSimulation(sim);
+      return renderTreeSimulation(sim);
+    case "narrative":
+      return renderNarrativeSimulation(sim);
     case "map":
-    case "animated-map": return renderAnimatedMapSimulation(sim);
-    case "rich-text": return renderRichTextSimulation(sim);
-    case "cause-effect": return renderCauseEffectSimulation(sim);
+    case "animated-map":
+    case "animated": // ✅ handles AI typo
+      return renderAnimatedMapSimulation(sim);
+    case "rich-text":
+      return renderRichTextSimulation(sim);
+    case "cause-effect":
+      return renderCauseEffectSimulation(sim);
     default:
       const fallback = document.createElement("div");
-      fallback.innerHTML = `<p style="color:red;">⚠️ Unknown simulation type: ${sim.type}</p>`;
+      fallback.innerHTML = `<p style="color:red;">⚠️ Unknown simulation type: ${type}</p>`;
       return fallback;
   }
 }
+
 
 
 
