@@ -1270,22 +1270,90 @@ function renderSimulationBlock(sim) {
       return;
     }
 
-    const complexData = {
-      name,
-      summary,
-      creatorId: userInfo?.id || null,
-      communityId: currentCommunityId || null,
-      createdAt: new Date(),
-      cells: newComplexCells || []
-    };
+    // Deep fix each cell’s simulation config
+    const processedCells = newComplexCells.map(cell => {
+      if (!cell.simulation) return cell;
 
+      const sim = cell.simulation;
+      const type = sim.type || "slider";
+      const fixedConfig = sim.config || {};
+
+      if (type === "slider") {
+        fixedConfig.sliders = fixedConfig.sliders || [
+          { name: "Variable A", min: 0, max: 100 },
+          { name: "Variable B", min: 0, max: 50 }
+        ];
+        fixedConfig.output = fixedConfig.output || "Total";
+      }
+
+      if (type === "forecast") {
+        fixedConfig.labels = fixedConfig.labels || ["2020", "2021", "2022"];
+        fixedConfig.values = fixedConfig.values || [10, 20, 30];
+        fixedConfig.label = fixedConfig.label || "Forecast";
+      }
+
+      if (type === "map" || type === "animated-map") {
+        fixedConfig.years = fixedConfig.years || ["2020", "2021", "2022"];
+        fixedConfig.mapRegions = fixedConfig.mapRegions || {
+          Parks: [30, 40, 45],
+          Schools: [20, 35, 40],
+          Libraries: [10, 15, 20]
+        };
+      }
+
+      if (type === "tree" || type === "logic-tree") {
+        fixedConfig.nodes = fixedConfig.nodes || [
+          { id: "start", text: "Start here", children: ["yes", "no"] },
+          { id: "yes", text: "Yes branch", children: [] },
+          { id: "no", text: "No branch", children: [] }
+        ];
+      }
+
+      if (type === "narrative") {
+        fixedConfig.steps = fixedConfig.steps || [
+          {
+            prompt: "Begin your journey",
+            options: [{ label: "Continue", next: "end", summary: "You finished." }]
+          }
+        ];
+      }
     
+      if (type === "rich-text") {
+        fixedConfig.paragraphs = fixedConfig.paragraphs || [
+          { title: "Intro", body: "This is a paragraph." },
+          { title: "Details", body: "More rich text here." }
+        ];
+      }
+
+      if (type === "cause-effect") {
+        fixedConfig.nodes = fixedConfig.nodes || [
+          { id: "cause", text: "Cause" },
+          { id: "effect", text: "Effect" }
+        ];
+        fixedConfig.links = fixedConfig.links || [
+          { from: "cause", to: "effect" }
+        ];
+      }
+
+      return {
+        title: cell.title,
+        content: cell.content,
+        simulation: {
+          type: sim.type,
+          title: sim.title,
+          description: sim.description,
+          config: fixedConfig
+         }
+      };
+    });
+
+    // Save to Firebase
     db.collection("complexes").add({
       name,
       summary,
-      communityId: currentCommunityId,
+      communityId: currentCommunityId || null,
       createdAt: new Date(),
-      cells: newComplexCells,
+      cells: processedCells,
       createdBy: userInfo.id
     }).then(() => {
       alert("✅ Complex created!");
@@ -1294,88 +1362,6 @@ function renderSimulationBlock(sim) {
     });
   }
 
-  function closeDetailModal() {
-    document.getElementById("detail-modal").style.display = "none";
-  }
-  
-  function attachSimulationToCell(simulation) {
-  if (currentSimulationTargetIndex === null) return;
-
-  const currentCell = newComplexCells[currentSimulationTargetIndex];
-  if (!currentCell) return;
-
-  const type = simulation.type || "slider";
-
-  const fixedSim = {
-    type,
-    title: simulation.title || "Untitled Simulation",
-    description: simulation.description || "",
-    config: simulation.config || {}
-  };
-
-  // 🟩 Add config defaults per type
-  if (type === "map" || type === "animated-map") {
-    fixedSim.config.years = simulation.config?.years || ["2020", "2021", "2022"];
-    fixedSim.config.mapRegions = simulation.config?.mapRegions || {
-      Parks: [30, 40, 45],
-      Schools: [20, 35, 40],
-      Libraries: [10, 15, 20]
-    };
-  }
-
-  if (type === "tree" || type === "logic-tree") {
-    fixedSim.config.nodes = simulation.config?.nodes || [
-      { id: "start", text: "Start here", children: ["yes", "no"] },
-      { id: "yes", text: "Yes branch", children: [] },
-      { id: "no", text: "No branch", children: [] }
-    ];
-  }
-
-  if (type === "narrative") {
-    fixedSim.config.steps = simulation.config?.steps || [
-      {
-        prompt: "Begin your journey",
-        options: [{ label: "Continue", next: "end", summary: "You finished." }]
-      }
-    ];
-  }
-
-  if (type === "forecast") {
-    fixedSim.config.labels = simulation.config?.labels || ["2020", "2021", "2022"];
-    fixedSim.config.values = simulation.config?.values || [10, 20, 30];
-    fixedSim.config.label = simulation.config?.label || "Forecast";
-  }
-
-  if (type === "slider") {
-    fixedSim.config.sliders = simulation.config?.sliders || [
-      { name: "Variable A", min: 0, max: 100 },
-      { name: "Variable B", min: 0, max: 50 }
-    ];
-    fixedSim.config.output = simulation.config?.output || "Total";
-  }
-
-  if (type === "rich-text") {
-    fixedSim.config.paragraphs = simulation.config?.paragraphs || [
-      { title: "Intro", body: "This is a paragraph." },
-      { title: "Details", body: "More rich text here." }
-    ];
-  }
-
-  if (type === "cause-effect") {
-    fixedSim.config.nodes = simulation.config?.nodes || [
-      { id: "cause", text: "Cause" },
-      { id: "effect", text: "Effect" }
-    ];
-    fixedSim.config.links = simulation.config?.links || [
-      { from: "cause", to: "effect" }
-    ];
-  }
-
-  // ✅ Save simulation to cell and re-render
-  currentCell.simulation = fixedSim;
-  renderCellPreviewList();
-  document.getElementById("simulationModal").style.display = "none";
-}
 
 
 </script>
