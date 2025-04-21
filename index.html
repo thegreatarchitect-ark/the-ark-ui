@@ -1254,6 +1254,50 @@
   function closeDetailModal() {
     document.getElementById("detail-modal").style.display = "none";
   }
+  function attachSimulationToCell(simulation) {
+  if (currentSimulationTargetIndex === null) return;
+
+  const currentCell = newComplexCells[currentSimulationTargetIndex];
+  if (!currentCell) return;
+
+  const fixedSim = {
+    type: simulation.type || "slider",
+    title: simulation.title || "Untitled Simulation",
+    description: simulation.description || "",
+    config: {}
+  };
+
+  if (simulation.type === "map") {
+    fixedSim.config.years = simulation.config?.years || ["2020", "2021", "2022"];
+    fixedSim.config.mapRegions = simulation.config?.mapRegions || {
+      Parks: [30, 40, 45],
+      Schools: [20, 35, 40],
+      Libraries: [10, 15, 20]
+    };
+  }
+
+  if (simulation.type === "tree" || simulation.type === "logic-tree") {
+    fixedSim.config.connections = simulation.config?.connections || [
+      { from: "start", to: "yes" },
+      { from: "start", to: "no" }
+    ];
+  }
+
+  if (simulation.type === "narrative") {
+    fixedSim.config.steps = simulation.config?.steps || [
+      {
+        prompt: "Start here",
+        options: [{ label: "Continue", next: "end" }]
+      }
+    ];
+  }
+
+  currentCell.simulation = fixedSim;
+
+  renderCellPreviewList();
+  document.getElementById("simulationModal").style.display = "none";
+}
+
 </script>
 
 
