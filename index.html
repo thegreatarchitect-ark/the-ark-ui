@@ -1383,6 +1383,16 @@ function attachSimulationToCell(sim) {
   document.getElementById("simulationModal").style.display = "none";
 }
 
+// ✅ Activate the "Create Complex" button inside Community modal after page loads
+window.addEventListener("load", () => {
+  const createBtn = document.getElementById("create-complex-btn");
+  if (createBtn) {
+    createBtn.onclick = () => {
+      openComplexBuilderModal();
+    };
+  }
+});
+
 
 </script>
 
@@ -1797,11 +1807,7 @@ function openDetailModal(data) {
         feed.appendChild(div);
       });
     });
-  document.getElementById("create-complex-btn").onclick = () => {
-    openComplexBuilderModal();
-  };
-
-
+  
   document.getElementById("detail-modal").style.display = "flex";
 }
 
