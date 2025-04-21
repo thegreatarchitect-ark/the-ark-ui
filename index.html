@@ -744,7 +744,7 @@
     div.appendChild(content);
 
     // ✅ If the cell has a simulation, render it visually
-    if (cell && cell.simulation && cell.simulation.config) {
+    if (cell?.simulation?.config) {
       const simBlock = renderSimulationBlock(cell.simulation);
       div.appendChild(simBlock);
     }
@@ -1815,12 +1815,19 @@ function showAISuggestions(suggestions) {
 
 function addSimulationToCell(index) {
   const sim = simulationSuggestions[index];
-  if (!sim || currentSimulationTargetIndex == null || !newComplexCells[currentSimulationTargetIndex]) {
-    console.error("❌ Cannot apply simulation. Invalid index or cell:", currentSimulationTargetIndex, newComplexCells);
+
+  // 🛑 Add full guard checks
+  if (
+    !sim ||
+    currentSimulationTargetIndex === null ||
+    currentSimulationTargetIndex >= newComplexCells.length ||
+    !newComplexCells[currentSimulationTargetIndex]
+  ) {
+    console.error("❌ Cannot apply simulation — invalid index or cell not found:", currentSimulationTargetIndex, newComplexCells);
     return;
   }
 
-  // 🛠️ Attach the simulation
+  // ✅ Safely apply simulation
   newComplexCells[currentSimulationTargetIndex].simulation = {
     title: sim.title || "Untitled Simulation",
     description: sim.description || "No description",
@@ -1829,7 +1836,6 @@ function addSimulationToCell(index) {
   };
 
   console.log("✅ Simulation saved to cell:", newComplexCells[currentSimulationTargetIndex]);
-
   renderCellPreviewList();
   closeSimulationModal();
 }
