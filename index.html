@@ -657,6 +657,7 @@
 
   // ✅ Simulations
   function renderSliderSimulation(simulation) {
+    console.log("Rendering slider with config:", sim.config);
     const config = simulation.config || {};
     const sliders = config.sliders || [];
     const output = config.output || "Output";
@@ -733,6 +734,7 @@
     return container;
   }
   function renderForecastSimulation(sim) {
+    console.log("Rendering forecast with config:", sim.config);
     const container = document.createElement("div");
     container.style.border = "1px solid #333";
     container.style.borderRadius = "12px";
@@ -795,6 +797,7 @@
 
 
   function renderTreeSimulation(sim) {
+    console.log("Rendering tree with config:", sim.config);
     const container = document.createElement("div");
     container.style.border = "1px solid #333";
     container.style.borderRadius = "12px";
@@ -852,6 +855,8 @@
 
   
   function renderRichTextSimulation(sim) {
+    console.log("Rendering rich text with config:", sim.config);
+
     const container = document.createElement("div");
     container.style.marginTop = "15px";
     container.style.background = "#1a1a1a";
@@ -913,6 +918,7 @@
 
   
   function renderCauseEffectSimulation(sim) {
+    console.log("Rendering cause-effect with config:", sim.config);
     const container = document.createElement("div");
     container.style.border = "1px solid #333";
     container.style.borderRadius = "12px";
@@ -989,6 +995,7 @@
 
   
   function renderAnimatedMapSimulation(simulation) {
+    console.log("Rendering animated map with config:", sim.config);
     const container = document.createElement("div");
     container.className = "animated-map";
     container.style.border = "1px solid #00e0ff";
@@ -1055,6 +1062,7 @@
 
 
   function renderNarrativeSimulation(simulation) {
+    console.log("Rendering narrative with config:", sim.config);
     const container = document.createElement("div");
     container.className = "narrative-sim";
     container.style.border = "1px solid #00e0ff";
@@ -1362,6 +1370,82 @@ function renderSimulationBlock(sim) {
     });
   }
 
+function attachSimulationToCell(sim) {
+  if (currentSimulationTargetIndex === null) return;
+
+  const currentCell = newComplexCells[currentSimulationTargetIndex];
+  if (!currentCell) return;
+
+  const type = sim.type || "slider";
+
+  const fixedSim = {
+    type,
+    title: sim.title || "Untitled Simulation",
+    description: sim.description || "",
+    config: {}
+  };
+
+  // Simulation config defaults
+  if (type === "slider") {
+    fixedSim.config.sliders = sim.config?.sliders || [
+      { name: "Factor A", min: 0, max: 100 },
+      { name: "Factor B", min: 0, max: 50 }
+    ];
+    fixedSim.config.output = sim.config?.output || "Total";
+  }
+
+  if (type === "forecast") {
+    fixedSim.config.labels = sim.config?.labels || ["2020", "2021", "2022"];
+    fixedSim.config.values = sim.config?.values || [100, 200, 300];
+    fixedSim.config.label = sim.config?.label || "Growth";
+  }
+
+  if (type === "tree" || type === "logic-tree") {
+    fixedSim.config.nodes = sim.config?.nodes || [
+      { id: "start", text: "Begin", children: ["yes", "no"] },
+      { id: "yes", text: "Yes branch", children: [] },
+      { id: "no", text: "No branch", children: [] }
+    ];
+  }
+
+  if (type === "narrative") {
+    fixedSim.config.steps = sim.config?.steps || [
+      {
+        prompt: "Start your story",
+        options: [{ label: "Continue", next: "end", summary: "Story ended." }]
+      }
+    ];
+  }
+
+  if (type === "map" || type === "animated-map" || type === "animated") {
+    fixedSim.config.years = sim.config?.years || ["2020", "2021", "2022"];
+    fixedSim.config.mapRegions = sim.config?.mapRegions || {
+      Hospitals: [30, 40, 50],
+      Schools: [20, 25, 30]
+    };
+  }
+
+  if (type === "rich-text") {
+    fixedSim.config.paragraphs = sim.config?.paragraphs || [
+      { title: "Overview", body: "Some info here." }
+    ];
+  }
+
+  if (type === "cause-effect") {
+    fixedSim.config.nodes = sim.config?.nodes || [
+      { id: "cause", text: "Cause" },
+      { id: "effect", text: "Effect" }
+    ];
+    fixedSim.config.links = sim.config?.links || [
+      { from: "cause", to: "effect" }
+    ];
+  }
+
+  // Save and update preview
+  currentCell.simulation = fixedSim;
+  renderCellPreviewList();
+  document.getElementById("simulationModal").style.display = "none";
+}
 
 
 </script>
