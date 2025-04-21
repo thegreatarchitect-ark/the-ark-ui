@@ -2306,7 +2306,9 @@ function closeSimulationModal() {
 </script>
   
 <script>
-function renderSimulationBlock(sim) {
+function renderSimulationBlock(sim) 
+console.log("Rendering simulation:", sim); // 👀 Log it!
+  
   if (!sim || !sim.type) {
     const error = document.createElement("div");
     error.innerText = "⚠️ Simulation type is missing.";
