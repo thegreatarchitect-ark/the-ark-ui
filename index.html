@@ -1169,7 +1169,50 @@
     `;
   }
 
-  
+
+function renderSimulationBlock(sim) {
+  console.log("Rendering simulation:", sim); // 👀 Log it!
+
+  if (!sim || !sim.type) {
+    const error = document.createElement("div");
+    error.innerText = "⚠️ Simulation type is missing.";
+    error.style.color = "red";
+    return error;
+  }
+
+  const type = sim.type.toLowerCase();
+
+  switch (type) {
+    case "slider":
+      return renderSliderSimulation(sim);
+    case "forecast":
+      return renderForecastSimulation(sim);
+    case "tree":
+    case "logic-tree":
+      return renderTreeSimulation(sim);
+    case "narrative":
+      return renderNarrativeSimulation(sim);
+    case "map":
+    case "animated-map":
+    case "animated": // ✅ handles AI typo
+      return renderAnimatedMapSimulation(sim);
+    case "rich-text":
+      return renderRichTextSimulation(sim);
+    case "cause-effect":
+      return renderCauseEffectSimulation(sim);
+    default:
+      const fallback = document.createElement("div");
+      fallback.innerHTML = `<p style="color:red;">⚠️ Unknown simulation type: ${type}</p>`;
+      return fallback;
+  }
+}
+
+
+
+
+
+
+
 
   function renderCellPreviewList() {
   const container = document.getElementById("cell-preview-list");
@@ -2349,48 +2392,6 @@ function closeSimulationModal() {
 
 </script>
   
-<script>
-function renderSimulationBlock(sim) 
-console.log("Rendering simulation:", sim); // 👀 Log it!
-  
-  if (!sim || !sim.type) {
-    const error = document.createElement("div");
-    error.innerText = "⚠️ Simulation type is missing.";
-    error.style.color = "red";
-    return error;
-  }
-
-  const type = sim.type.toLowerCase();
-
-  switch (type) {
-    case "slider":
-      return renderSliderSimulation(sim);
-    case "forecast":
-      return renderForecastSimulation(sim);
-    case "tree":
-    case "logic-tree":
-      return renderTreeSimulation(sim);
-    case "narrative":
-      return renderNarrativeSimulation(sim);
-    case "map":
-    case "animated-map":
-    case "animated": // ✅ handles AI typo
-      return renderAnimatedMapSimulation(sim);
-    case "rich-text":
-      return renderRichTextSimulation(sim);
-    case "cause-effect":
-      return renderCauseEffectSimulation(sim);
-    default:
-      const fallback = document.createElement("div");
-      fallback.innerHTML = `<p style="color:red;">⚠️ Unknown simulation type: ${type}</p>`;
-      return fallback;
-  }
-}
-
-
-
-
-</script>
 
 
   
