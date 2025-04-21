@@ -1850,6 +1850,7 @@ function closeSimulationModal() {
   
 <script>
 function renderSimulationBlock(sim) {
+  console.log("SIM DEBUG:", sim);
   if (!sim || !sim.type) {
     console.warn("⚠️ No simulation type found");
     return document.createElement("div");
