@@ -1807,16 +1807,22 @@ function openDetailModal(data) {
         feed.appendChild(div);
       });
     });
-  const btn = document.getElementById("create-complex-btn");
-  if (btn) {
-    btn.onclick = () => {
-      openComplexBuilderModal();
-    };
-  }
 
-  
+  // ✅ Assign button *after* DOM is loaded and function is available
+  setTimeout(() => {
+    const btn = document.getElementById("create-complex-btn");
+    if (btn && typeof openComplexBuilderModal === "function") {
+      btn.onclick = () => {
+        openComplexBuilderModal();
+      };
+    } else {
+      console.warn("Button or function not available yet.");
+    }
+  }, 0);
+
   document.getElementById("detail-modal").style.display = "flex";
 }
+
 
   
 function updateStats(statsEl, complexCount, createdCommCount, joinedCommCount) {
